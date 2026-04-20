@@ -22,8 +22,20 @@ struct Vector3D
         return *this;
     }
 
+    Vector3D& operator/=(double t) noexcept {
+        return *this *= (1.0 / t);
+    }
+
     [[nodiscard]] constexpr Vector3D operator-() const noexcept {
         return {-x, -y, -z};
+    }
+
+    [[nodiscard]] constexpr Vector3D operator*(double t) const noexcept {
+        return {x * t, y * t, z * t};
+    }
+
+    [[nodiscard]] constexpr Vector3D operator/(double t) const noexcept {
+        return {x / t, y / t, z / t};
     }
 
 
@@ -34,9 +46,21 @@ struct Vector3D
         return x * v.x + y * v.y + z * v.z;
     }
 
+    [[nodiscard]] constexpr Vector3D cross(const Vector3D& v) const noexcept {
+        return {
+            y * v.z - z * v.y,
+            z * v.x - x * v.z,
+            x * v.y - y * v.x
+        };
+    }
+
     [[nodiscard]] Vector3D normalized() const noexcept {
         double l = length();
-        return (l > 0) ? (*this * (1.0 / l)) : Vector3D(0,0,0);
+        if (l <= 0) {
+            return Vector3D(0, 0, 0);
+        }
+        double inv = 1.0 / l;
+        return Vector3D(x * inv, y * inv, z * inv);
     }
 
 
@@ -54,20 +78,16 @@ struct Vector3D
 };
 
 
-[[nodiscard]] inline Vector3D operator+(const Vector3D& u, const Vector3D& v) noexcept {
+[[nodiscard]] constexpr inline Vector3D operator+(const Vector3D& u, const Vector3D& v) noexcept {
     return {u.x + v.x, u.y + v.y, u.z + v.z};
 }
 
-[[nodiscard]] inline Vector3D operator-(const Vector3D& u, const Vector3D& v) noexcept {
+[[nodiscard]] constexpr inline Vector3D operator-(const Vector3D& u, const Vector3D& v) noexcept {
     return {u.x - v.x, u.y - v.y, u.z - v.z};
 }
 
-[[nodiscard]] inline Vector3D operator*(double t, const Vector3D& v) noexcept {
+[[nodiscard]] constexpr inline Vector3D operator*(double t, const Vector3D& v) noexcept {
     return {t * v.x, t * v.y, t * v.z};
-}
-
-[[nodiscard]] inline Vector3D operator*(const Vector3D& v, double t) noexcept {
-    return t * v;
 }
 
 using Point3D = Vector3D;

@@ -1,5 +1,6 @@
 add_library(raytracer_core STATIC
     Raytracer.cpp
+    camera/PerspectiveCamera.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC
