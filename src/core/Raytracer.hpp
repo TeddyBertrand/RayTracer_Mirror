@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/Ray.hpp"
+#include "core/renderer/Renderer.hpp"
 
 namespace Raytracer
 {
@@ -20,6 +21,9 @@ private:
 
 private:
     int _exitCode = SUCCESS_STATUS;
+
+private:
+    Renderer _renderer;
 };
 
 } // namespace Raytracer

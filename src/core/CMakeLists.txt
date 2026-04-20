@@ -1,6 +1,9 @@
 add_library(raytracer_core STATIC
     Raytracer.cpp
     camera/PerspectiveCamera.cpp
+    renderer/Renderer.cpp
+    image/Image.cpp
+    ../primitives/sphere/Sphere.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC
