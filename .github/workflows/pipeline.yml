@@ -65,3 +65,14 @@ jobs:
           commit-message: "style: auto-format updates"
           title: "Fixes from Super-Linter"
           branch: "fix/style"
+    
+  - name: Push to Enterprise Private Repo
+    if: success() && github.ref == 'refs/heads/main'
+    run: |
+      mkdir -p ~/.ssh
+      echo "${{ secrets.ENTERPRISE_SSH_KEY }}" > ~/.ssh/id_rsa
+      chmod 600 ~/.ssh/id_rsa
+      ssh-keyscan github.com >> ~/.ssh/known_hosts # Remplace github.com par l'URL de ton serveur entreprise
+      
+      git remote add private git@github.com:ton-entreprise/raytracer-prive.git
+      git push --force private main
