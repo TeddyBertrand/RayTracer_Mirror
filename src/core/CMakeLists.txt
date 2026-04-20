@@ -1,0 +1,14 @@
+add_library(raytracer_core STATIC
+    Raytracer.cpp
+)
+
+target_include_directories(raytracer_core PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
+    ${PROJECT_SOURCE_DIR}/src
+)
+
+target_compile_options(raytracer_core PRIVATE
+    -W
+    -Wall
+    -Wextra
+)

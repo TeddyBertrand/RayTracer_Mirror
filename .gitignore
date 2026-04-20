@@ -1,0 +1,11 @@
+*.o
+*.a
+*.so
+
+/build
+/plugins
+/raytracer
+
+_*
+
+.vscode
