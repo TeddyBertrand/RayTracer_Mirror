@@ -1,6 +1,6 @@
 #include <iostream>
 
 int main() {
-    std::cout << "RayTracer Initialized!" << std::endl;
+    std::cout << "Hi!" << std::endl;
     return 0;
 }
