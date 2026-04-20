@@ -1,78 +1,56 @@
-name: CI RayTracer Mirror
+name: RayTracer CI & Mirror
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: ["main"]
   pull_request:
-    branches: [ main ]
+    branches: ["main"]
 
 jobs:
-  build-and-test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-
+  build_and_test:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Cache Build
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.ccache
-            build/
+          path: build/
           key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-cmake-
 
-      - name: Super-Linter
-        if: runner.os == 'Linux'
+      - name: Run Super-Linter
         uses: github/super-linter@v5
         env:
           VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FIX_MODE: true
 
-      - name: Configure CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Project
-        run: cmake --build build --config Release
+      - name: Configure and Build
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
 
       - name: Run Tests
-        run: |
-          cd build
-          ctest --output-on-failure
+        run: cd build && ctest --output-on-failure
 
-      - name: Upload Coverage
-        if: runner.os == 'Linux'
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-  update-mirror:
-    needs: build-and-test
+  mirror_to_epitech:
+    needs: build_and_test
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Create PR for fixes
-        uses: peter-evans/create-pull-request@v5
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "style: auto-format updates"
-          title: "Fixes from Super-Linter"
-          branch: "fix/style"
-    
-  - name: Push to Enterprise Private Repo
-    if: success() && github.ref == 'refs/heads/main'
-    run: |
-      mkdir -p ~/.ssh
-      echo "${{ secrets.ENTERPRISE_SSH_KEY }}" > ~/.ssh/id_rsa
-      chmod 600 ~/.ssh/id_rsa
-      ssh-keyscan github.com >> ~/.ssh/known_hosts # Remplace github.com par l'URL de ton serveur entreprise
-      
-      git remote add private git@github.com:ton-entreprise/raytracer-prive.git
-      git push --force private main
+          fetch-depth: 0
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_SECRET }}
+
+      - name: Push to Epitech
+        run: |
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          git remote add epitech git@github.com:EpitechPGE2-2025/G-OOP-400-MPL-4-1-raytracer-2.git
+          git push epitech --mirror
