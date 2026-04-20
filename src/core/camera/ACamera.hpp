@@ -2,6 +2,7 @@
 
 #include "math/Vector3D.hpp"
 #include "components/ICamera.hpp"
+#include "math/MathUtils.hpp"
 
 namespace Raytracer
 {
@@ -23,8 +24,9 @@ protected:
     ACamera(const Point3D& origin, const Vector3D& rotation, const Vector3D& vup, int width, int height) 
         : _origin(origin), _width(width), _height(height)
     {
-        double pitch = rotation.x * M_PI / 180.0;
-        double yaw   = rotation.y * M_PI / 180.0;
+        double pitch = Math::degreesToRadians(rotation.x);
+        double yaw   = Math::degreesToRadians(rotation.y);
+        double roll  = Math::degreesToRadians(rotation.z);
 
         _forward = Vector3D(
             cos(pitch) * sin(yaw),
@@ -33,6 +35,14 @@ protected:
         ).normalized();
 
         _setupBase(vup);
+
+        if (roll != 0) {
+            Vector3D old_right = _right;
+            Vector3D old_up = _up;
+
+            _right = old_right * cos(roll) + old_up * sin(roll);
+            _up = old_up * cos(roll) - old_right * sin(roll);
+        }
     }
 
 private:
