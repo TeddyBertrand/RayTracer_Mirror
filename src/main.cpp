@@ -1,5 +1,9 @@
+#include "core/Raytracer.hpp"
 
 int main(int argc, const char *argv[])
 {
-    return 0;
+    Raytracer::Raytracer raytracer(argc, argv);
+
+    raytracer.run();
+    return raytracer.getStatus();
 }
