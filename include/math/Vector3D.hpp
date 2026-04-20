@@ -38,6 +38,9 @@ struct Vector3D
         return {x / t, y / t, z / t};
     }
 
+    [[nodiscard]] constexpr bool operator==(const Vector3D& v) const noexcept {
+        return (x == v.x && y == v.y && z == v.z);
+    }
 
     [[nodiscard]] double length_squared() const noexcept { return x*x + y*y + z*z; }
     [[nodiscard]] double length() const noexcept { return std::sqrt(length_squared()); }
