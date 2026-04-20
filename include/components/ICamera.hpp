@@ -12,6 +12,9 @@ public:
     virtual ~ICamera() = default;
 
     virtual Ray get_ray(double u, double v) const = 0;
+
+    virtual int getWidth() const = 0;
+    virtual int getHeight() const = 0;
 };
 
 } // namespace Raytracer
