@@ -6,6 +6,7 @@ add_library(raytracer_core STATIC
     scene/PrimitiveList.cpp
     image/Image.cpp
     ../primitives/sphere/Sphere.cpp
+    ../materials/lambertian/Lambertian.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC

@@ -1,6 +1,9 @@
 #pragma once
+
 #include <cmath>
 #include <iostream>
+
+#include "math/MathUtils.hpp"
 
 namespace Raytracer
 {
@@ -66,6 +69,10 @@ struct Vector3D
         return Vector3D(x * inv, y * inv, z * inv);
     }
 
+    [[nodiscard]] bool near_zero() const noexcept {
+        const auto s = 1e-8;
+        return (std::fabs(x) < s) && (std::fabs(y) < s) && (std::fabs(z) < s);
+    }
 
     static constexpr Vector3D zero()     noexcept { return {0, 0, 0}; }
     static constexpr Vector3D unit_x()   noexcept { return {1, 0, 0}; }
@@ -78,6 +85,21 @@ struct Vector3D
     static constexpr Vector3D left()     noexcept { return {-1, 0, 0}; }
     static constexpr Vector3D forward()  noexcept { return {0, 0, -1}; }
     static constexpr Vector3D back()     noexcept { return {0, 0, 1}; }
+    static Vector3D random() {
+        return Vector3D(Math::random_double(-1, 1), 
+                        Math::random_double(-1, 1), 
+                        Math::random_double(-1, 1));
+    }
+    static Vector3D random_unit_vector() {
+        while (true) {
+            auto p = Vector3D::random();
+            auto lensq = p.length_squared();
+            
+            if (lensq > 1e-160 && lensq <= 1.0) {
+                return p / std::sqrt(lensq);
+            }
+        }
+    }
 };
 
 

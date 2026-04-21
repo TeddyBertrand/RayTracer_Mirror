@@ -15,7 +15,7 @@ extern "C" void registerPlugin(PrimitiveFactory &factory)
 
         //add materials later
 
-        return std::make_shared<Sphere>(Point3D{x, y, z}, radius);
+        return std::make_shared<Sphere>(Point3D{x, y, z}, radius, nullptr);
     });
 }
 
@@ -68,6 +68,8 @@ bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const
     
     // check if ray hit inside or outside and oriente in function
     rec.set_face_normal(r, normal);
+
+    rec.material = _material;
 
     return true;
 }

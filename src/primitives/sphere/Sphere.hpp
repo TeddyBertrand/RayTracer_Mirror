@@ -1,7 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <math/Vector3D.hpp>
 #include <components/IPrimitive.hpp>
+#include "components/IMaterial.hpp"
 
 namespace Raytracer
 {
@@ -13,8 +16,10 @@ namespace Raytracer
              * 
              * @param center 
              * @param radius 
+             * @param material 
              */
-            Sphere(Point3D center, double radius) : _center(center), _radius(radius) {}
+            Sphere(Point3D center, double radius, std::shared_ptr<IMaterial> material)
+                : _center(center), _radius(radius), _material(material) {}
 
             /**
              * @brief Hit function
@@ -33,5 +38,6 @@ namespace Raytracer
         private:
             Point3D _center;
             double _radius;
+            std::shared_ptr<IMaterial> _material;
     };
 };
