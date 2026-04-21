@@ -18,12 +18,15 @@ void Raytracer::run()
         return;
 
     FrameBuffer frameBuffer;
-    PerspectiveCamera camera(Vector3D::zero(), Vector3D::zero(), 75, 16.0/9.0, 1920, 1080);
+    PerspectiveCamera camera(Vector3D::zero(), Vector3D::zero(), 60, 16.0/9.0, 1920, 1080);
     Image _image(camera.getWidth(), camera.getHeight());
 
-    auto world = std::make_shared<Sphere>(Vector3D(0, 0, -1), 0.5);
+    auto sphere = std::make_shared<Sphere>(Vector3D(0, 0, -3), 0.5);
+    auto sphere2 = std::make_shared<Sphere>(Vector3D(1.2, 0, -3), 0.5);
+    _scene.addPrimitive(sphere);
+    _scene.addPrimitive(sphere2);
 
-    _renderer.render(camera, *world, frameBuffer);
+    _renderer.render(camera, _scene, frameBuffer);
     _image.drawFromBuffer(frameBuffer);
 }
 
