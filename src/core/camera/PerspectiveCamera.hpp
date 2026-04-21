@@ -8,7 +8,7 @@ namespace Raytracer
 class PerspectiveCamera : public ACamera
 {
 public:
-    PerspectiveCamera(const Point3D& origin, const Vector3D& rotation, double fov, double aspect_ratio);
+    PerspectiveCamera(const Point3D& origin, const Vector3D& rotation, double fov, double aspect_ratio, int width, int height);
 
     Ray get_ray(double u, double v) const override;
 

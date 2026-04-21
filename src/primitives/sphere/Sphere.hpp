@@ -13,6 +13,8 @@ namespace Raytracer
 
             bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
+            std::string getName() const override { return "Sphere"; }
+
         private:
             Point3D _center;
             double _radius;
