@@ -1,7 +1,23 @@
+#include "factory/PrimitiveFactory.hpp"
 #include "Sphere.hpp"
 
 namespace Raytracer
 {
+
+extern "C" void registerPlugin(PrimitiveFactory &factory)
+{
+    factory.registerType("sphere", [](const ISetting& settings) -> std::shared_ptr<IPrimitive>
+    {
+        float x = settings.getFloat("x");
+        float y = settings.getFloat("y");
+        float z = settings.getFloat("z");
+        float radius = settings.getFloat("r");
+
+        //add materials later
+
+        return std::make_shared<Sphere>(Point3D{x, y, z}, radius);
+    });
+}
 
 bool solveQuadratic(const float &a, const float &b, const float &c, 
 	float &x0, float &x1)
