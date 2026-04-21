@@ -10,12 +10,12 @@ void Renderer::render(const ICamera& camera, const IPrimitive& world, FrameBuffe
 
     buffer.assign(width * height, Color(0, 0, 0));
 
-    for (int y = height - 1; y >= 0; --y) {
+    for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             Color pixel_color;
 
             double u = static_cast<double>(x) / (width - 1.0);
-            double v = static_cast<double>(y) / (height - 1.0);
+            double v = 1.0 - static_cast<double>(y) / (height - 1.0);
 
             Ray r = camera.get_ray(u, v);
             pixel_color += ray_color(r, world, 50);
