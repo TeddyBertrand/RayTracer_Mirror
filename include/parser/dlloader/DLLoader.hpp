@@ -64,7 +64,7 @@ namespace Raytracer {
              * @return registerPlugin 
              */
             template<typename T>
-            T *getFunction(const std::string &entryPoint) const
+            T getFunction(const std::string &entryPoint) const
             {
                 T fptr;
                 dlerror();
