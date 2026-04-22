@@ -1,4 +1,5 @@
 #include "Renderer.hpp"
+#include "components/IMaterial.hpp"
 
 namespace Raytracer
 {
@@ -24,15 +25,18 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
     }
 }
 
-Color Renderer::ray_color(const Ray& r, const Scene& scene, int depth)
-{
-    if (depth <= 0)
-        return Color(0, 0, 0);
+Color Renderer::ray_color(const Ray& r, const Scene& scene, int depth) {
+    if (depth <= 0) return Color(0, 0, 0);
 
     HitRecord rec;
-    if (scene.getWorld().hit(r, Interval(0.001, std::numeric_limits<double>::infinity()), rec)) {
-        
-        return 0.5 * (Color(rec.normal.x, rec.normal.y, rec.normal.z) + Color(1, 1, 1));
+    if (scene.getWorld().hit(r, Interval(0.001, Interval::universe.max), rec)) {
+        Ray scattered;
+        Color attenuation;
+
+        if (rec.material->scatter(r, rec, attenuation, scattered)) {
+            return attenuation * ray_color(scattered, scene, depth - 1);
+        }
+        return Color(0, 0, 0);
     }
 
     return scene.getBackground(r);
