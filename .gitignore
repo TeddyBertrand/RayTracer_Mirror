@@ -4,8 +4,10 @@
 *.ppm
 
 /build
+/coverage
 /plugins
 /raytracer
+/raytracer_unit_tests
 
 _*
 

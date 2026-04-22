@@ -8,7 +8,7 @@ Lambertian::Lambertian(const Color& albedo) : _albedo(albedo)
 }
 
 bool Lambertian::scatter(
-    const Ray& r_in,
+    [[maybe_unused]] const Ray& r_in,
     const HitRecord& rec,
     Color& attenuation,
     Ray& scattered

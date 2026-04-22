@@ -18,7 +18,7 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
             double u = static_cast<double>(x) / (width - 1.0);
             double v = 1.0 - static_cast<double>(y) / (height - 1.0);
 
-            Ray r = camera.get_ray(u, v);
+            Ray r = camera.getRay(u, v);
             pixel_color += computeRayColor(r, scene, 50);
             buffer[y * width + x] = pixel_color;
         }

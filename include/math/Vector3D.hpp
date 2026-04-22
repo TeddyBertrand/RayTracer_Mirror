@@ -25,7 +25,7 @@ struct Vector3D
         return *this;
     }
 
-    inline constexpr void normalize() noexcept {
+    inline void normalize() noexcept {
         double l = length();
         if (l > 0) {
             double inv = 1.0 / l;
