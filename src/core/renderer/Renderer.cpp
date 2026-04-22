@@ -19,13 +19,13 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
             double v = 1.0 - static_cast<double>(y) / (height - 1.0);
 
             Ray r = camera.get_ray(u, v);
-            pixel_color += ray_color(r, scene, 50);
+            pixel_color += computeRayColor(r, scene, 50);
             buffer[y * width + x] = pixel_color;
         }
     }
 }
 
-Color Renderer::ray_color(const Ray& r, const Scene& scene, int depth) {
+Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
     if (depth <= 0) return Color(0, 0, 0);
 
     HitRecord rec;
@@ -34,9 +34,9 @@ Color Renderer::ray_color(const Ray& r, const Scene& scene, int depth) {
         Color attenuation;
 
         if (rec.material->scatter(r, rec, attenuation, scattered)) {
-            Color direct_light = compute_direct_lighting(rec, scene, attenuation);
+            Color direct_light = computeDirectLighting(rec, scene, attenuation);
 
-            return direct_light + attenuation * ray_color(scattered, scene, depth - 1);
+            return direct_light + attenuation * computeRayColor(scattered, scene, depth - 1);
         }
         return Color(0, 0, 0);
     }
@@ -44,7 +44,7 @@ Color Renderer::ray_color(const Ray& r, const Scene& scene, int depth) {
     return scene.getBackground(r);
 }
 
-Color Renderer::compute_direct_lighting(const HitRecord& rec, const Scene& scene, const Color& attenuation)
+Color Renderer::computeDirectLighting(const HitRecord& rec, const Scene& scene, const Color& attenuation)
 {
     Color direct_light(0, 0, 0);
     for (const auto& light : scene.getLights()) {
