@@ -10,7 +10,7 @@ class PerspectiveCamera : public ACamera
 public:
     PerspectiveCamera(const Point3D& origin, const Vector3D& rotation, double fov, double aspect_ratio, int width, int height);
 
-    Ray get_ray(double u, double v) const override;
+    Ray getRay(double u, double v) const override;
 
 private:
     Vector3D _horizontal;

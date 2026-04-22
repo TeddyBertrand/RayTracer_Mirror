@@ -11,7 +11,7 @@ PerspectiveCamera::PerspectiveCamera(const Point3D& origin, const Vector3D& rota
     _initialize(fov, aspect_ratio);
 }
 
-Ray PerspectiveCamera::get_ray(double u, double v) const
+Ray PerspectiveCamera::getRay(double u, double v) const
 {
     Vector3D target_point = _lower_left_corner + (u * _horizontal) + (v * _vertical);
 
