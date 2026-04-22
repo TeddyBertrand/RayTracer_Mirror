@@ -22,7 +22,7 @@ public:
 private:
     int _samples;
     int _maxDepth;
-    Color computeRayColor(const Ray& r, const Scene& scene, int depth);
+    Color computeRayColor(const Ray& r, const Scene& scene, int depth, bool isFirstRay = true);
     Color computeDirectLighting(const HitRecord& rec, const Scene& scene, const Color& attenuation);
 };
 

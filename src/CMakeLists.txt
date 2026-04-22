@@ -2,6 +2,7 @@ add_subdirectory(core)
 add_subdirectory(materials)
 add_subdirectory(lights)
 add_subdirectory(primitives)
+add_subdirectory(skies)
 
 add_executable(raytracer main.cpp)
 

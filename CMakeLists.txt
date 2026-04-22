@@ -32,6 +32,7 @@ file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins)
 file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/primitives)
 file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/materials)
 file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/lights)
+file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/skies)
 
 add_compile_options(-fno-gnu-unique)
 
