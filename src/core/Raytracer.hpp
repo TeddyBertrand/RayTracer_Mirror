@@ -2,6 +2,7 @@
 
 #include "math/Ray.hpp"
 #include "core/renderer/Renderer.hpp"
+#include "core/scene/Scene.hpp"
 
 namespace Raytracer
 {
@@ -24,6 +25,7 @@ private:
 
 private:
     Renderer _renderer;
+    Scene _scene;
 };
 
 } // namespace Raytracer

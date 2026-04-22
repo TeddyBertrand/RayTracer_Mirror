@@ -1,0 +1,25 @@
+#pragma once
+
+#include <vector>
+#include <memory>
+#include "components/IPrimitive.hpp"
+
+namespace Raytracer {
+
+class PrimitiveList : public IPrimitive
+{
+public:
+    PrimitiveList() = default;
+
+    void add(std::shared_ptr<IPrimitive> object) { _objects.push_back(object); }
+    void clear() { _objects.clear(); }
+
+    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override;
+
+    std::string getName() const override { return "PrimitiveList"; }
+
+private:
+    std::vector<std::shared_ptr<IPrimitive>> _objects;
+};
+
+}

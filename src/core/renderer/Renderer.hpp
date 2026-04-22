@@ -4,6 +4,7 @@
 #include <memory>
 #include "components/ICamera.hpp"
 #include "components/IPrimitive.hpp"
+#include "core/scene/Scene.hpp"
 #include "render/FrameBuffer.hpp"
 
 
@@ -16,12 +17,12 @@ public:
         : _samples(samples), _maxDepth(depth) {}
     ~Renderer() = default;
 
-    void render(const ICamera& camera, const IPrimitive& world, FrameBuffer& buffer);
+    void render(const ICamera& camera, const Scene& scene, FrameBuffer& buffer);
 
 private:
     int _samples;
     int _maxDepth;
-    Color ray_color(const Ray& r, const IPrimitive& world, int depth);
+    Color ray_color(const Ray& r, const Scene& scene, int depth);
 };
 
 } // namespace Raytracer

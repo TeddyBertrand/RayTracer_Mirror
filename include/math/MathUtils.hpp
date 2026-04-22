@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <random>
 
 namespace Raytracer
 {
@@ -20,6 +21,15 @@ public:
      */
     static inline double radiansToDegrees(double radians) {
         return radians * 180.0 / M_PI;
+    }
+
+    /**
+     * @brief Generate a random double precision floating point number in the range [min, max)
+     */
+    static inline double random_double(double min, double max) {
+        static std::uniform_real_distribution<double> distribution(min, max);
+        static std::mt19937 generator;
+        return distribution(generator);
     }
 };
 
