@@ -11,22 +11,35 @@ namespace Raytracer
     class DLLoaderPlugin : public DLLoader
     {
         public:
+            /**
+             * @brief encapsulate DLLoader getFunction for Primitive factory 
+             */
             using primitiveFunction = void(*)(PrimitiveFactory &);
-            primitiveFunction getPrimitiveFunction(const std::string &entryPoint) const
+
+            primitiveFunction getPrimitiveFunction(const std::string &registerFunction,
+                const std::string &libName) const
             {
-                return DLLoader::getFunction<primitiveFunction>(entryPoint);
+                return DLLoader::getFunction<primitiveFunction>(registerFunction, libName);
             }
 
+            /**
+             * @brief encapsulate DLLoader getFunction for Material factory 
+             */
             using materialFunction = void(*)(MaterialFactory &);
-            materialFunction getMaterialFunction(const std::string &entryPoint) const
+            materialFunction getMaterialFunction(const std::string &registerFunction,
+                const std::string &libName) const
             {
-                return DLLoader::getFunction<materialFunction>(entryPoint);
+                return DLLoader::getFunction<materialFunction>(registerFunction, libName);
             }
 
+            /**
+             * @brief encapsulate DLLoader getFunction for Light factory 
+             */
             using lightFunction = void(*)(MaterialFactory &);
-            lightFunction getLightFunction(const std::string &entryPoint) const
+            lightFunction getLightFunction(const std::string &registerFunction,
+                const std::string &libName) const
             {
-                return DLLoader::getFunction<lightFunction>(entryPoint);
+                return DLLoader::getFunction<lightFunction>(registerFunction, libName);
             }
     };
 };
