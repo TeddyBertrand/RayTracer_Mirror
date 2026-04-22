@@ -4,6 +4,7 @@
 #include <memory>
 #include "PrimitiveList.hpp"
 #include "components/ILight.hpp"
+#include "components/ISky.hpp"
 #include "math/Color.hpp"
 #include "math/Ray.hpp"
 
@@ -29,12 +30,15 @@ public:
     const IPrimitive& getWorld() const { return _world; }
     const std::vector<std::shared_ptr<ILight>>& getLights() const { return _lights; }
     
-    Color getBackground(const Ray& r) const;
+    void setSky(std::unique_ptr<ISky> sky) { _sky = std::move(sky); }
+    const ISky& getSky() const { return *_sky; }
 
 private:
     PrimitiveList _world;
     
     std::vector<std::shared_ptr<ILight>> _lights;
+
+    std::unique_ptr<ISky> _sky;
     
     Color _backgroundColor = Color(0.5, 0.7, 1.0);
     Color _ambientLight = Color(0.1, 0.1, 0.1);

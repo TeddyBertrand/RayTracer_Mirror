@@ -44,6 +44,7 @@ add_subdirectory(primitives)
 add_subdirectory(lights)
 add_subdirectory(materials)
 add_subdirectory(core)
+add_subdirectory(skies)
 
 target_include_directories(raytracer_unit_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include

@@ -46,19 +46,6 @@ public:
 
 } // namespace
 
-TEST(Scene, BackgroundColorCanBeUpdated)
-{
-    Raytracer::Scene scene;
-    const Raytracer::Color expected{0.2, 0.3, 0.4};
-
-    scene.setBackgroundColor(expected);
-    const Raytracer::Color actual = scene.getBackground({{0.0, 0.0, 0.0}, {0.0, 1.0, 0.0}});
-
-    EXPECT_DOUBLE_EQ(actual.r, expected.r);
-    EXPECT_DOUBLE_EQ(actual.g, expected.g);
-    EXPECT_DOUBLE_EQ(actual.b, expected.b);
-}
-
 TEST(Scene, AddedLightIsExposedByGetter)
 {
     Raytracer::Scene scene;

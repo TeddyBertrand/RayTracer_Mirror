@@ -25,7 +25,7 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
     }
 }
 
-Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
+Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth, bool isFirstRay) {
     if (depth <= 0) return Color(0, 0, 0);
 
     HitRecord rec;
@@ -36,12 +36,15 @@ Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
         if (rec.material->scatter(r, rec, attenuation, scattered)) {
             Color direct_light = computeDirectLighting(rec, scene, attenuation);
 
-            return direct_light + attenuation * computeRayColor(scattered, scene, depth - 1);
+            return direct_light + attenuation * computeRayColor(scattered, scene, depth - 1, false);
         }
         return Color(0, 0, 0);
     }
 
-    return scene.getBackground(r);
+    if (!isFirstRay) {
+        return scene.getSky().getEnvironmentColor(r);
+    }
+    return scene.getSky().getBackgroundColor(r);
 }
 
 Color Renderer::computeDirectLighting(const HitRecord& rec, const Scene& scene, const Color& attenuation)

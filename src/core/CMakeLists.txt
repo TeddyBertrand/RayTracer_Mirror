@@ -8,6 +8,9 @@ add_library(raytracer_core STATIC
     ../primitives/sphere/Sphere.cpp
     ../materials/lambertian/Lambertian.cpp
     ../lights/point_light/PointLight.cpp
+    ../skies/atmospheric_sky/AtmosphericSky.cpp
+    ../skies/empty_sky/EmptySky.cpp
+    ../skies/galaxy_sky/GalaxySky.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC
