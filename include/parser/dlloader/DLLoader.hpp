@@ -1,4 +1,6 @@
 #pragma once
+
+#include <unordered_map>
 #include <dlfcn.h>
 #include "parser/dlloader/IDLLoader.hpp"
 
@@ -25,54 +27,54 @@ namespace Raytracer {
             /**
              * @brief Construct a new DLLoader<T> object
              * 
-             * try to load a .so library and stock it in the _handle variable
+             * try to load a .so library and store it in the library map
              * @param libraryPath 
              */
-            DLLoader(const std::string &libraryPath) :_libPath(""), _handle(nullptr)
+            DLLoader(const std::string &libraryPath)
             {
+                _libMap.clear();
                 openLibrary(libraryPath);
             };
 
             /**
              * @brief Open and load a library
              * 
-             * close the current library if there is one, dlopen the new library with 
-             * the given path and throw an exception if there is one
+             * dlopen a new library with the given path, add it to the library map
+             * and throw an exception if there is one
              * @param libraryPath 
              */
             void openLibrary(const std::string &libraryPath) override
             {
-                if (_handle) {
-                    dlclose(_handle);
-                    _handle = nullptr;
-                }
-                
-                _libPath = libraryPath;
                 dlerror();
-                _handle = dlopen(_libPath.c_str(), RTLD_LAZY);
+                void *newHandle = dlopen(libraryPath.c_str(), RTLD_LAZY);
                 const char *error = dlerror();
                 if (error)
-                throw DLLoaderException(std::string("On dlopen of ") + _libPath + ": " + error);
+                    throw DLLoaderException(std::string("On dlopen of ") + libraryPath + ": " + error);
+                _libMap.insert({libraryPath, newHandle});
             }
             
             /**
              * @brief Get the instance function
              * 
-             * get the function pointer of the library from the function entryPoint with dlsym
+             * get the library function pointer from the function register with dlsym
              * 
              * @param entryPoint 
              * @return registerPlugin 
              */
             template<typename T>
-            T getFunction(const std::string &entryPoint) const
+            T getFunction(const std::string &registerFunction, const std::string &libraryName) const
             {
-                T fptr;
+                auto handle = _libMap.find(libraryName);
+                if (handle == _libMap.end())
+                    throw DLLoaderException("Library not found in the map: " + libraryName);
+                
                 dlerror();
-                void *entry = dlsym(_handle, entryPoint.c_str());
+                void *entry = dlsym(handle->second, registerFunction.c_str());
                 const char *error = dlerror();
                 if (error)
-                    throw DLLoaderException(std::string("On dlsym of ") + _libPath + ": " + error);
-                fptr = reinterpret_cast<T>(entry);
+                    throw DLLoaderException("On dlsym of " + _libPath + ": " + error);
+
+                T fptr = reinterpret_cast<T>(entry);
                 if (!fptr)
                     throw DLLoaderException("On function recuperation from " + _libPath);
                 return fptr;
@@ -81,27 +83,29 @@ namespace Raytracer {
             /**
              * @brief Close library
              * 
-             * check if _handle is initialized and dclose the current library
+             * check if lib is initialized, dclose all library and clear map
              */
             void closeLibrary() override
             {
-                if (_handle) {
-                    dlclose(_handle);
-                    _handle = nullptr;
+                for (auto lib : _libMap) {
+                    if (lib.second) {
+                        dlclose(lib.second);
+                        lib.second = nullptr;
+                    }
                 }
+                _libMap.clear();
             }
 
             /**
              * @brief Destroy the DLLoader object
              * 
-             * close the current library
+             * close every library
              */
             ~DLLoader() {
                 closeLibrary();
             }
 
         private:
-            std::string _libPath;
-            void *_handle;
+            std::unordered_map<std::string, void *> _libMap;
     };
 };
