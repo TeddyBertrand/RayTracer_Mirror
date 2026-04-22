@@ -40,4 +40,6 @@ inline Color operator*(const Color& u, const Color& v) noexcept { return {u.r * 
 inline Color operator*(double t, const Color& v) noexcept { return {t * v.r, t * v.g, t * v.b}; }
 inline Color operator*(const Color& v, double t) noexcept { return t * v; }
 
+inline Color operator/(const Color& v, double t) noexcept { return (1.0 / t) * v; }
+
 } // namespace Raytracer

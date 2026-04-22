@@ -25,6 +25,14 @@ struct Vector3D
         return *this;
     }
 
+    inline constexpr void normalize() noexcept {
+        double l = length();
+        if (l > 0) {
+            double inv = 1.0 / l;
+            x *= inv; y *= inv; z *= inv;
+        }
+    }
+
     Vector3D& operator/=(double t) noexcept {
         return *this *= (1.0 / t);
     }

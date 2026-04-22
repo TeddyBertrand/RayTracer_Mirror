@@ -3,6 +3,7 @@
 #include "primitives/sphere/Sphere.hpp"
 #include "core/image/Image.hpp"
 #include "materials/lambertian/Lambertian.hpp"
+#include "lights/point_light/PointLight.hpp"
 
 namespace Raytracer
 {
@@ -25,8 +26,11 @@ void Raytracer::run()
 
     auto sphere = std::make_shared<Sphere>(Vector3D(0, 0, -3), 0.5, lambertian);
     auto sphere2 = std::make_shared<Sphere>(Vector3D(1.2, 0, -3), 0.5, lambertian);
+    auto light = std::make_shared<PointLight>(Vector3D(1, 1.4, -2), Color(1, 1, 1), .5);
     _scene.addPrimitive(sphere);
     _scene.addPrimitive(sphere2);
+    _scene.addLight(light);
+    _scene.setBackgroundColor(Color(0, 0, 0));
 
     _renderer.render(camera, _scene, frameBuffer);
     _image.drawFromBuffer(frameBuffer);
