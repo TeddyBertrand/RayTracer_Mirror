@@ -4,3 +4,4 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/plugins/lights)
 
 add_subdirectory(ambient_light)
 add_subdirectory(directional_light)
+add_subdirectory(point_light)

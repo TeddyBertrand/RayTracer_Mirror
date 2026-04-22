@@ -34,12 +34,32 @@ Color Renderer::ray_color(const Ray& r, const Scene& scene, int depth) {
         Color attenuation;
 
         if (rec.material->scatter(r, rec, attenuation, scattered)) {
-            return attenuation * ray_color(scattered, scene, depth - 1);
+            Color direct_light = compute_direct_lighting(rec, scene, attenuation);
+
+            return direct_light + attenuation * ray_color(scattered, scene, depth - 1);
         }
         return Color(0, 0, 0);
     }
 
     return scene.getBackground(r);
+}
+
+Color Renderer::compute_direct_lighting(const HitRecord& rec, const Scene& scene, const Color& attenuation)
+{
+    Color direct_light(0, 0, 0);
+    for (const auto& light : scene.getLights()) {
+        LightSample sample = light->computeLight(rec.point);
+        if (!sample.isActive) continue;
+
+        Ray shadow_ray(rec.point + rec.normal * 0.001, sample.direction);
+        HitRecord shadow_rec;
+
+        if (!scene.getWorld().hit(shadow_ray, Interval(0.001, sample.distance), shadow_rec)) {
+            double cos_theta = std::max(0.0, rec.normal.dot(sample.direction));
+            direct_light += (attenuation * sample.color) * cos_theta;
+        }
+    }
+    return direct_light;
 }
 
 } // namespace Raytracer

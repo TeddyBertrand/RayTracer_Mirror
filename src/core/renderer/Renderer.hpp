@@ -23,6 +23,7 @@ private:
     int _samples;
     int _maxDepth;
     Color ray_color(const Ray& r, const Scene& scene, int depth);
+    Color compute_direct_lighting(const HitRecord& rec, const Scene& scene, const Color& attenuation);
 };
 
 } // namespace Raytracer

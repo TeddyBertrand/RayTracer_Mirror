@@ -7,16 +7,18 @@
 namespace Raytracer
 {
 
-class ILight
-{
+struct LightSample {
+    Color color;
+    Vector3D direction;
+    double distance;
+    bool isActive;
+};
+
+class ILight {
 public:
     virtual ~ILight() = default;
-
-    virtual bool illuminate(
-        const HitRecord& rec,
-        Vector3D& light_dir,
-        Color& light_color
-    ) const = 0;
+    
+    virtual LightSample computeLight(const Point3D& hit_point) const = 0;
 };
 
 } // namespace Raytracer
