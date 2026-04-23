@@ -7,8 +7,12 @@ namespace Raytracer
 
 class AMaterial : public IMaterial
 {
-protected:
-    AMaterial() = default;
+public:
+    double getSpecularWeight() const override { return 0.0; }
+
+    Color getTransmittance() const override { return Color(0, 0, 0); }
+
+    Color emit(const HitRecord& rec) const override { return Color(0, 0, 0); }
 };
 
 } // namespace Raytracer
