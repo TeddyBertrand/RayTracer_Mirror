@@ -19,6 +19,12 @@ public:
 
     void render(const ICamera& camera, const Scene& scene, FrameBuffer& buffer);
 
+    void setSamples(int samples) { _samples = samples; }
+    void setMaxDepth(int depth) { _maxDepth = depth; }
+
+private:
+    static constexpr float anti_aliasing_interval = 0.5f;
+
 private:
     int _samples;
     int _maxDepth;

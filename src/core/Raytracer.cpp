@@ -46,6 +46,7 @@ void Raytracer::run()
     _scene.addLight(light);
     _scene.setBackgroundColor(Color(0, 0, 0));
 
+    _renderer.setSamples(1);
     _renderer.render(camera, _scene, frameBuffer);
     _image.drawFromBuffer(frameBuffer);
 }
