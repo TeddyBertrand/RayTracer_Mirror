@@ -8,7 +8,9 @@ class Transparent : public AMaterial {
 public:
     Transparent(Color albedo, double ref_idx) : _albedo(albedo), _ref_idx(ref_idx) {}
 
-    bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation,
+    bool scatter(const Ray& r_in,
+                 const HitRecord& rec,
+                 Color& attenuation,
                  Ray& scattered) const override;
 
     double getSpecularWeight() const override { return 1.0; }

@@ -61,7 +61,8 @@ Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth, boo
     return emission;
 }
 
-Color Renderer::computeDirectLighting(const HitRecord& rec, const Scene& scene,
+Color Renderer::computeDirectLighting(const HitRecord& rec,
+                                      const Scene& scene,
                                       const Color& attenuation) {
     Color total_direct_light(0, 0, 0);
 

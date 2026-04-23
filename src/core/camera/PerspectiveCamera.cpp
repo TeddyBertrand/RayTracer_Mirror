@@ -4,8 +4,12 @@
 
 namespace Raytracer {
 
-PerspectiveCamera::PerspectiveCamera(const Point3D& origin, const Vector3D& rotation, double fov,
-                                     double aspect_ratio, int width, int height)
+PerspectiveCamera::PerspectiveCamera(const Point3D& origin,
+                                     const Vector3D& rotation,
+                                     double fov,
+                                     double aspect_ratio,
+                                     int width,
+                                     int height)
     : ACamera(origin, rotation, Vector3D::up(), width, height) {
     initialize(fov, aspect_ratio);
 }

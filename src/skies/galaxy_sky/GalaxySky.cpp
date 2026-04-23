@@ -48,7 +48,8 @@ Color GalaxySky::getBackgroundColor(const Ray& r) const {
     Color finalColor = _nebulaColor * nebulaStrength;
 
     double gridSize = 1000.0;
-    Vector3D cell(std::floor(unit_dir.x * gridSize), std::floor(unit_dir.y * gridSize),
+    Vector3D cell(std::floor(unit_dir.x * gridSize),
+                  std::floor(unit_dir.y * gridSize),
                   std::floor(unit_dir.z * gridSize));
 
     double starRand = hash(cell);

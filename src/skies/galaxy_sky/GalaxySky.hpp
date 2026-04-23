@@ -6,8 +6,10 @@ namespace Raytracer {
 
 class GalaxySky : public ASky {
 public:
-    GalaxySky(double starDensity = 0.001, const Color& nebulaColor = Color(0.025, 0.01, 0.05),
-              double nebulaDensity = 0.7, double nebulaContrast = 3.0)
+    GalaxySky(double starDensity = 0.001,
+              const Color& nebulaColor = Color(0.025, 0.01, 0.05),
+              double nebulaDensity = 0.7,
+              double nebulaContrast = 3.0)
         : _starDensity(starDensity), _nebulaColor(nebulaColor), _nebulaDensity(nebulaDensity),
           _nebulaContrast(nebulaContrast) {}
 

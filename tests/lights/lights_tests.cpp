@@ -6,7 +6,8 @@
 
 namespace {
 
-void expectVectorNear(const Raytracer::Vector3D& actual, const Raytracer::Vector3D& expected,
+void expectVectorNear(const Raytracer::Vector3D& actual,
+                      const Raytracer::Vector3D& expected,
                       double epsilon = 1e-6) {
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);

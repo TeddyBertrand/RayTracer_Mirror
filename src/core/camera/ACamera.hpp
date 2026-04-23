@@ -19,8 +19,8 @@ protected:
     int _width;
     int _height;
 
-    ACamera(const Point3D& origin, const Vector3D& rotation, const Vector3D& vup, int width,
-            int height)
+    ACamera(
+        const Point3D& origin, const Vector3D& rotation, const Vector3D& vup, int width, int height)
         : _origin(origin), _width(width), _height(height) {
         double pitch = Math::degreesToRadians(rotation.x);
         double yaw = Math::degreesToRadians(rotation.y);

@@ -7,7 +7,8 @@
 
 namespace {
 
-void expectVectorNear(const Raytracer::Vector3D& actual, const Raytracer::Vector3D& expected,
+void expectVectorNear(const Raytracer::Vector3D& actual,
+                      const Raytracer::Vector3D& expected,
                       double epsilon = 1e-6) {
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);
@@ -48,8 +49,8 @@ TEST(PerspectiveCamera, RayAtOtherCorner) {
 }
 
 TEST(PerspectiveCamera, DifferentPosition) {
-    Raytracer::PerspectiveCamera camera({5.0, 5.0, 5.0}, {-1.0, -1.0, -1.0}, 60.0, 16.0 / 9.0, 1920,
-                                        1080);
+    Raytracer::PerspectiveCamera camera(
+        {5.0, 5.0, 5.0}, {-1.0, -1.0, -1.0}, 60.0, 16.0 / 9.0, 1920, 1080);
 
     Raytracer::Ray ray = camera.getRay(0.5, 0.5);
     expectVectorNear(ray.origin(), {5.0, 5.0, 5.0});

@@ -4,7 +4,9 @@ namespace Raytracer {
 
 Lambertian::Lambertian(const Color& albedo) : _albedo(albedo) {}
 
-bool Lambertian::scatter([[maybe_unused]] const Ray& r_in, const HitRecord& rec, Color& attenuation,
+bool Lambertian::scatter([[maybe_unused]] const Ray& r_in,
+                         const HitRecord& rec,
+                         Color& attenuation,
                          Ray& scattered) const {
     auto scatter_direction = rec.normal + Vector3D::getRandomUnitVector();
 

@@ -8,7 +8,8 @@
 
 namespace {
 
-void expectColorNear(const Raytracer::Color& actual, const Raytracer::Color& expected,
+void expectColorNear(const Raytracer::Color& actual,
+                     const Raytracer::Color& expected,
                      double epsilon = 1e-12) {
     EXPECT_NEAR(actual.r, expected.r, epsilon);
     EXPECT_NEAR(actual.g, expected.g, epsilon);

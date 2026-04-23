@@ -12,8 +12,8 @@ class IMaterial : public IPlugin {
 public:
     virtual ~IMaterial() = default;
 
-    virtual bool scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation,
-                         Ray& scattered) const = 0;
+    virtual bool
+    scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const = 0;
 
     virtual double getSpecularWeight() const = 0;
 

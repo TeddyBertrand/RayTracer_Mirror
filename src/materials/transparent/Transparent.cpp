@@ -3,7 +3,9 @@
 
 namespace Raytracer {
 
-bool Transparent::scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation,
+bool Transparent::scatter(const Ray& r_in,
+                          const HitRecord& rec,
+                          Color& attenuation,
                           Ray& scattered) const {
     attenuation = _albedo;
     double ratio = rec.front_face ? (1.0 / _ref_idx) : _ref_idx;
