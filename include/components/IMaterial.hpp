@@ -20,6 +20,12 @@ public:
         Color& attenuation,
         Ray& scattered
     ) const = 0;
+
+    virtual double getSpecularWeight() const = 0;
+
+    virtual Color getTransmittance() const = 0;
+
+    virtual Color emit(const HitRecord& rec) const = 0;
 };
 
 } // namespace Raytracer

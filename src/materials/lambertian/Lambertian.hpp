@@ -1,11 +1,11 @@
 #pragma once
 
-#include "components/IMaterial.hpp"
+#include "materials/commun/AMaterial.hpp"
 
 namespace Raytracer
 {
 
-class Lambertian : public IMaterial
+class Lambertian : public AMaterial
 {
 public:
     Lambertian(const Color& albedo);
