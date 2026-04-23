@@ -29,7 +29,7 @@ struct Color
         return *this;
     }
 
-    [[nodiscard]] bool near_zero() const noexcept {
+    [[nodiscard]] bool isNearZero() const noexcept {
         const auto s = 1e-8;
         return (std::fabs(r) < s) && (std::fabs(g) < s) && (std::fabs(b) < s);
     }

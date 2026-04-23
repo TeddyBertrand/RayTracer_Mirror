@@ -76,7 +76,7 @@ struct Vector3D
         return Vector3D(x * inv, y * inv, z * inv);
     }
 
-    [[nodiscard]] bool near_zero() const noexcept {
+    [[nodiscard]] bool isNearZero() const noexcept {
         const auto s = 1e-8;
         return (std::fabs(x) < s) && (std::fabs(y) < s) && (std::fabs(z) < s);
     }
