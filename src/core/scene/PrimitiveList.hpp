@@ -1,13 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "components/IPrimitive.hpp"
+#include <memory>
+#include <vector>
 
 namespace Raytracer {
 
-class PrimitiveList : public IPrimitive
-{
+class PrimitiveList : public IPrimitive {
 public:
     PrimitiveList() = default;
 
@@ -22,4 +21,4 @@ private:
     std::vector<std::shared_ptr<IPrimitive>> _objects;
 };
 
-}
+} // namespace Raytracer

@@ -1,31 +1,35 @@
 #pragma once
 
 #include "math/Interval.hpp"
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-struct Color
-{
+struct Color {
     double r, g, b;
 
     constexpr Color() noexcept : r(0), g(0), b(0) {}
     constexpr Color(double r, double g, double b) noexcept : r(r), g(g), b(b) {}
 
     Color& operator+=(const Color& c) noexcept {
-        r += c.r; g += c.g; b += c.b;
+        r += c.r;
+        g += c.g;
+        b += c.b;
         return *this;
     }
 
     Color& operator*=(double t) noexcept {
-        r *= t; g *= t; b *= t;
+        r *= t;
+        g *= t;
+        b *= t;
         return *this;
     }
 
     Color& operator*=(const Color& c) noexcept {
-        r *= c.r; g *= c.g; b *= c.b;
+        r *= c.r;
+        g *= c.g;
+        b *= c.b;
         return *this;
     }
 
@@ -40,8 +44,12 @@ struct Color
     }
 };
 
-inline Color operator+(const Color& u, const Color& v) noexcept { return {u.r + v.r, u.g + v.g, u.b + v.b}; }
-inline Color operator*(const Color& u, const Color& v) noexcept { return {u.r * v.r, u.g * v.g, u.b * v.b}; }
+inline Color operator+(const Color& u, const Color& v) noexcept {
+    return {u.r + v.r, u.g + v.g, u.b + v.b};
+}
+inline Color operator*(const Color& u, const Color& v) noexcept {
+    return {u.r * v.r, u.g * v.g, u.b * v.b};
+}
 inline Color operator*(double t, const Color& v) noexcept { return {t * v.r, t * v.g, t * v.b}; }
 inline Color operator*(const Color& v, double t) noexcept { return t * v; }
 

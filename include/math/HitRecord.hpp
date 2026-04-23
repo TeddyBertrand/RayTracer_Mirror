@@ -4,13 +4,11 @@
 
 #include "math/Ray.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
 class IMaterial;
 
-struct HitRecord
-{
+struct HitRecord {
     Point3D point;
     Vector3D normal;
     double t = 0.0;
@@ -19,7 +17,7 @@ struct HitRecord
     double v = 0.0;
 
     bool front_face = false;
-    
+
     std::shared_ptr<IMaterial> material;
 
     inline void setFaceNormal(const Ray& r, const Vector3D& outward_normal) noexcept {

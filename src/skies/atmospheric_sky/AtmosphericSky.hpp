@@ -2,11 +2,9 @@
 
 #include "skies/commun/ASky.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class AtmosphericSky : public ASky
-{
+class AtmosphericSky : public ASky {
 public:
     AtmosphericSky(const Color& groundColor, const Color& zenithColor)
         : _groundColor(groundColor), _zenithColor(zenithColor) {}

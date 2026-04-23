@@ -7,16 +7,13 @@
 #include "components/IPrimitive.hpp"
 #include "core/scene/Scene.hpp"
 
-namespace
-{
+namespace {
 
-class FakePrimitive : public Raytracer::IPrimitive
-{
+class FakePrimitive : public Raytracer::IPrimitive {
 public:
     FakePrimitive(bool shouldHit, double t) : _shouldHit(shouldHit), _t(t) {}
 
-    bool hit(const Raytracer::Ray&, Raytracer::Interval, Raytracer::HitRecord& rec) const override
-    {
+    bool hit(const Raytracer::Ray&, Raytracer::Interval, Raytracer::HitRecord& rec) const override {
         if (!_shouldHit) {
             return false;
         }
@@ -25,29 +22,23 @@ public:
         return true;
     }
 
-    std::string getName() const override
-    {
-        return "FakePrimitive";
-    }
+    std::string getName() const override { return "FakePrimitive"; }
 
 private:
     bool _shouldHit;
     double _t;
 };
 
-class FakeLight : public Raytracer::ILight
-{
+class FakeLight : public Raytracer::ILight {
 public:
-    Raytracer::LightSample computeLight(const Raytracer::Point3D&) const override
-    {
+    Raytracer::LightSample computeLight(const Raytracer::Point3D&) const override {
         return {{1.0, 1.0, 1.0}, Raytracer::Vector3D::unitZ(), 1.0, true};
     }
 };
 
 } // namespace
 
-TEST(Scene, AddedLightIsExposedByGetter)
-{
+TEST(Scene, AddedLightIsExposedByGetter) {
     Raytracer::Scene scene;
 
     scene.addLight(std::make_shared<FakeLight>());
@@ -55,8 +46,7 @@ TEST(Scene, AddedLightIsExposedByGetter)
     ASSERT_EQ(scene.getLights().size(), 1U);
 }
 
-TEST(Scene, AddedPrimitiveCanBeHitThroughWorld)
-{
+TEST(Scene, AddedPrimitiveCanBeHitThroughWorld) {
     Raytracer::Scene scene;
     Raytracer::HitRecord rec;
 
@@ -67,8 +57,7 @@ TEST(Scene, AddedPrimitiveCanBeHitThroughWorld)
     EXPECT_DOUBLE_EQ(rec.t, 3.0);
 }
 
-TEST(PrimitiveList, ReturnsClosestHit)
-{
+TEST(PrimitiveList, ReturnsClosestHit) {
     Raytracer::PrimitiveList list;
     Raytracer::HitRecord rec;
 
@@ -81,8 +70,7 @@ TEST(PrimitiveList, ReturnsClosestHit)
     EXPECT_DOUBLE_EQ(rec.t, 2.0);
 }
 
-TEST(PrimitiveList, ReturnsFalseWhenEmpty)
-{
+TEST(PrimitiveList, ReturnsFalseWhenEmpty) {
     Raytracer::PrimitiveList list;
     Raytracer::HitRecord rec;
 

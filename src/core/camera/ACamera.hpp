@@ -1,14 +1,12 @@
 #pragma once
 
-#include "math/Vector3D.hpp"
 #include "components/ICamera.hpp"
 #include "math/MathUtils.hpp"
+#include "math/Vector3D.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class ACamera : public ICamera
-{
+class ACamera : public ICamera {
 public:
     int getWidth() const override { return _width; }
     int getHeight() const override { return _height; }
@@ -21,18 +19,14 @@ protected:
     int _width;
     int _height;
 
-    ACamera(const Point3D& origin, const Vector3D& rotation, const Vector3D& vup, int width, int height) 
-        : _origin(origin), _width(width), _height(height)
-    {
+    ACamera(const Point3D& origin, const Vector3D& rotation, const Vector3D& vup, int width,
+            int height)
+        : _origin(origin), _width(width), _height(height) {
         double pitch = Math::degreesToRadians(rotation.x);
-        double yaw   = Math::degreesToRadians(rotation.y);
-        double roll  = Math::degreesToRadians(rotation.z);
+        double yaw = Math::degreesToRadians(rotation.y);
+        double roll = Math::degreesToRadians(rotation.z);
 
-        _forward = Vector3D(
-            cos(pitch) * sin(yaw),
-            sin(pitch),
-            -cos(pitch) * cos(yaw)
-        ).normalized();
+        _forward = Vector3D(cos(pitch) * sin(yaw), sin(pitch), -cos(pitch) * cos(yaw)).normalized();
 
         setupBase(vup);
 

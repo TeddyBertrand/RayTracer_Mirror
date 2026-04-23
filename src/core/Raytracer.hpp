@@ -1,16 +1,14 @@
 #pragma once
 
-#include "math/Ray.hpp"
 #include "core/renderer/Renderer.hpp"
 #include "core/scene/Scene.hpp"
+#include "math/Ray.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class Raytracer
-{
+class Raytracer {
 public:
-    Raytracer(int argc, const char **argv);
+    Raytracer(int argc, const char** argv);
     ~Raytracer() = default;
 
     void run();

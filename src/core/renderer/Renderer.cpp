@@ -3,11 +3,9 @@
 #include "math/Color.hpp"
 #include "math/MathUtils.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& buffer)
-{
+void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& buffer) {
     int width = camera.getWidth();
     int height = camera.getHeight();
 
@@ -20,8 +18,10 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 
             for (int s_y = 0; s_y < sqrt_samples; ++s_y) {
                 for (int s_x = 0; s_x < sqrt_samples; ++s_x) {
-                    double u_offset = (s_x + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
-                    double v_offset = (s_y + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
+                    double u_offset =
+                        (s_x + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
+                    double v_offset =
+                        (s_y + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
 
                     double u = (static_cast<double>(x) + u_offset) / (width - 1.0);
                     double v = 1.0 - (static_cast<double>(y) + v_offset) / (height - 1.0);
@@ -36,18 +36,20 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 }
 
 Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth, bool isFirstRay) {
-    if (depth <= 0) return Color(0, 0, 0);
+    if (depth <= 0)
+        return Color(0, 0, 0);
 
     HitRecord rec;
     if (!scene.getWorld().hit(r, Interval(0.001, std::numeric_limits<double>::max()), rec)) {
-        return isFirstRay ? scene.getSky().getBackgroundColor(r) : scene.getSky().getEnvironmentColor(r);
+        return isFirstRay ? scene.getSky().getBackgroundColor(r)
+                          : scene.getSky().getEnvironmentColor(r);
     }
 
-    Color emission = (isFirstRay) ? rec.material->emit(rec) : Color(0,0,0);
+    Color emission = (isFirstRay) ? rec.material->emit(rec) : Color(0, 0, 0);
 
     Ray scattered;
     Color attenuation;
-    if (rec.material->scatter(r, rec, attenuation, scattered)) {        
+    if (rec.material->scatter(r, rec, attenuation, scattered)) {
         Color direct = computeDirectLighting(rec, scene, attenuation);
 
         double diffuseWeight = 1.0 - rec.material->getSpecularWeight();
@@ -59,13 +61,14 @@ Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth, boo
     return emission;
 }
 
-Color Renderer::computeDirectLighting(const HitRecord& rec, const Scene& scene, const Color& attenuation)
-{
+Color Renderer::computeDirectLighting(const HitRecord& rec, const Scene& scene,
+                                      const Color& attenuation) {
     Color total_direct_light(0, 0, 0);
 
     for (const auto& light : scene.getLights()) {
         LightSample sample = light->computeLight(rec.point);
-        if (!sample.isActive) continue;
+        if (!sample.isActive)
+            continue;
 
         Ray shadow_ray(rec.point + rec.normal * 0.001, sample.direction);
         Color light_visibility(1.0, 1.0, 1.0);
@@ -74,7 +77,7 @@ Color Renderer::computeDirectLighting(const HitRecord& rec, const Scene& scene, 
         HitRecord shadow_rec;
         while (scene.getWorld().hit(shadow_ray, Interval(t_min, sample.distance), shadow_rec)) {
             Color transmittance = shadow_rec.material->getTransmittance();
-            
+
             light_visibility *= transmittance;
 
             if (light_visibility.isNearZero()) {
