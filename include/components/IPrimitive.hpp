@@ -1,16 +1,14 @@
 #pragma once
 
-#include "math/Ray.hpp"
 #include "math/HitRecord.hpp"
 #include "math/Interval.hpp"
+#include "math/Ray.hpp"
 
 #include "components/IPlugin.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class IPrimitive : public IPlugin
-{
+class IPrimitive : public IPlugin {
 public:
     virtual ~IPrimitive() = default;
 

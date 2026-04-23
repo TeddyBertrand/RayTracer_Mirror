@@ -1,15 +1,13 @@
 #pragma once
 
-#include "math/Ray.hpp"
 #include "math/Color.hpp"
+#include "math/Ray.hpp"
 
 #include "components/IPlugin.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class ISky : public IPlugin
-{
+class ISky : public IPlugin {
 public:
     virtual ~ISky() = default;
 

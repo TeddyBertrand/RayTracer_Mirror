@@ -1,11 +1,10 @@
 #pragma once
 
-#include "math/Vector3D.hpp"
 #include "math/Color.hpp"
 #include "math/HitRecord.hpp"
+#include "math/Vector3D.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
 struct LightSample {
     Color color;
@@ -17,7 +16,7 @@ struct LightSample {
 class ILight {
 public:
     virtual ~ILight() = default;
-    
+
     virtual LightSample computeLight(const Point3D& hit_point) const = 0;
 };
 

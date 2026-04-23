@@ -8,13 +8,11 @@
 #include "math/Ray.hpp"
 #include "math/Vector3D.hpp"
 
-namespace
-{
+namespace {
 
 void expectVectorNear(const Raytracer::Vector3D& actual,
                       const Raytracer::Vector3D& expected,
-                      double epsilon = 1e-12)
-{
+                      double epsilon = 1e-12) {
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);
     EXPECT_NEAR(actual.z, expected.z, epsilon);
@@ -22,8 +20,7 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
 
 } // namespace
 
-TEST(Vector3D, BasicArithmetic)
-{
+TEST(Vector3D, BasicArithmetic) {
     const Raytracer::Vector3D a{1.0, 2.0, 3.0};
     const Raytracer::Vector3D b{4.0, -2.0, 0.5};
 
@@ -33,8 +30,7 @@ TEST(Vector3D, BasicArithmetic)
     expectVectorNear(a / 2.0, {0.5, 1.0, 1.5});
 }
 
-TEST(Vector3D, DotCrossAndNormalize)
-{
+TEST(Vector3D, DotCrossAndNormalize) {
     const Raytracer::Vector3D x = Raytracer::Vector3D::unitX();
     const Raytracer::Vector3D y = Raytracer::Vector3D::unitY();
     const Raytracer::Vector3D z = Raytracer::Vector3D::unitZ();
@@ -47,8 +43,7 @@ TEST(Vector3D, DotCrossAndNormalize)
     EXPECT_NEAR(normalized.length(), 1.0, 1e-12);
 }
 
-TEST(Vector3D, NormalizeInPlace)
-{
+TEST(Vector3D, NormalizeInPlace) {
     Raytracer::Vector3D v{0.0, 0.0, 2.0};
 
     v.normalize();
@@ -56,8 +51,7 @@ TEST(Vector3D, NormalizeInPlace)
     expectVectorNear(v, {0.0, 0.0, 1.0});
 }
 
-TEST(Vector3D, NearZero)
-{
+TEST(Vector3D, NearZero) {
     const Raytracer::Vector3D small{1e-10, -1e-11, 9e-10};
     const Raytracer::Vector3D large{1e-4, 0.0, 0.0};
 
@@ -65,15 +59,13 @@ TEST(Vector3D, NearZero)
     EXPECT_FALSE(large.isNearZero());
 }
 
-TEST(Ray, At)
-{
+TEST(Ray, At) {
     const Raytracer::Ray ray({1.0, 2.0, 3.0}, {2.0, 0.0, -1.0});
 
     expectVectorNear(ray.at(2.5), {6.0, 2.0, 0.5});
 }
 
-TEST(Interval, ContainsAndClamp)
-{
+TEST(Interval, ContainsAndClamp) {
     const Raytracer::Interval interval{-1.0, 1.0};
 
     EXPECT_TRUE(interval.contains(1.0));
@@ -84,15 +76,13 @@ TEST(Interval, ContainsAndClamp)
     EXPECT_DOUBLE_EQ(interval.clamp(3.0), 1.0);
 }
 
-TEST(Color, ToByte)
-{
+TEST(Color, ToByte) {
     EXPECT_EQ(Raytracer::Color::toByte(0.0), 0);
     EXPECT_EQ(Raytracer::Color::toByte(0.25), 128);
     EXPECT_EQ(Raytracer::Color::toByte(1.0), 255);
 }
 
-TEST(MathUtils, DegreesAndRadians)
-{
+TEST(MathUtils, DegreesAndRadians) {
     const double pi = std::acos(-1.0);
 
     EXPECT_NEAR(Raytracer::Math::degreesToRadians(180.0), pi, 1e-12);
@@ -100,8 +90,7 @@ TEST(MathUtils, DegreesAndRadians)
 }
 
 // Vector3D augmented assignment operators
-TEST(Vector3D, CompoundAssignment)
-{
+TEST(Vector3D, CompoundAssignment) {
     Raytracer::Vector3D v{1.0, 2.0, 3.0};
     Raytracer::Vector3D a{2.0, 3.0, 4.0};
 
@@ -119,8 +108,7 @@ TEST(Vector3D, CompoundAssignment)
 }
 
 // Vector3D unary operators and other free functions
-TEST(Vector3D, UnaryOperatorAndMultiplication)
-{
+TEST(Vector3D, UnaryOperatorAndMultiplication) {
     Raytracer::Vector3D v{1.0, -2.0, 3.0};
 
     // Test unary negation
@@ -132,16 +120,14 @@ TEST(Vector3D, UnaryOperatorAndMultiplication)
 }
 
 // Vector3D division operator
-TEST(Vector3D, DivisionOperator)
-{
+TEST(Vector3D, DivisionOperator) {
     Raytracer::Vector3D v{6.0, 4.0, 2.0};
 
     expectVectorNear(v / 2.0, {3.0, 2.0, 1.0});
 }
 
 // Vector3D equality operator
-TEST(Vector3D, EqualityOperator)
-{
+TEST(Vector3D, EqualityOperator) {
     Raytracer::Vector3D a{1.0, 2.0, 3.0};
     Raytracer::Vector3D b{1.0, 2.0, 3.0};
     Raytracer::Vector3D c{1.0, 2.0, 3.1};
@@ -150,9 +136,8 @@ TEST(Vector3D, EqualityOperator)
     EXPECT_FALSE(a == c);
 }
 
-// Vector3D static factory methods  
-TEST(Vector3D, StaticFactoryMethods)
-{
+// Vector3D static factory methods
+TEST(Vector3D, StaticFactoryMethods) {
     expectVectorNear(Raytracer::Vector3D::up(), {0.0, 1.0, 0.0});
     expectVectorNear(Raytracer::Vector3D::down(), {0.0, -1.0, 0.0});
     expectVectorNear(Raytracer::Vector3D::left(), {-1.0, 0.0, 0.0});
@@ -162,10 +147,9 @@ TEST(Vector3D, StaticFactoryMethods)
 }
 
 // Vector3D random methods
-TEST(Vector3D, RandomVector)
-{
+TEST(Vector3D, RandomVector) {
     Raytracer::Vector3D v = Raytracer::Vector3D::random();
-    
+
     // Components should be in range [-1, 1)
     EXPECT_GE(v.x, -1.0);
     EXPECT_LT(v.x, 1.0);
@@ -176,26 +160,23 @@ TEST(Vector3D, RandomVector)
 }
 
 // Vector3D random unit vector
-TEST(Vector3D, RandomUnitVector)
-{
+TEST(Vector3D, RandomUnitVector) {
     Raytracer::Vector3D v = Raytracer::Vector3D::getRandomUnitVector();
-    
+
     // Length should be approximately 1
     EXPECT_NEAR(v.length(), 1.0, 1e-6);
 }
 
 // Vector3D normalized with zero vector
-TEST(Vector3D, NormalizedZeroVector)
-{
+TEST(Vector3D, NormalizedZeroVector) {
     Raytracer::Vector3D zero{0.0, 0.0, 0.0};
     Raytracer::Vector3D normalized = zero.normalized();
-    
+
     expectVectorNear(normalized, {0.0, 0.0, 0.0});
 }
 
 // Color operators
-TEST(Color, ColorOperators)
-{
+TEST(Color, ColorOperators) {
     Raytracer::Color c1{0.5, 0.3, 0.2};
     Raytracer::Color c2{0.1, 0.2, 0.3};
 
@@ -222,8 +203,7 @@ TEST(Color, ColorOperators)
 }
 
 // Color free functions
-TEST(Color, ColorFreeFunctions)
-{
+TEST(Color, ColorFreeFunctions) {
     Raytracer::Color c1{0.5, 0.3, 0.2};
     Raytracer::Color c2{0.1, 0.2, 0.3};
 
@@ -262,8 +242,7 @@ TEST(Color, ColorFreeFunctions)
 }
 
 // Color default constructor
-TEST(Color, DefaultConstructor)
-{
+TEST(Color, DefaultConstructor) {
     Raytracer::Color c;
     EXPECT_NEAR(c.r, 0.0, 1e-12);
     EXPECT_NEAR(c.g, 0.0, 1e-12);

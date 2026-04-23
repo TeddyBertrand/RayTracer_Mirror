@@ -2,11 +2,9 @@
 
 #include "components/IMaterial.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class AMaterial : public IMaterial
-{
+class AMaterial : public IMaterial {
 public:
     double getSpecularWeight() const override { return 0.0; }
 

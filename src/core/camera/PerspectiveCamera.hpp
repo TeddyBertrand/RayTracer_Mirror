@@ -2,13 +2,16 @@
 
 #include "ACamera.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class PerspectiveCamera : public ACamera
-{
+class PerspectiveCamera : public ACamera {
 public:
-    PerspectiveCamera(const Point3D& origin, const Vector3D& rotation, double fov, double aspect_ratio, int width, int height);
+    PerspectiveCamera(const Point3D& origin,
+                      const Vector3D& rotation,
+                      double fov,
+                      double aspect_ratio,
+                      int width,
+                      int height);
 
     Ray getRay(double u, double v) const override;
 

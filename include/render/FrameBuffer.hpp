@@ -1,10 +1,9 @@
 #pragma once
 
-#include <vector>
 #include "math/Color.hpp"
+#include <vector>
 
-namespace Raytracer
-{
+namespace Raytracer {
 
 using FrameBuffer = std::vector<Color>;
 

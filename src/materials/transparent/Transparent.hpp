@@ -2,24 +2,19 @@
 
 #include "materials/commun/AMaterial.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class Transparent : public AMaterial
-{
+class Transparent : public AMaterial {
 public:
-    Transparent(Color albedo, double ref_idx): 
-        _albedo(albedo), _ref_idx(ref_idx) {}
+    Transparent(Color albedo, double ref_idx) : _albedo(albedo), _ref_idx(ref_idx) {}
 
-    bool scatter(
-        const Ray& r_in,
-        const HitRecord& rec,
-        Color& attenuation,
-        Ray& scattered
-    ) const override;
-    
+    bool scatter(const Ray& r_in,
+                 const HitRecord& rec,
+                 Color& attenuation,
+                 Ray& scattered) const override;
+
     double getSpecularWeight() const override { return 1.0; }
-    
+
     Color getTransmittance() const override { return _albedo; }
 
     virtual std::string getName() const override { return "transparent"; }

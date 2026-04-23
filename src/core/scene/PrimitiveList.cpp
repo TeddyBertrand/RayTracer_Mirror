@@ -1,10 +1,8 @@
 #include "PrimitiveList.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-bool PrimitiveList::hit(const Ray& r, Interval ray_t, HitRecord& rec) const
-{
+bool PrimitiveList::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     HitRecord temp_rec;
     bool hit_anything = false;
     double closest_so_far = ray_t.max;

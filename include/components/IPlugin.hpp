@@ -2,11 +2,9 @@
 
 #include <string>
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class IPlugin
-{
+class IPlugin {
 public:
     virtual ~IPlugin() = default;
 

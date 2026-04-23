@@ -11,4 +11,5 @@
 
 _*
 
-.vscode
+.vscode/*
+!.vscode/settings.json

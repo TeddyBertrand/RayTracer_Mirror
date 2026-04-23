@@ -4,13 +4,11 @@
 #include "math/Ray.hpp"
 #include "primitives/sphere/Sphere.hpp"
 
-namespace
-{
+namespace {
 
 void expectVectorNear(const Raytracer::Vector3D& actual,
                       const Raytracer::Vector3D& expected,
-                      double epsilon = 1e-12)
-{
+                      double epsilon = 1e-12) {
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);
     EXPECT_NEAR(actual.z, expected.z, epsilon);
@@ -18,8 +16,7 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
 
 } // namespace
 
-TEST(Sphere, RayHitsFromOutside)
-{
+TEST(Sphere, RayHitsFromOutside) {
     Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
     Raytracer::HitRecord rec;
 
@@ -32,8 +29,7 @@ TEST(Sphere, RayHitsFromOutside)
     expectVectorNear(rec.normal, {0.0, 0.0, -1.0});
 }
 
-TEST(Sphere, RayMisses)
-{
+TEST(Sphere, RayMisses) {
     Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
     Raytracer::HitRecord rec;
 
@@ -42,8 +38,7 @@ TEST(Sphere, RayMisses)
     EXPECT_FALSE(hit);
 }
 
-TEST(Sphere, RayFromInsideHitsAndFlipsNormal)
-{
+TEST(Sphere, RayFromInsideHitsAndFlipsNormal) {
     Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
     Raytracer::HitRecord rec;
 
@@ -56,8 +51,7 @@ TEST(Sphere, RayFromInsideHitsAndFlipsNormal)
     expectVectorNear(rec.normal, {0.0, 0.0, -1.0});
 }
 
-TEST(Sphere, RayOutsideInterval)
-{
+TEST(Sphere, RayOutsideInterval) {
     Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
     Raytracer::HitRecord rec;
 
@@ -67,8 +61,7 @@ TEST(Sphere, RayOutsideInterval)
     EXPECT_FALSE(hit);
 }
 
-TEST(Sphere, RayPartiallyInInterval)
-{
+TEST(Sphere, RayPartiallyInInterval) {
     Raytracer::Sphere sphere({5.0, 0.0, 0.0}, 1.0, nullptr);
     Raytracer::HitRecord rec;
 
@@ -79,8 +72,7 @@ TEST(Sphere, RayPartiallyInInterval)
     EXPECT_NEAR(rec.t, 4.0, 1e-6);
 }
 
-TEST(Sphere, RayHitsAtTwoPoints)
-{
+TEST(Sphere, RayHitsAtTwoPoints) {
     Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 2.0, nullptr);
     Raytracer::HitRecord rec;
 

@@ -2,18 +2,16 @@
 
 #include "materials/lambertian/Lambertian.hpp"
 #include "materials/transparent/Transparent.hpp"
-#include "math/Ray.hpp"
-#include "math/HitRecord.hpp"
-#include "math/Vector3D.hpp"
 #include "math/Color.hpp"
+#include "math/HitRecord.hpp"
+#include "math/Ray.hpp"
+#include "math/Vector3D.hpp"
 
-namespace
-{
+namespace {
 
 void expectVectorNear(const Raytracer::Vector3D& actual,
                       const Raytracer::Vector3D& expected,
-                      double epsilon = 1e-6)
-{
+                      double epsilon = 1e-6) {
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);
     EXPECT_NEAR(actual.z, expected.z, epsilon);
@@ -22,8 +20,7 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
 } // namespace
 
 // Lambertian tests
-TEST(Lambertian, ScatterBasic)
-{
+TEST(Lambertian, ScatterBasic) {
     Raytracer::Color albedo{0.8, 0.8, 0.8};
     Raytracer::Lambertian material(albedo);
 
@@ -47,8 +44,7 @@ TEST(Lambertian, ScatterBasic)
     expectVectorNear(scattered.origin(), rec.point);
 }
 
-TEST(Lambertian, ScatterDifferentAlbedo)
-{
+TEST(Lambertian, ScatterDifferentAlbedo) {
     Raytracer::Color albedo{0.2, 0.5, 0.9};
     Raytracer::Lambertian material(albedo);
 
@@ -69,8 +65,7 @@ TEST(Lambertian, ScatterDifferentAlbedo)
     EXPECT_NEAR(attenuation.b, 0.9, 0.1);
 }
 
-TEST(Lambertian, ScatterBackFace)
-{
+TEST(Lambertian, ScatterBackFace) {
     Raytracer::Color albedo{0.8, 0.8, 0.8};
     Raytracer::Lambertian material(albedo);
 
@@ -89,16 +84,14 @@ TEST(Lambertian, ScatterBackFace)
     EXPECT_NEAR(attenuation.r, 0.8, 0.1);
 }
 
-TEST(Lambertian, GetName)
-{
+TEST(Lambertian, GetName) {
     Raytracer::Lambertian material({0.8, 0.8, 0.8});
 
     EXPECT_EQ(material.getName(), "lambertian");
 }
 
 // Transparent tests
-TEST(Transparent, BasicProperties)
-{
+TEST(Transparent, BasicProperties) {
     Raytracer::Transparent material({0.9, 0.8, 0.7}, 1.5);
 
     EXPECT_EQ(material.getName(), "transparent");
@@ -110,8 +103,7 @@ TEST(Transparent, BasicProperties)
     EXPECT_DOUBLE_EQ(transmittance.b, 0.7);
 }
 
-TEST(Transparent, ScatterUsesReflectionWhenCannotRefract)
-{
+TEST(Transparent, ScatterUsesReflectionWhenCannotRefract) {
     Raytracer::Transparent material({0.7, 0.8, 0.9}, 1.5);
 
     Raytracer::Ray ray_in({0.0, 0.0, 0.0}, {0.8, 0.0, -0.6});

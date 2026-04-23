@@ -1,15 +1,13 @@
 #pragma once
-#include <vector>
-#include <string>
-#include <fstream>
-#include <algorithm>
 #include "render/FrameBuffer.hpp"
+#include <algorithm>
+#include <fstream>
+#include <string>
+#include <vector>
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class Image
-{
+class Image {
 public:
     Image(int width, int height) : _width(width), _height(height) {}
 

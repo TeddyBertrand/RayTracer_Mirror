@@ -1,20 +1,17 @@
 #pragma once
 
-#include <vector>
-#include <memory>
 #include "components/ICamera.hpp"
 #include "components/IPrimitive.hpp"
 #include "core/scene/Scene.hpp"
 #include "render/FrameBuffer.hpp"
+#include <memory>
+#include <vector>
 
-
-namespace Raytracer
-{
+namespace Raytracer {
 
 class Renderer {
 public:
-    Renderer(int samples = 10, int depth = 50) 
-        : _samples(samples), _maxDepth(depth) {}
+    Renderer(int samples = 10, int depth = 50) : _samples(samples), _maxDepth(depth) {}
     ~Renderer() = default;
 
     void render(const ICamera& camera, const Scene& scene, FrameBuffer& buffer);

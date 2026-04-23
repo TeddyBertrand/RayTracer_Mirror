@@ -1,6 +1,3 @@
 #include "Scene.hpp"
 
-namespace Raytracer
-{
-
-} // namespace Raytracer
+namespace Raytracer {} // namespace Raytracer

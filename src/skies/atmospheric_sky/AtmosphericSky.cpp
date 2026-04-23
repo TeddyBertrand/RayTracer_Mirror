@@ -1,10 +1,8 @@
 #include "AtmosphericSky.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-Color AtmosphericSky::getBackgroundColor(const Ray& r) const
-{
+Color AtmosphericSky::getBackgroundColor(const Ray& r) const {
     Vector3D unit_direction = r.direction().normalized();
 
     double t = 0.5 * (unit_direction.y + 1.0);

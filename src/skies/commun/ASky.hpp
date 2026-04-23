@@ -2,11 +2,9 @@
 
 #include "components/ISky.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class ASky : public ISky
-{
+class ASky : public ISky {
 public:
     ASky() = default;
 

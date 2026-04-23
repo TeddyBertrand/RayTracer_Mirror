@@ -4,23 +4,25 @@
 #include <iostream>
 #include <random>
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-struct Vector3D
-{
+struct Vector3D {
     double x, y, z;
 
     constexpr Vector3D() noexcept : x(0), y(0), z(0) {}
     constexpr Vector3D(double x, double y, double z) noexcept : x(x), y(y), z(z) {}
 
     Vector3D& operator+=(const Vector3D& v) noexcept {
-        x += v.x; y += v.y; z += v.z;
+        x += v.x;
+        y += v.y;
+        z += v.z;
         return *this;
     }
 
     Vector3D& operator*=(double t) noexcept {
-        x *= t; y *= t; z *= t;
+        x *= t;
+        y *= t;
+        z *= t;
         return *this;
     }
 
@@ -28,17 +30,15 @@ struct Vector3D
         double l = length();
         if (l > 0) {
             double inv = 1.0 / l;
-            x *= inv; y *= inv; z *= inv;
+            x *= inv;
+            y *= inv;
+            z *= inv;
         }
     }
 
-    Vector3D& operator/=(double t) noexcept {
-        return *this *= (1.0 / t);
-    }
+    Vector3D& operator/=(double t) noexcept { return *this *= (1.0 / t); }
 
-    [[nodiscard]] constexpr Vector3D operator-() const noexcept {
-        return {-x, -y, -z};
-    }
+    [[nodiscard]] constexpr Vector3D operator-() const noexcept { return {-x, -y, -z}; }
 
     [[nodiscard]] constexpr Vector3D operator*(double t) const noexcept {
         return {x * t, y * t, z * t};
@@ -52,7 +52,7 @@ struct Vector3D
         return (x == v.x && y == v.y && z == v.z);
     }
 
-    [[nodiscard]] double lengthSquared() const noexcept { return x*x + y*y + z*z; }
+    [[nodiscard]] double lengthSquared() const noexcept { return x * x + y * y + z * z; }
     [[nodiscard]] double length() const noexcept { return std::sqrt(lengthSquared()); }
 
     [[nodiscard]] double dot(const Vector3D& v) const noexcept {
@@ -60,11 +60,7 @@ struct Vector3D
     }
 
     [[nodiscard]] constexpr Vector3D cross(const Vector3D& v) const noexcept {
-        return {
-            y * v.z - z * v.y,
-            z * v.x - x * v.z,
-            x * v.y - y * v.x
-        };
+        return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
     }
 
     [[nodiscard]] Vector3D normalized() const noexcept {
@@ -81,17 +77,17 @@ struct Vector3D
         return (std::fabs(x) < s) && (std::fabs(y) < s) && (std::fabs(z) < s);
     }
 
-    static constexpr Vector3D zero()     noexcept { return {0, 0, 0}; }
-    static constexpr Vector3D unitX()   noexcept { return {1, 0, 0}; }
-    static constexpr Vector3D unitY()   noexcept { return {0, 1, 0}; }
-    static constexpr Vector3D unitZ()   noexcept { return {0, 0, 1}; }
+    static constexpr Vector3D zero() noexcept { return {0, 0, 0}; }
+    static constexpr Vector3D unitX() noexcept { return {1, 0, 0}; }
+    static constexpr Vector3D unitY() noexcept { return {0, 1, 0}; }
+    static constexpr Vector3D unitZ() noexcept { return {0, 0, 1}; }
 
-    static constexpr Vector3D up()       noexcept { return {0, 1, 0}; }
-    static constexpr Vector3D down()     noexcept { return {0, -1, 0}; }
-    static constexpr Vector3D right()    noexcept { return {1, 0, 0}; }
-    static constexpr Vector3D left()     noexcept { return {-1, 0, 0}; }
-    static constexpr Vector3D forward()  noexcept { return {0, 0, -1}; }
-    static constexpr Vector3D back()     noexcept { return {0, 0, 1}; }
+    static constexpr Vector3D up() noexcept { return {0, 1, 0}; }
+    static constexpr Vector3D down() noexcept { return {0, -1, 0}; }
+    static constexpr Vector3D right() noexcept { return {1, 0, 0}; }
+    static constexpr Vector3D left() noexcept { return {-1, 0, 0}; }
+    static constexpr Vector3D forward() noexcept { return {0, 0, -1}; }
+    static constexpr Vector3D back() noexcept { return {0, 0, 1}; }
 
     static double getRandomDouble(double min, double max) {
         static std::mt19937 generator(std::random_device{}());
@@ -100,22 +96,19 @@ struct Vector3D
     }
 
     static Vector3D random() {
-        return Vector3D(getRandomDouble(-1, 1),
-                        getRandomDouble(-1, 1),
-                        getRandomDouble(-1, 1));
+        return Vector3D(getRandomDouble(-1, 1), getRandomDouble(-1, 1), getRandomDouble(-1, 1));
     }
     static Vector3D getRandomUnitVector() {
         while (true) {
             auto p = Vector3D::random();
             auto lensq = p.lengthSquared();
-            
+
             if (lensq > 1e-160 && lensq <= 1.0) {
                 return p / std::sqrt(lensq);
             }
         }
     }
 };
-
 
 [[nodiscard]] constexpr inline Vector3D operator+(const Vector3D& u, const Vector3D& v) noexcept {
     return {u.x + v.x, u.y + v.y, u.z + v.z};

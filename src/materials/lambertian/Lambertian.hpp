@@ -2,20 +2,16 @@
 
 #include "materials/commun/AMaterial.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class Lambertian : public AMaterial
-{
+class Lambertian : public AMaterial {
 public:
     Lambertian(const Color& albedo);
 
-    bool scatter(
-        const Ray& r_in,
-        const HitRecord& rec,
-        Color& attenuation,
-        Ray& scattered
-    ) const override;
+    bool scatter(const Ray& r_in,
+                 const HitRecord& rec,
+                 Color& attenuation,
+                 Ray& scattered) const override;
 
     std::string getName() const override { return "lambertian"; }
 

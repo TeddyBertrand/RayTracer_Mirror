@@ -3,11 +3,9 @@
 #pragma once
 #include "math/Ray.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class ICamera
-{
+class ICamera {
 public:
     virtual ~ICamera() = default;
 

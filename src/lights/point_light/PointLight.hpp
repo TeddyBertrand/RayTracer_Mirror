@@ -1,14 +1,12 @@
 #pragma once
 
 #include "components/ILight.hpp"
-#include "math/Vector3D.hpp"
 #include "math/Color.hpp"
+#include "math/Vector3D.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-class PointLight : public ILight
-{
+class PointLight : public ILight {
 public:
     PointLight(const Vector3D& position, const Color& color, double intensity)
         : _position(position), _color(color), _intensity(intensity) {}

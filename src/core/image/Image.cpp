@@ -1,10 +1,8 @@
 #include "Image.hpp"
 
-namespace Raytracer
-{
+namespace Raytracer {
 
-void Image::drawFromBuffer(const FrameBuffer& buffer, const std::string& filename)
-{
+void Image::drawFromBuffer(const FrameBuffer& buffer, const std::string& filename) {
     std::ofstream file(filename);
     file << "P3\n" << _width << " " << _height << "\n255\n";
 

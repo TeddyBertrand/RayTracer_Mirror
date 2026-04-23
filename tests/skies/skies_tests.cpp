@@ -6,13 +6,11 @@
 #include "skies/empty_sky/EmptySky.hpp"
 #include "skies/galaxy_sky/GalaxySky.hpp"
 
-namespace
-{
+namespace {
 
 void expectColorNear(const Raytracer::Color& actual,
                      const Raytracer::Color& expected,
-                     double epsilon = 1e-12)
-{
+                     double epsilon = 1e-12) {
     EXPECT_NEAR(actual.r, expected.r, epsilon);
     EXPECT_NEAR(actual.g, expected.g, epsilon);
     EXPECT_NEAR(actual.b, expected.b, epsilon);
@@ -20,8 +18,7 @@ void expectColorNear(const Raytracer::Color& actual,
 
 } // namespace
 
-TEST(EmptySky, ReturnsBlackBackground)
-{
+TEST(EmptySky, ReturnsBlackBackground) {
     Raytracer::EmptySky sky;
     const Raytracer::Ray ray({0.0, 0.0, 0.0}, {1.0, 0.0, 0.0});
 
@@ -30,8 +27,7 @@ TEST(EmptySky, ReturnsBlackBackground)
     EXPECT_EQ(sky.getName(), "empty_sky");
 }
 
-TEST(AtmosphericSky, InterpolatesBetweenGroundAndZenith)
-{
+TEST(AtmosphericSky, InterpolatesBetweenGroundAndZenith) {
     const Raytracer::Color ground{0.5, 0.7, 1.0};
     const Raytracer::Color zenith{1.0, 1.0, 1.0};
     Raytracer::AtmosphericSky sky(ground, zenith);
@@ -49,8 +45,7 @@ TEST(AtmosphericSky, InterpolatesBetweenGroundAndZenith)
     expectColorNear(sky.getBackgroundColor(horizon_ray), {0.75, 0.85, 1.0});
 }
 
-TEST(GalaxySky, ZeroStarAndNebulaDensityGivesBlackBackground)
-{
+TEST(GalaxySky, ZeroStarAndNebulaDensityGivesBlackBackground) {
     const Raytracer::Color nebulaColor{0.2, 0.4, 0.6};
     Raytracer::GalaxySky sky(0.0, nebulaColor, 0.0, 3.0);
     const Raytracer::Ray ray({0.0, 0.0, 0.0}, {0.3, 0.4, 0.5});
@@ -60,8 +55,7 @@ TEST(GalaxySky, ZeroStarAndNebulaDensityGivesBlackBackground)
     expectColorNear(sky.getEnvironmentColor(ray), nebulaColor * 0.8);
 }
 
-TEST(GalaxySky, BackgroundColorIsDeterministic)
-{
+TEST(GalaxySky, BackgroundColorIsDeterministic) {
     Raytracer::GalaxySky sky(0.001, {0.025, 0.01, 0.05}, 0.7, 3.0);
     const Raytracer::Ray ray({0.0, 0.0, 0.0}, {0.2, 0.8, -0.4});
 

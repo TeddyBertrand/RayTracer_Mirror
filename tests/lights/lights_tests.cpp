@@ -1,16 +1,14 @@
 #include <gtest/gtest.h>
 
 #include "lights/point_light/PointLight.hpp"
-#include "math/Vector3D.hpp"
 #include "math/Color.hpp"
+#include "math/Vector3D.hpp"
 
-namespace
-{
+namespace {
 
 void expectVectorNear(const Raytracer::Vector3D& actual,
                       const Raytracer::Vector3D& expected,
-                      double epsilon = 1e-6)
-{
+                      double epsilon = 1e-6) {
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);
     EXPECT_NEAR(actual.z, expected.z, epsilon);
@@ -19,8 +17,7 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
 } // namespace
 
 // PointLight tests
-TEST(PointLight, ComputeLightBasic)
-{
+TEST(PointLight, ComputeLightBasic) {
     Raytracer::PointLight light({0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}, 1.0);
     Raytracer::Vector3D hit_point{1.0, 0.0, 0.0};
 
@@ -32,8 +29,7 @@ TEST(PointLight, ComputeLightBasic)
     EXPECT_NEAR(sample.color.r, 1.0, 1e-6);
 }
 
-TEST(PointLight, ComputeLightWithDistance)
-{
+TEST(PointLight, ComputeLightWithDistance) {
     Raytracer::PointLight light({0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}, 4.0);
     Raytracer::Vector3D hit_point{3.0, 4.0, 0.0};
 
@@ -45,8 +41,7 @@ TEST(PointLight, ComputeLightWithDistance)
     EXPECT_NEAR(sample.color.r, 0.16, 1e-6);
 }
 
-TEST(PointLight, ComputeLightNearSource)
-{
+TEST(PointLight, ComputeLightNearSource) {
     Raytracer::PointLight light({0.0, 0.0, 0.0}, {1.0, 1.0, 1.0}, 1.0);
     Raytracer::Vector3D hit_point{0.1, 0.0, 0.0};
 
