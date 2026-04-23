@@ -12,7 +12,7 @@ public:
 
     Color getTransmittance() const override { return Color(0, 0, 0); }
 
-    Color emit(const HitRecord& rec) const override { return Color(0, 0, 0); }
+    Color emit([[maybe_unused]] const HitRecord& rec) const override { return Color(0, 0, 0); }
 };
 
 } // namespace Raytracer

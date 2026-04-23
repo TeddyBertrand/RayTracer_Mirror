@@ -61,8 +61,8 @@ TEST(Vector3D, NearZero)
     const Raytracer::Vector3D small{1e-10, -1e-11, 9e-10};
     const Raytracer::Vector3D large{1e-4, 0.0, 0.0};
 
-    EXPECT_TRUE(small.near_zero());
-    EXPECT_FALSE(large.near_zero());
+    EXPECT_TRUE(small.isNearZero());
+    EXPECT_FALSE(large.isNearZero());
 }
 
 TEST(Ray, At)

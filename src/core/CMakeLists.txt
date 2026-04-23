@@ -7,6 +7,7 @@ add_library(raytracer_core STATIC
     image/Image.cpp
     ../primitives/sphere/Sphere.cpp
     ../materials/lambertian/Lambertian.cpp
+    ../materials/transparent/Transparent.cpp
     ../lights/point_light/PointLight.cpp
     ../skies/atmospheric_sky/AtmosphericSky.cpp
     ../skies/empty_sky/EmptySky.cpp

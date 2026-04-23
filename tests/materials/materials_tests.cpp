@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "materials/lambertian/Lambertian.hpp"
+#include "materials/transparent/Transparent.hpp"
 #include "math/Ray.hpp"
 #include "math/HitRecord.hpp"
 #include "math/Vector3D.hpp"
@@ -93,4 +94,43 @@ TEST(Lambertian, GetName)
     Raytracer::Lambertian material({0.8, 0.8, 0.8});
 
     EXPECT_EQ(material.getName(), "lambertian");
+}
+
+// Transparent tests
+TEST(Transparent, BasicProperties)
+{
+    Raytracer::Transparent material({0.9, 0.8, 0.7}, 1.5);
+
+    EXPECT_EQ(material.getName(), "transparent");
+    EXPECT_DOUBLE_EQ(material.getSpecularWeight(), 1.0);
+
+    Raytracer::Color transmittance = material.getTransmittance();
+    EXPECT_DOUBLE_EQ(transmittance.r, 0.9);
+    EXPECT_DOUBLE_EQ(transmittance.g, 0.8);
+    EXPECT_DOUBLE_EQ(transmittance.b, 0.7);
+}
+
+TEST(Transparent, ScatterUsesReflectionWhenCannotRefract)
+{
+    Raytracer::Transparent material({0.7, 0.8, 0.9}, 1.5);
+
+    Raytracer::Ray ray_in({0.0, 0.0, 0.0}, {0.8, 0.0, -0.6});
+    Raytracer::HitRecord rec;
+    rec.point = {1.0, 2.0, 3.0};
+    rec.normal = {0.0, 0.0, 1.0};
+    rec.front_face = false;
+
+    Raytracer::Color attenuation;
+    Raytracer::Ray scattered;
+
+    bool result = material.scatter(ray_in, rec, attenuation, scattered);
+
+    EXPECT_TRUE(result);
+    EXPECT_DOUBLE_EQ(attenuation.r, 0.7);
+    EXPECT_DOUBLE_EQ(attenuation.g, 0.8);
+    EXPECT_DOUBLE_EQ(attenuation.b, 0.9);
+    expectVectorNear(scattered.origin(), rec.point);
+
+    Raytracer::Vector3D expected = {0.8, 0.0, 0.6};
+    expectVectorNear(scattered.direction(), expected);
 }
