@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <random>
+
 #include "math/Vector3D.hpp"
 
 namespace Raytracer
