@@ -93,16 +93,16 @@ struct Vector3D
     static constexpr Vector3D forward()  noexcept { return {0, 0, -1}; }
     static constexpr Vector3D back()     noexcept { return {0, 0, 1}; }
 
-    static double random_double(double min, double max) {
+    static double getRandomDouble(double min, double max) {
         static std::mt19937 generator(std::random_device{}());
         std::uniform_real_distribution<double> distribution(min, max);
         return distribution(generator);
     }
 
     static Vector3D random() {
-        return Vector3D(random_double(-1, 1),
-                        random_double(-1, 1),
-                        random_double(-1, 1));
+        return Vector3D(getRandomDouble(-1, 1),
+                        getRandomDouble(-1, 1),
+                        getRandomDouble(-1, 1));
     }
     static Vector3D random_unit_vector() {
         while (true) {
