@@ -35,9 +35,9 @@ TEST(Vector3D, BasicArithmetic)
 
 TEST(Vector3D, DotCrossAndNormalize)
 {
-    const Raytracer::Vector3D x = Raytracer::Vector3D::unit_x();
-    const Raytracer::Vector3D y = Raytracer::Vector3D::unit_y();
-    const Raytracer::Vector3D z = Raytracer::Vector3D::unit_z();
+    const Raytracer::Vector3D x = Raytracer::Vector3D::unitX();
+    const Raytracer::Vector3D y = Raytracer::Vector3D::unitY();
+    const Raytracer::Vector3D z = Raytracer::Vector3D::unitZ();
 
     EXPECT_DOUBLE_EQ(x.dot(y), 0.0);
     expectVectorNear(x.cross(y), z);
@@ -86,9 +86,9 @@ TEST(Interval, ContainsAndClamp)
 
 TEST(Color, ToByte)
 {
-    EXPECT_EQ(Raytracer::Color::to_byte(0.0), 0);
-    EXPECT_EQ(Raytracer::Color::to_byte(0.25), 128);
-    EXPECT_EQ(Raytracer::Color::to_byte(1.0), 255);
+    EXPECT_EQ(Raytracer::Color::toByte(0.0), 0);
+    EXPECT_EQ(Raytracer::Color::toByte(0.25), 128);
+    EXPECT_EQ(Raytracer::Color::toByte(1.0), 255);
 }
 
 TEST(MathUtils, DegreesAndRadians)
@@ -178,7 +178,7 @@ TEST(Vector3D, RandomVector)
 // Vector3D random unit vector
 TEST(Vector3D, RandomUnitVector)
 {
-    Raytracer::Vector3D v = Raytracer::Vector3D::random_unit_vector();
+    Raytracer::Vector3D v = Raytracer::Vector3D::getRandomUnitVector();
     
     // Length should be approximately 1
     EXPECT_NEAR(v.length(), 1.0, 1e-6);

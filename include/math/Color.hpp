@@ -34,7 +34,7 @@ struct Color
         return (std::fabs(r) < s) && (std::fabs(g) < s) && (std::fabs(b) < s);
     }
 
-    static int to_byte(double value) noexcept {
+    static int toByte(double value) noexcept {
         static const Interval intensity(0.0, 0.999);
         return static_cast<int>(256 * intensity.clamp(std::sqrt(value)));
     }

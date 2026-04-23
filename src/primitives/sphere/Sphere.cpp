@@ -67,7 +67,7 @@ bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const
     Vector3D normal = (rec.point - _center) / _radius;
     
     // check if ray hit inside or outside and oriente in function
-    rec.set_face_normal(r, normal);
+    rec.setFaceNormal(r, normal);
 
     rec.material = _material;
 

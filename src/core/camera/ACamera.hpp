@@ -34,7 +34,7 @@ protected:
             -cos(pitch) * cos(yaw)
         ).normalized();
 
-        _setupBase(vup);
+        setupBase(vup);
 
         if (roll != 0) {
             Vector3D old_right = _right;
@@ -46,9 +46,9 @@ protected:
     }
 
 private:
-    void _setupBase(const Vector3D& vup) {
+    void setupBase(const Vector3D& vup) {
         if (std::abs(_forward.dot(vup)) > 0.999) {
-            _right = _forward.cross(Vector3D::unit_z()).normalized();
+            _right = _forward.cross(Vector3D::unitZ()).normalized();
         } else {
             _right = _forward.cross(vup).normalized();
         }

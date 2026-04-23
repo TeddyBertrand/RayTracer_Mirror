@@ -16,7 +16,7 @@ bool Transparent::scatter(const Ray& r_in, const HitRecord& rec, Color& attenuat
     bool cannot_refract = ratio * sin_theta > 1.0;
     Vector3D direction;
 
-    if (cannot_refract || Math::reflectance(cos_theta, ratio) > Math::random_double(0.0, 1.0)) {
+    if (cannot_refract || Math::reflectance(cos_theta, ratio) > Math::randomDouble(0.0, 1.0)) {
         direction = Math::reflect(unit_direction, rec.normal);
     } else {
         direction = Math::refract(unit_direction, rec.normal, ratio);

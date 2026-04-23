@@ -17,7 +17,7 @@ private:
     Vector3D _vertical;
     Point3D _lower_left_corner;
 
-    void _initialize(double fov, double aspect_ratio);
+    void initialize(double fov, double aspect_ratio);
 };
 
 } // namespace Raytracer

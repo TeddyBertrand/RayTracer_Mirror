@@ -8,7 +8,7 @@ namespace Raytracer
 PerspectiveCamera::PerspectiveCamera(const Point3D& origin, const Vector3D& rotation, double fov, double aspect_ratio, int width, int height)
     : ACamera(origin, rotation, Vector3D::up(), width, height)
 {
-    _initialize(fov, aspect_ratio);
+    initialize(fov, aspect_ratio);
 }
 
 Ray PerspectiveCamera::getRay(double u, double v) const
@@ -18,7 +18,7 @@ Ray PerspectiveCamera::getRay(double u, double v) const
     return Ray(_origin, target_point - _origin);
 }
 
-void PerspectiveCamera::_initialize(double fov, double aspect_ratio)
+void PerspectiveCamera::initialize(double fov, double aspect_ratio)
 {
     double theta = fov * M_PI / 180.0;
     double h = std::tan(theta / 2.0);

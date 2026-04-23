@@ -28,7 +28,7 @@ public:
     /**
      * @brief Generate a random double precision floating point number in the range [min, max)
      */
-    static inline double random_double(double min, double max) {
+    static inline double randomDouble(double min, double max) {
         static std::uniform_real_distribution<double> distribution(min, max);
         static std::mt19937 generator;
         return distribution(generator);
@@ -52,7 +52,7 @@ public:
         
         Vector3D r_out_perp = (uv + n * cos_theta) * etai_over_etat;
         
-        double r_out_parallel_len = -std::sqrt(std::abs(1.0 - r_out_perp.length_squared()));
+        double r_out_parallel_len = -std::sqrt(std::abs(1.0 - r_out_perp.lengthSquared()));
         Vector3D r_out_parallel = n * r_out_parallel_len;
         
         return r_out_perp + r_out_parallel;
