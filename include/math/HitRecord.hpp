@@ -22,7 +22,7 @@ struct HitRecord
     
     std::shared_ptr<IMaterial> material;
 
-    inline void set_face_normal(const Ray& r, const Vector3D& outward_normal) noexcept {
+    inline void setFaceNormal(const Ray& r, const Vector3D& outward_normal) noexcept {
         front_face = r.direction().dot(outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;
     }

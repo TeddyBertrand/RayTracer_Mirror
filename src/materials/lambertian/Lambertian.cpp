@@ -14,7 +14,7 @@ bool Lambertian::scatter(
     Ray& scattered
 ) const
 {
-    auto scatter_direction = rec.normal + Vector3D::random_unit_vector();
+    auto scatter_direction = rec.normal + Vector3D::getRandomUnitVector();
 
     if (scatter_direction.isNearZero())
         scatter_direction = rec.normal;

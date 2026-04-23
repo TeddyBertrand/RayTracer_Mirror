@@ -6,7 +6,7 @@ namespace Raytracer
 LightSample PointLight::computeLight(const Point3D& hit_point) const
 {
     Vector3D direction = (_position - hit_point);
-    double distance_squared = direction.length_squared();
+    double distance_squared = direction.lengthSquared();
     direction.normalize();
 
     LightSample sample;

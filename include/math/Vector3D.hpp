@@ -52,8 +52,8 @@ struct Vector3D
         return (x == v.x && y == v.y && z == v.z);
     }
 
-    [[nodiscard]] double length_squared() const noexcept { return x*x + y*y + z*z; }
-    [[nodiscard]] double length() const noexcept { return std::sqrt(length_squared()); }
+    [[nodiscard]] double lengthSquared() const noexcept { return x*x + y*y + z*z; }
+    [[nodiscard]] double length() const noexcept { return std::sqrt(lengthSquared()); }
 
     [[nodiscard]] double dot(const Vector3D& v) const noexcept {
         return x * v.x + y * v.y + z * v.z;
@@ -82,9 +82,9 @@ struct Vector3D
     }
 
     static constexpr Vector3D zero()     noexcept { return {0, 0, 0}; }
-    static constexpr Vector3D unit_x()   noexcept { return {1, 0, 0}; }
-    static constexpr Vector3D unit_y()   noexcept { return {0, 1, 0}; }
-    static constexpr Vector3D unit_z()   noexcept { return {0, 0, 1}; }
+    static constexpr Vector3D unitX()   noexcept { return {1, 0, 0}; }
+    static constexpr Vector3D unitY()   noexcept { return {0, 1, 0}; }
+    static constexpr Vector3D unitZ()   noexcept { return {0, 0, 1}; }
 
     static constexpr Vector3D up()       noexcept { return {0, 1, 0}; }
     static constexpr Vector3D down()     noexcept { return {0, -1, 0}; }
@@ -104,10 +104,10 @@ struct Vector3D
                         getRandomDouble(-1, 1),
                         getRandomDouble(-1, 1));
     }
-    static Vector3D random_unit_vector() {
+    static Vector3D getRandomUnitVector() {
         while (true) {
             auto p = Vector3D::random();
-            auto lensq = p.length_squared();
+            auto lensq = p.lengthSquared();
             
             if (lensq > 1e-160 && lensq <= 1.0) {
                 return p / std::sqrt(lensq);

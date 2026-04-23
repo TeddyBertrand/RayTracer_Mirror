@@ -40,7 +40,7 @@ class FakeLight : public Raytracer::ILight
 public:
     Raytracer::LightSample computeLight(const Raytracer::Point3D&) const override
     {
-        return {{1.0, 1.0, 1.0}, Raytracer::Vector3D::unit_z(), 1.0, true};
+        return {{1.0, 1.0, 1.0}, Raytracer::Vector3D::unitZ(), 1.0, true};
     }
 };
 

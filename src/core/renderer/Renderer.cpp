@@ -20,8 +20,8 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 
             for (int s_y = 0; s_y < sqrt_samples; ++s_y) {
                 for (int s_x = 0; s_x < sqrt_samples; ++s_x) {
-                    double u_offset = (s_x + Math::random_double(0, 1)) / sqrt_samples - anti_aliasing_interval;
-                    double v_offset = (s_y + Math::random_double(0, 1)) / sqrt_samples - anti_aliasing_interval;
+                    double u_offset = (s_x + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
+                    double v_offset = (s_y + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
 
                     double u = (static_cast<double>(x) + u_offset) / (width - 1.0);
                     double v = 1.0 - (static_cast<double>(y) + v_offset) / (height - 1.0);
