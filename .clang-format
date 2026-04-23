@@ -6,7 +6,7 @@ BreakBeforeBraces: Attach
 
 PointerAlignment: Left
 
-StripTrailingWhitespace: true
+DeriveLineEnding: true
 InsertNewlineAtEOF: true
 
 AccessModifierOffset: -4
