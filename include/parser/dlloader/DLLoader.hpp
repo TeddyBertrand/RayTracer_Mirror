@@ -6,28 +6,36 @@
 
 namespace Raytracer {
 
+/**
+ * @brief POSIX dynamic library loader based on `dlopen`/`dlsym`.
+ *
+ * This class owns loaded shared library handles and provides symbol lookup
+ * helpers used by plugin registration systems.
+ */
 class DLLoader : public virtual IDLLoader {
 public:
     /**
-     * @brief Exception class for DLLoader
-     *
-     * if there is an error during the loading/ deletion of the library
-     * it will be thrown with a DLLoaderException
+     * @brief Exception raised when dynamic loading operations fail.
      */
     class DLLoaderException : public std::exception {
     private:
         std::string _message;
 
     public:
+        /**
+         * @brief Build an exception with a descriptive error message.
+         */
         DLLoaderException(std::string message) : _message(message) {};
+
+        /**
+         * @brief Return the stored error message.
+         */
         const char* what() const noexcept override { return this->_message.c_str(); };
     };
 
     /**
-     * @brief Construct a new DLLoader<T> object
-     *
-     * try to load a .so library and store it in the library map
-     * @param libraryPath
+     * @brief Construct a loader and immediately open one library.
+     * @param libraryPath Path to the first shared object to load.
      */
     DLLoader(const std::string& libraryPath) {
         _libMap.clear();
@@ -35,11 +43,9 @@ public:
     };
 
     /**
-     * @brief Open and load a library
-     *
-     * dlopen a new library with the given path, add it to the library map
-     * and throw an exception if there is one
-     * @param libraryPath
+     * @brief Open and register a shared library handle.
+     * @param libraryPath Path to the target shared object.
+     * @throw DLLoaderException If `dlopen` fails.
      */
     void openLibrary(const std::string& libraryPath) override {
         dlerror();
@@ -51,12 +57,12 @@ public:
     }
 
     /**
-     * @brief Get the instance function
-     *
-     * get the library function pointer from the function register with dlsym
-     *
-     * @param entryPoint
-     * @return registerPlugin
+        * @brief Resolve and cast a symbol from a previously loaded library.
+        * @tparam T Callable/function pointer type expected for the symbol.
+        * @param registerFunction Symbol name to query with `dlsym`.
+        * @param libraryName Key used when the library was opened.
+        * @return Symbol cast to `T`.
+        * @throw DLLoaderException If the library or symbol is not found.
      */
     template <typename T>
     T getFunction(const std::string& registerFunction, const std::string& libraryName) const {
@@ -77,9 +83,7 @@ public:
     };
 
     /**
-     * @brief Close library
-     *
-     * check if lib is initialized, dclose all library and clear map
+        * @brief Close all loaded libraries and clear internal handle storage.
      */
     void closeLibrary() override {
         for (auto lib : _libMap) {
@@ -92,9 +96,7 @@ public:
     }
 
     /**
-     * @brief Destroy the DLLoader object
-     *
-     * close every library
+        * @brief Destroy loader and release every loaded library.
      */
     ~DLLoader() { closeLibrary(); }
 
