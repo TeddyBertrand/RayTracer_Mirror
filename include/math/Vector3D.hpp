@@ -6,12 +6,19 @@
 
 namespace Raytracer {
 
+/**
+ * @brief 3D vector type used for positions, directions and normals.
+ */
 struct Vector3D {
+    /** Cartesian components. */
     double x, y, z;
 
     constexpr Vector3D() noexcept : x(0), y(0), z(0) {}
     constexpr Vector3D(double x, double y, double z) noexcept : x(x), y(y), z(z) {}
 
+    /**
+     * @brief Add another vector in place.
+     */
     Vector3D& operator+=(const Vector3D& v) noexcept {
         x += v.x;
         y += v.y;
@@ -19,6 +26,9 @@ struct Vector3D {
         return *this;
     }
 
+    /**
+     * @brief Scale vector by a scalar in place.
+     */
     Vector3D& operator*=(double t) noexcept {
         x *= t;
         y *= t;
@@ -26,6 +36,9 @@ struct Vector3D {
         return *this;
     }
 
+    /**
+     * @brief Normalize this vector in place when possible.
+     */
     inline void normalize() noexcept {
         double l = length();
         if (l > 0) {
@@ -36,6 +49,9 @@ struct Vector3D {
         }
     }
 
+    /**
+     * @brief Divide this vector by a scalar in place.
+     */
     Vector3D& operator/=(double t) noexcept { return *this *= (1.0 / t); }
 
     [[nodiscard]] constexpr Vector3D operator-() const noexcept { return {-x, -y, -z}; }
@@ -52,17 +68,33 @@ struct Vector3D {
         return (x == v.x && y == v.y && z == v.z);
     }
 
+    /**
+     * @brief Return the squared Euclidean length.
+     */
     [[nodiscard]] double lengthSquared() const noexcept { return x * x + y * y + z * z; }
+
+    /**
+     * @brief Return the Euclidean length.
+     */
     [[nodiscard]] double length() const noexcept { return std::sqrt(lengthSquared()); }
 
+    /**
+     * @brief Compute dot product with another vector.
+     */
     [[nodiscard]] double dot(const Vector3D& v) const noexcept {
         return x * v.x + y * v.y + z * v.z;
     }
 
+    /**
+     * @brief Compute cross product with another vector.
+     */
     [[nodiscard]] constexpr Vector3D cross(const Vector3D& v) const noexcept {
         return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
     }
 
+    /**
+     * @brief Return a normalized copy of this vector.
+     */
     [[nodiscard]] Vector3D normalized() const noexcept {
         double l = length();
         if (l <= 0) {
@@ -72,6 +104,9 @@ struct Vector3D {
         return Vector3D(x * inv, y * inv, z * inv);
     }
 
+    /**
+     * @brief Check whether all components are near zero.
+     */
     [[nodiscard]] bool isNearZero() const noexcept {
         const auto s = 1e-8;
         return (std::fabs(x) < s) && (std::fabs(y) < s) && (std::fabs(z) < s);
@@ -89,15 +124,24 @@ struct Vector3D {
     static constexpr Vector3D forward() noexcept { return {0, 0, -1}; }
     static constexpr Vector3D back() noexcept { return {0, 0, 1}; }
 
+    /**
+     * @brief Return a random scalar in `[min, max)`.
+     */
     static double getRandomDouble(double min, double max) {
         static std::mt19937 generator(std::random_device{}());
         std::uniform_real_distribution<double> distribution(min, max);
         return distribution(generator);
     }
 
+    /**
+     * @brief Return a random vector with components in `[-1, 1)`.
+     */
     static Vector3D random() {
         return Vector3D(getRandomDouble(-1, 1), getRandomDouble(-1, 1), getRandomDouble(-1, 1));
     }
+    /**
+     * @brief Return a random uniformly distributed unit vector.
+     */
     static Vector3D getRandomUnitVector() {
         while (true) {
             auto p = Vector3D::random();

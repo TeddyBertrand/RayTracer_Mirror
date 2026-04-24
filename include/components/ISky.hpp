@@ -7,20 +7,33 @@
 
 namespace Raytracer {
 
+/**
+ * @brief Interface for procedural/environment sky models.
+ *
+ * Sky implementations provide background radiance for rays that miss scene
+ * geometry and may also expose environment lighting lookups.
+ */
 class ISky : public IPlugin {
 public:
+    /**
+     * @brief Virtual destructor for safe polymorphic deletion.
+     */
     virtual ~ISky() = default;
 
-    /*
-        @brief Get the color of the background in the direction of the ray.
-        @param r The ray for which to get the background color.
-    */
+    /**
+     * @brief Evaluate background color for a camera ray that did not hit geometry.
+     *
+     * @param r Query ray direction.
+     * @return Background radiance color.
+     */
     virtual Color getBackgroundColor(const Ray& r) const = 0;
 
-    /*
-        @brief Get the color of the environment in the direction of the ray.
-        @param r The ray for which to get the environment color.
-    */
+    /**
+     * @brief Evaluate environment lighting for an arbitrary direction.
+     *
+     * @param r Query ray direction.
+     * @return Environment radiance color.
+     */
     virtual Color getEnvironmentColor(const Ray& r) const = 0;
 };
 

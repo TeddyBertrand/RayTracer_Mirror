@@ -7,20 +7,29 @@
 
 namespace Raytracer {
 
+/**
+ * @brief Collection of math helpers used by the ray tracer.
+ */
 class Math {
 public:
     /**
-     * @brief Convert degrees to radians
+     * @brief Convert degrees to radians.
+     * @param degrees Angle in degrees.
+     * @return Equivalent angle in radians.
      */
     static inline double degreesToRadians(double degrees) { return degrees * M_PI / 180.0; }
 
     /**
-     * @brief Convert radians to degrees
+     * @brief Convert radians to degrees.
+     * @param radians Angle in radians.
+     * @return Equivalent angle in degrees.
      */
     static inline double radiansToDegrees(double radians) { return radians * 180.0 / M_PI; }
 
     /**
-     * @brief Generate a random double precision floating point number in the range [min, max)
+     * @brief Generate a random floating-point value in `[min, max)`.
+     * @param min Inclusive lower bound.
+     * @param max Exclusive upper bound.
      */
     static inline double randomDouble(double min, double max) {
         static std::uniform_real_distribution<double> distribution(min, max);
@@ -29,7 +38,7 @@ public:
     }
 
     /**
-     * @brief Calculate the reflection of a vector on a normal
+     * @brief Reflect vector `v` around surface normal `n`.
      */
     static inline Vector3D reflect(const Vector3D& v, const Vector3D& n) {
         return v - n * (2.0 * v.dot(n));
@@ -53,7 +62,10 @@ public:
     }
 
     /**
-     * @brief Schlick approximation for reflectance (Fresnel effect)
+     * @brief Approximate Fresnel reflectance using Schlick's formula.
+     * @param cosine Cosine of the incident angle.
+     * @param ref_idx Relative refractive index.
+     * @return Approximated reflectance ratio in `[0, 1]`.
      */
     static inline double reflectance(double cosine, double ref_idx) {
         double r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
