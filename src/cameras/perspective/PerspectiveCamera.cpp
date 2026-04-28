@@ -6,6 +6,8 @@
 namespace Raytracer {
 
 extern "C" {
+const char* getName() { return "perspective"; }
+
 ICamera* createPlugin(const ISetting& settings) {
     auto pos = settings.getVector("position");
     auto lookAt = settings.getVector("look_at");

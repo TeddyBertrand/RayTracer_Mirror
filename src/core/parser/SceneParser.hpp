@@ -12,11 +12,23 @@
 namespace Raytracer {
 class SceneParser {
 public:
+    explicit SceneParser(SceneFactories& factories) : _factories(factories) {}
+
     /**
      * @param filePath Chemin vers le fichier .cfg à charger
      * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
      */
     void loadScene(const std::string& filePath, Scene& outScene);
+
+public:
+    class SceneParserException : public std::exception {
+    public:
+        SceneParserException(const std::string& msg) : _msg(msg) {}
+        const char* what() const noexcept override { return _msg.c_str(); }
+
+    private:
+        std::string _msg;
+    };
 
 private:
     /**
@@ -44,7 +56,7 @@ private:
     void parseEnvironment(const libconfig::Setting& environmentSetting, Scene& outScene);
     Color normalizeColor(const Color& color) const;
     std::unordered_map<std::string, std::shared_ptr<IMaterial>> _materials;
-    SceneFactories _factories;
+    SceneFactories& _factories;
     std::vector<void*> _pluginHandles;
 
     using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
@@ -53,15 +65,8 @@ private:
     static inline const SectionTable _sectionDispatch = {
         {"environment", &SceneParser::parseEnvironment},
         {"camera", &SceneParser::parseCamera},
-        {"materials", &SceneParser::parseMaterialsSection},
+        {"materials", &SceneParser::parseMaterials},
         {"shapes", &SceneParser::parseShapes},
-        {"lights", &SceneParser::parseLightsSection}};
-
-    static constexpr char* plugins_path = "./plugins";
-
-    static constexpr char* materials_path = "/materials/";
-    static constexpr char* camera_path = "/camera/";
-    static constexpr char* primitives_path = "/primitives/";
-    static constexpr char* lights_path = "/lights/";
+        {"lights", &SceneParser::parseLights}};
 };
 } // namespace Raytracer

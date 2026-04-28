@@ -99,11 +99,11 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
             }
         }
         if (!root.exists("environment")) {
-            outScene.setSky(std::make_unique<EmptySky>());
+            throw SceneParserException("Scene configuration must include an 'environment' section.");
         }
 
-    } catch () {
-        std::cerr << "Erreur E/S : Impossible de lire " << std::endl;
+    } catch (const libconfig::SettingException& e) {
+        throw SceneParserException("Error parsing config file: " + std::string(e.what()));
     }
 }
 } // namespace Raytracer

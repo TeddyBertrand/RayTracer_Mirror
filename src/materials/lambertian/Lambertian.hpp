@@ -13,8 +13,6 @@ public:
                  Color& attenuation,
                  Ray& scattered) const override;
 
-    std::string getName() const override { return "lambertian"; }
-
 private:
     Color _albedo;
 };

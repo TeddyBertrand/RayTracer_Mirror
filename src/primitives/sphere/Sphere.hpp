@@ -8,8 +8,6 @@
 
 namespace Raytracer {
 
-extern "C" std::string getName() { return "sphere"; }
-
 class Sphere : public virtual IPrimitive {
 public:
     /**

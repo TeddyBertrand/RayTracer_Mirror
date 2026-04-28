@@ -15,8 +15,6 @@ public:
 
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override;
 
-    std::string getName() const override { return "PrimitiveList"; }
-
 private:
     std::vector<std::shared_ptr<IPrimitive>> _objects;
 };

@@ -1,5 +1,6 @@
 add_library(raytracer_core STATIC
     Raytracer.cpp
+    plugin_loader/PluginLoader.cpp
     renderer/Renderer.cpp
     scene/Scene.cpp
     scene/PrimitiveList.cpp

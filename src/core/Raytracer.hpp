@@ -8,7 +8,7 @@
 #include "core/renderer/Renderer.hpp"
 #include "core/scene/Scene.hpp"
 #include "factory/SceneFactories.hpp"
-#include "parser/dlloader/DLLoaderPlugin.hpp" // Utilise ta version typée
+#include "parser/SceneParser.hpp"
 
 namespace Raytracer {
 
@@ -25,11 +25,11 @@ private:
     static constexpr int ERROR_STATUS = 84;
 
     int _exitCode = SUCCESS_STATUS;
-    std::string _configPath;
 
+    SceneFactories _factories;
+    PluginLoader _pluginLoader;
+    SceneParser _parser;
     Renderer _renderer;
     Scene _scene;
-    SceneFactories _factories;
-    DLLoaderPlugin _loader;
 };
 } // namespace Raytracer

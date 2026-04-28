@@ -1,20 +1,20 @@
 camera:
 {
     type = "perspective";
-    resolution = { width = 800; height = 600; };
+    width = 800;
+    height = 600;
     position = { x = 0.0; y = 1.0; z = -4.0; };
     look_at = { x = 0.0; y = 0.0; z = 0.0; };
     up = { x = 0.0; y = 1.0; z = 0.0; };
     fieldOfView = 60.0;
 };
 
-materials: (
-    { 
-        id = "green"; 
-        type = "lambertian"; 
-        color = { r = 80; g = 200; b = 100; }; 
-    }
-);
+materials:
+{
+    id = "green";
+    type = "lambertian";
+    color = { r = 80.0; g = 200.0; b = 100.0; };
+};
 
 shapes: (
     { 
@@ -37,17 +37,14 @@ shapes: (
     },
 );
 
-lights:
-{
-    list: (
-        { 
-            type = "point"; 
-            position = { x = 0.0; y = 2.0; z = -4.0; }; 
-            color = { r = 255; g = 255; b = 255; }; 
-            intensity = 1.2; 
-        }
-    );
-};
+lights: (
+    {
+        type = "point_light";
+        position = { x = 0.0; y = 2.0; z = 0.0; };
+        color = { r = 255.0; g = 255.0; b = 255.0; };
+        intensity = 1.2;
+    }
+);
 
 environment: {
     sky = { r = 0.0; g = 0.0; b = 0.0; };

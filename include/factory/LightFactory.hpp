@@ -17,7 +17,8 @@ public:
      */
     std::shared_ptr<ILight> create(const std::string& name, const ISetting& settings) override {
         if (_factoryMap.find(name) != _factoryMap.end()) {
-            return _factoryMap[name](settings);
+            ILight* ptr = _factoryMap[name](settings);
+            return ptr ? std::shared_ptr<ILight>(ptr) : nullptr;
         }
         return nullptr;
     }

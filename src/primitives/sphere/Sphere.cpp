@@ -5,6 +5,8 @@ namespace Raytracer {
 
 extern "C" {
 
+const char* getName() { return "sphere"; }
+
 IPrimitive* createPlugin(const ISetting& settings) {
     Vector3D pos = settings.getVector("position");
     float radius = settings.getFloat("radius");

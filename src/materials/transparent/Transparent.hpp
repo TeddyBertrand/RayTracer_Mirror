@@ -17,8 +17,6 @@ public:
 
     Color getTransmittance() const override { return _albedo; }
 
-    virtual std::string getName() const override { return "transparent"; }
-
 private:
     Color _albedo;
     double _ref_idx;

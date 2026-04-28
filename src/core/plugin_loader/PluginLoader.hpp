@@ -10,8 +10,12 @@
 namespace Raytracer {
 
 class PluginLoader {
-private:
+public:
+    explicit PluginLoader(SceneFactories& factories) : _factories(factories) {}
+
     void loadPlugins(const std::string& path);
+
+private:
     void loadPluginsForDirectory(const std::filesystem::directory_entry& directorypath);
 
     static constexpr const char* _cameraDirectory = "camera";
@@ -37,6 +41,6 @@ private:
         {_skyDirectory, &PluginLoader::handleSky}};
 
     DLLoader _loader;
-    SceneFactories _factories;
+    SceneFactories& _factories;
 };
 } // namespace Raytracer

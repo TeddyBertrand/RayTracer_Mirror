@@ -3,6 +3,8 @@
 
 namespace Raytracer {
 
+extern "C" const char* getName() { return "transparent"; }
+
 bool Transparent::scatter(const Ray& r_in,
                           const HitRecord& rec,
                           Color& attenuation,
