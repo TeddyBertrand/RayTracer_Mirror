@@ -8,34 +8,35 @@ project(
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_EXTENSIONS ON)
 
+# Options de compilation
+add_compile_options(-fno-gnu-unique -Wall -Wextra)
+
+# --- COUVERTURE ---
 option(ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
-
 if(ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         add_compile_options(-O0 -g --coverage)
         add_link_options(--coverage)
-        message(STATUS "Coverage instrumentation enabled")
-    else()
-        message(WARNING "Coverage is only supported with GCC or Clang")
     endif()
 endif()
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/plugins)
+# --- STRUCTURE DES PLUGINS ---
+# On les crée dans le build directory
+set(PLUGIN_DIR ${CMAKE_BINARY_DIR}/plugins)
+file(MAKE_DIRECTORY ${PLUGIN_DIR}/primitives)
+file(MAKE_DIRECTORY ${PLUGIN_DIR}/materials)
+file(MAKE_DIRECTORY ${PLUGIN_DIR}/lights)
+file(MAKE_DIRECTORY ${PLUGIN_DIR}/skies)
+file(MAKE_DIRECTORY ${PLUGIN_DIR}/cameras)
 
-set(FETCHCONTENT_BASE_DIR ${PROJECT_BINARY_DIR}/_deps)
+# --- INCLUSIONS ET DÉPENDANCES ---
+# On définit où trouver libconfig++ (via pkg-config pour MinGW)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBCONFIGPP REQUIRED libconfig++)
 
-file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins)
-file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/primitives)
-file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/materials)
-file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/lights)
-file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins/skies)
-
-add_compile_options(-fno-gnu-unique)
-
+# --- SOUS-DOSSIERS ---
 add_subdirectory(src)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt)

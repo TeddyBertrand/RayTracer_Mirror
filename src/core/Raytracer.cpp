@@ -1,52 +1,85 @@
 #include "Raytracer.hpp"
-#include "core/camera/PerspectiveCamera.hpp"
 #include "core/image/Image.hpp"
-#include "lights/point_light/PointLight.hpp"
-#include "materials/lambertian/Lambertian.hpp"
-#include "materials/transparent/Transparent.hpp"
-#include "primitives/sphere/Sphere.hpp"
-#include "skies/atmospheric_sky/AtmosphericSky.hpp"
-#include "skies/empty_sky/EmptySky.hpp"
-#include "skies/galaxy_sky/GalaxySky.hpp"
+#include "parser/SceneParser.hpp"
+#include <filesystem>
+#include <iostream>
 
 namespace Raytracer {
 
 Raytracer::Raytracer(int argc, const char** argv) {
-    (void)argc;
-    (void)argv;
+    if (argc < 2) {
+        std::cerr << "Erreur : Aucun fichier de configuration fourni." << std::endl;
+        std::cerr << "Usage: ./raytracer <config_file.cfg>" << std::endl;
+        _exitCode = ERROR_STATUS;
+        return;
+    }
+
+    _configPath = argv[1];
+
+    loadPlugins("./plugins");
+}
+
+void Raytracer::loadPlugins(const std::string& path) {
+    if (!std::filesystem::exists(path)) {
+        std::cerr << "[Warning] Dossier plugins introuvable : " << path << std::endl;
+        return;
+    }
+
+    std::cout << "[Info] Chargement des plugins depuis : " << path << std::endl;
+
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
+        if (!entry.is_regular_file())
+            continue;
+
+        std::string ext = entry.path().extension().string();
+        if (ext != ".so" && ext != ".dll")
+            continue;
+
+        std::string libPath = entry.path().string();
+        bool pluginLoaded = false;
+
+        if (auto primFunc = _loader.getPrimitiveFunction("registerPlugin", libPath)) {
+            primFunc(_factories.primitive);
+            pluginLoaded = true;
+        } else if (auto lightFunc = _loader.getLightFunction("registerPlugin", libPath)) {
+            lightFunc(_factories.light);
+            pluginLoaded = true;
+        } else if (auto matFunc = _loader.getMaterialFunction("registerPlugin", libPath)) {
+            matFunc(_factories.material);
+            pluginLoaded = true;
+        } else if (auto camFunc = _loader.getCameraFunction("registerPlugin", libPath)) {
+            camFunc(_factories.camera);
+            pluginLoaded = true;
+        }
+
+        if (pluginLoaded) {
+            std::cout << "  [OK] Plugin chargé : " << libPath << std::endl;
+        } else {
+            std::cerr << "  [Error] Impossible de lier le plugin : " << libPath << std::endl;
+        }
+    }
 }
 
 void Raytracer::run() {
     if (_exitCode != SUCCESS_STATUS)
         return;
 
-    FrameBuffer frameBuffer;
-    PerspectiveCamera camera(Vector3D(0, 1.5f, 0), Vector3D(-25, 0, 0), 60, 16.0 / 9.0, 1920, 1080);
-    Image _image(camera.getWidth(), camera.getHeight());
-    std::shared_ptr<IMaterial> lambertianRed = std::make_shared<Lambertian>(Color(0.7, 0.3, 0.3));
-    std::shared_ptr<IMaterial> lambertianGreen = std::make_shared<Lambertian>(Color(0.3, 0.7, 0.3));
-    std::shared_ptr<IMaterial> transparent =
-        std::make_shared<Transparent>(Color(0.8, 0.8, 0.8), 0.8);
+    SceneParser parser;
 
-    auto sky = std::make_unique<AtmosphericSky>(Color(0.5, 0.7, 1.0), Color(0.5, 0.5, 0.5));
-    auto emptySky = std::make_unique<EmptySky>();
-    auto galaxySky = std::make_unique<GalaxySky>();
-    auto sphere = std::make_shared<Sphere>(Vector3D(0, 0, -3), 0.5, lambertianRed);
-    auto sphere2 = std::make_shared<Sphere>(Vector3D(1.2, 0, -3), 0.5, lambertianRed);
-    auto sphere3 = std::make_shared<Sphere>(Vector3D(-0.5, 0, -2), 0.5, transparent);
-    auto bigSphere = std::make_shared<Sphere>(Vector3D(0, -100.5, -1), 100, lambertianGreen);
-    auto light = std::make_shared<PointLight>(Vector3D(1, 1.4, -2), Color(1, 1, 1), .5);
-    _scene.setSky(std::move(sky));
-    _scene.addPrimitive(sphere);
-    _scene.addPrimitive(sphere2);
-    _scene.addPrimitive(sphere3);
-    _scene.addPrimitive(bigSphere);
-    _scene.addLight(light);
-    _scene.setBackgroundColor(Color(0, 0, 0));
+    try {
+        parser.loadScene(_configPath, _scene);
+        auto& camera = _scene.getCamera();
+        FrameBuffer frameBuffer;
 
-    _renderer.setSamples(1);
-    _renderer.render(camera, _scene, frameBuffer);
-    _image.drawFromBuffer(frameBuffer);
+        _renderer.setSamples(1);
+        _renderer.render(camera, _scene, frameBuffer);
+
+        Image img(camera.getWidth(), camera.getHeight());
+        img.drawFromBuffer(frameBuffer);
+
+    } catch (const std::exception& e) {
+        std::cerr << "ERREUR FATALE : " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
+    }
 }
-
 } // namespace Raytracer

@@ -1,8 +1,13 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "core/renderer/Renderer.hpp"
 #include "core/scene/Scene.hpp"
-#include "math/Ray.hpp"
+#include "factory/SceneFactories.hpp"
+#include "parser/dlloader/DLLoaderPlugin.hpp" // Utilise ta version typée
 
 namespace Raytracer {
 
@@ -15,15 +20,20 @@ public:
     int getStatus() const { return _exitCode; }
 
 private:
+    void loadPlugins(const std::string& path);
+
+private:
     static constexpr int SUCCESS_STATUS = 0;
     static constexpr int ERROR_STATUS = 84;
 
-private:
     int _exitCode = SUCCESS_STATUS;
+    std::string _configPath;
 
-private:
     Renderer _renderer;
     Scene _scene;
+    SceneFactories _factories;
+
+    DLLoaderPlugin _loader;
 };
 
 } // namespace Raytracer
