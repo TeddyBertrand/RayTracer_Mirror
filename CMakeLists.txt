@@ -10,10 +10,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-# Options de compilation
 add_compile_options(-fno-gnu-unique -Wall -Wextra)
 
-# --- COUVERTURE ---
 option(ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
 if(ENABLE_COVERAGE)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -21,9 +19,6 @@ if(ENABLE_COVERAGE)
         add_link_options(--coverage)
     endif()
 endif()
-
-# --- STRUCTURE DES PLUGINS ---
-# On les crée dans le build directory
 set(PLUGIN_DIR ${CMAKE_BINARY_DIR}/plugins)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/primitives)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/materials)
@@ -31,12 +26,9 @@ file(MAKE_DIRECTORY ${PLUGIN_DIR}/lights)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/skies)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/cameras)
 
-# --- INCLUSIONS ET DÉPENDANCES ---
-# On définit où trouver libconfig++ (via pkg-config pour MinGW)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCONFIGPP REQUIRED libconfig++)
 
-# --- SOUS-DOSSIERS ---
 add_subdirectory(src)
 
 if(EXISTS ${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt)

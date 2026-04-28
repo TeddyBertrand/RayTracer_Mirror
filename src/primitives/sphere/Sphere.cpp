@@ -3,13 +3,14 @@
 
 namespace Raytracer {
 
-extern "C" void registerPlugin(PrimitiveFactory& factory) {
-    factory.registerType("sphere", [](const ISetting& settings) -> std::shared_ptr<IPrimitive> {
-        Vector3D pos = settings.getVector("position");
-        float radius = settings.getFloat("radius");
+extern "C" {
 
-        return std::make_shared<Sphere>(pos, radius, nullptr);
-    });
+IPrimitive* createPlugin(const ISetting& settings) {
+    Vector3D pos = settings.getVector("position");
+    float radius = settings.getFloat("radius");
+
+    return new Sphere(pos, radius, nullptr);
+}
 }
 
 bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, float& x1) {

@@ -80,97 +80,30 @@ void SceneParser::parseEnvironment(const libconfig::Setting& environmentSetting,
     outScene.setSky(std::make_unique<EmptySky>());
 }
 
-void SceneParser::loadFactoryPlugins() {
-    const std::string pluginsPath = "./plugins";
-
-    if (!std::filesystem::exists(pluginsPath)) {
-        std::cerr << "[Parser] Erreur : Le dossier ./plugins est introuvable." << std::endl;
-        return;
-    }
-
-    DLLoaderPlugin loader;
-
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(pluginsPath)) {
-
-        if (entry.is_regular_file()) {
-            std::string ext = entry.path().extension().string();
-            if (ext == ".dll" || ext == ".so") {
-
-                std::string path = entry.path().string();
-
-                if (auto func = loader.getCameraFunction("registerPlugin", path)) {
-                    func(_factories.camera);
-                    continue;
-                }
-
-                if (auto func = loader.getPrimitiveFunction("registerPlugin", path)) {
-                    func(_factories.primitive);
-                    continue;
-                }
-
-                if (auto func = loader.getLightFunction("registerPlugin", path)) {
-                    func(_factories.light);
-                    continue;
-                }
-
-                if (auto func = loader.getMaterialFunction("registerPlugin", path)) {
-                    func(_factories.material);
-                    continue;
-                }
-            }
-        }
-    }
-}
-
 void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
     libconfig::Config cfg;
 
     try {
-        loadFactoryPlugins();
         cfg.readFile(filePath.c_str());
         const libconfig::Setting& root = cfg.getRoot();
 
         _materials.clear();
 
-        if (root.exists("environment")) {
-            parseEnvironment(root["environment"], outScene);
-        } else {
+        for (int i = 0; i < root.getLength(); ++i) {
+            const libconfig::Setting& section = root[i];
+            std::string sectionName = section.getName();
+
+            auto it = _sectionDispatch.find(sectionName);
+            if (it != _sectionDispatch.end()) {
+                (this->*(it->second))(section, outScene);
+            }
+        }
+        if (!root.exists("environment")) {
             outScene.setSky(std::make_unique<EmptySky>());
         }
 
-        if (root.exists("camera")) {
-            parseCamera(root["camera"], outScene);
-        }
-
-        if (root.exists("materials")) {
-            const libconfig::Setting& mats = root["materials"];
-            for (int i = 0; i < mats.getLength(); ++i) {
-                parseMaterials(mats[i], outScene);
-            }
-        }
-
-        if (root.exists("shapes")) {
-            parseShapes(root["shapes"], outScene);
-        }
-
-        if (root.exists("lights")) {
-            const libconfig::Setting& lightsVisual = root["lights"];
-            if (lightsVisual.exists("list")) {
-                parseLights(lightsVisual["list"], outScene);
-            }
-        }
-    } catch (const libconfig::FileIOException&) {
-        std::cerr << "Erreur : Impossible de lire le fichier " << filePath << std::endl;
-    } catch (const libconfig::ParseException& pex) {
-        std::cerr << "Erreur de syntaxe dans " << pex.getFile() << " a la ligne " << pex.getLine()
-                  << " : " << pex.getError() << std::endl;
-    } catch (const libconfig::SettingNotFoundException& nfex) {
-        std::cerr << "Champ manquant dans le fichier de configuration : " << nfex.getPath()
-                  << std::endl;
-    } catch (const libconfig::SettingTypeException& stex) {
-        std::cerr << "Mauvais type pour le champ : " << stex.getPath() << std::endl;
-    } catch (const std::exception& ex) {
-        std::cerr << "Erreur inattendue : " << ex.what() << std::endl;
+    } catch () {
+        std::cerr << "Erreur E/S : Impossible de lire " << std::endl;
     }
 }
 } // namespace Raytracer

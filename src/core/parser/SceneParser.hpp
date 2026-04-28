@@ -43,9 +43,25 @@ private:
     void parseLights(const libconfig::Setting& lightsSetting, Scene& outScene);
     void parseEnvironment(const libconfig::Setting& environmentSetting, Scene& outScene);
     Color normalizeColor(const Color& color) const;
-    void loadFactoryPlugins();
     std::unordered_map<std::string, std::shared_ptr<IMaterial>> _materials;
     SceneFactories _factories;
     std::vector<void*> _pluginHandles;
+
+    using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
+    using SectionTable = std::unordered_map<std::string, SectionParser>;
+
+    static inline const SectionTable _sectionDispatch = {
+        {"environment", &SceneParser::parseEnvironment},
+        {"camera", &SceneParser::parseCamera},
+        {"materials", &SceneParser::parseMaterialsSection},
+        {"shapes", &SceneParser::parseShapes},
+        {"lights", &SceneParser::parseLightsSection}};
+
+    static constexpr char* plugins_path = "./plugins";
+
+    static constexpr char* materials_path = "/materials/";
+    static constexpr char* camera_path = "/camera/";
+    static constexpr char* primitives_path = "/primitives/";
+    static constexpr char* lights_path = "/lights/";
 };
 } // namespace Raytracer

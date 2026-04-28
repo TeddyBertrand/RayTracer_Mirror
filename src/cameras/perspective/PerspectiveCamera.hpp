@@ -1,8 +1,10 @@
 #pragma once
 
-#include "ACamera.hpp"
+#include "cameras/ACamera.hpp"
 
 namespace Raytracer {
+
+extern "C" std::string getName() { return "camera"; }
 
 class PerspectiveCamera : public ACamera {
 public:

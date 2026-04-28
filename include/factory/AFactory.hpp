@@ -31,6 +31,8 @@ public:
      */
     void registerType(const std::string& name,
                       std::function<std::shared_ptr<T>(const ISetting&)> init) {
+        std::cout << "[Debug Factory] Enregistrement du type : " << name
+                  << " (Adresse de la map : " << (void*)&_factoryMap << ")" << std::endl;
         _factoryMap[name] = init;
     }
 

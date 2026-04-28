@@ -19,12 +19,9 @@ LightSample PointLight::computeLight(const Point3D& hit_point) const {
     return sample;
 }
 
-extern "C" void registerPlugin(LightFactory& factory) {
-    factory.registerType("point", [](const ISetting& settings) -> std::shared_ptr<ILight> {
-        return std::make_shared<PointLight>(settings.getVector("position"),
-                                            settings.getColor("color"),
-                                            settings.getFloat("intensity"));
-    });
+extern "C" ILight* createPlugin(const ISetting& settings) {
+    return new PointLight(
+        settings.getVector("position"), settings.getColor("color"), settings.getFloat("intensity"));
 }
 
 } // namespace Raytracer

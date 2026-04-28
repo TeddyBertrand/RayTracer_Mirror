@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "core/plugin_loader/PluginLoader.hpp"
 #include "core/renderer/Renderer.hpp"
 #include "core/scene/Scene.hpp"
 #include "factory/SceneFactories.hpp"
@@ -20,9 +21,6 @@ public:
     int getStatus() const { return _exitCode; }
 
 private:
-    void loadPlugins(const std::string& path);
-
-private:
     static constexpr int SUCCESS_STATUS = 0;
     static constexpr int ERROR_STATUS = 84;
 
@@ -32,8 +30,6 @@ private:
     Renderer _renderer;
     Scene _scene;
     SceneFactories _factories;
-
     DLLoaderPlugin _loader;
 };
-
 } // namespace Raytracer

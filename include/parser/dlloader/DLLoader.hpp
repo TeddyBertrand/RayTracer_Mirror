@@ -42,13 +42,11 @@ public:
     }
 
 private:
-    // --- COUCHE D'ABSTRACTION PRIVÉE (L'isolation est ici) ---
-
     void* sys_open(const std::string& path) {
 #ifdef _WIN32
         return static_cast<void*>(LoadLibraryA(path.c_str()));
 #else
-        return dlopen(path.c_str(), RTLD_LAZY);
+        return dlopen(path.c_str(), RTLD_NOW | RTLD_GLOBAL);
 #endif
     }
 

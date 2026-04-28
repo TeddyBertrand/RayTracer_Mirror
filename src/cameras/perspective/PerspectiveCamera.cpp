@@ -1,8 +1,23 @@
 #include "PerspectiveCamera.hpp"
+#include "factory/CameraFactory.hpp"
 
 #include <cmath>
 
 namespace Raytracer {
+
+extern "C" {
+ICamera* createPlugin(const ISetting& settings) {
+    auto pos = settings.getVector("position");
+    auto lookAt = settings.getVector("look_at");
+    float fov = settings.getFloat("fieldOfView");
+
+    int width = settings.getInt("width");
+    int height = settings.getInt("height");
+    double aspect_ratio = static_cast<double>(width) / height;
+
+    return new PerspectiveCamera(pos, lookAt, fov, aspect_ratio, width, height);
+}
+}
 
 PerspectiveCamera::PerspectiveCamera(const Point3D& origin,
                                      const Vector3D& rotation,

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "math/Color.hpp"
 #include "math/Vector3D.hpp"
 #include <memory>
 #include <string>

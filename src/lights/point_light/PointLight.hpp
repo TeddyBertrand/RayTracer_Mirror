@@ -6,6 +6,8 @@
 
 namespace Raytracer {
 
+extern "C" std::string getName() { return "sphere"; }
+
 class PointLight : public ILight {
 public:
     PointLight(const Vector3D& position, const Color& color, double intensity)

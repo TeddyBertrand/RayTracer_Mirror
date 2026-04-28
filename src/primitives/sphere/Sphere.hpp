@@ -7,6 +7,9 @@
 #include <math/Vector3D.hpp>
 
 namespace Raytracer {
+
+extern "C" std::string getName() { return "sphere"; }
+
 class Sphere : public virtual IPrimitive {
 public:
     /**
@@ -30,8 +33,6 @@ public:
      * @return false
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
-
-    std::string getName() const override { return "Sphere"; }
 
 private:
     Point3D _center;
