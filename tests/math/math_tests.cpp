@@ -5,6 +5,7 @@
 #include "math/Color.hpp"
 #include "math/Interval.hpp"
 #include "math/MathUtils.hpp"
+#include "math/Matrix.hpp"
 #include "math/Ray.hpp"
 #include "math/Vector3D.hpp"
 
@@ -16,6 +17,16 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
     EXPECT_NEAR(actual.x, expected.x, epsilon);
     EXPECT_NEAR(actual.y, expected.y, epsilon);
     EXPECT_NEAR(actual.z, expected.z, epsilon);
+}
+
+void expectMatrixNear(const Raytracer::Matrix& actual,
+                      const Raytracer::Matrix& expected,
+                      double epsilon = 1e-12) {
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            EXPECT_NEAR(actual.m[i][j], expected.m[i][j], epsilon);
+        }
+    }
 }
 
 } // namespace
@@ -87,6 +98,69 @@ TEST(MathUtils, DegreesAndRadians) {
 
     EXPECT_NEAR(Raytracer::Math::degreesToRadians(180.0), pi, 1e-12);
     EXPECT_NEAR(Raytracer::Math::radiansToDegrees(pi), 180.0, 1e-12);
+}
+
+TEST(Matrix, DefaultConstructorBuildsIdentity) {
+    const Raytracer::Matrix matrix;
+    const Raytracer::Matrix identity;
+
+    expectMatrixNear(matrix, identity);
+}
+
+TEST(Matrix, RotationX) {
+    const double pi = std::acos(-1.0);
+    const Raytracer::Matrix rotation = Raytracer::Matrix::rotateX(pi / 2.0);
+
+    expectVectorNear(rotation * Raytracer::Vector3D{0.0, 1.0, 0.0}, {0.0, 0.0, 1.0});
+}
+
+TEST(Matrix, RotationY) {
+    const double pi = std::acos(-1.0);
+    const Raytracer::Matrix rotation = Raytracer::Matrix::rotateY(pi / 2.0);
+
+    expectVectorNear(rotation * Raytracer::Vector3D{0.0, 0.0, 1.0}, {1.0, 0.0, 0.0});
+}
+
+TEST(Matrix, RotationZ) {
+    const double pi = std::acos(-1.0);
+    const Raytracer::Matrix rotation = Raytracer::Matrix::rotateZ(pi / 2.0);
+
+    expectVectorNear(rotation * Raytracer::Vector3D{1.0, 0.0, 0.0}, {0.0, 1.0, 0.0});
+}
+
+TEST(Matrix, MatrixMultiplicationComposesTransforms) {
+    const double pi = std::acos(-1.0);
+    const Raytracer::Matrix rotate_x = Raytracer::Matrix::rotateX(pi / 2.0);
+    const Raytracer::Matrix rotate_y = Raytracer::Matrix::rotateY(pi / 2.0);
+    const Raytracer::Matrix composed = rotate_y * rotate_x;
+    const Raytracer::Vector3D input{0.0, 1.0, 0.0};
+
+    expectVectorNear(composed * input, rotate_y * (rotate_x * input));
+}
+
+TEST(Matrix, LookAtBuildsExpectedBasis) {
+    const Raytracer::Matrix view =
+        Raytracer::Matrix::lookAt({0.0, 0.0, 0.0}, {0.0, 0.0, -1.0}, {0.0, 1.0, 0.0});
+
+    Raytracer::Matrix expected;
+    expected.m[0][0] = 1.0;
+    expected.m[0][1] = 0.0;
+    expected.m[0][2] = 0.0;
+    expected.m[0][3] = 0.0;
+    expected.m[1][0] = 0.0;
+    expected.m[1][1] = 1.0;
+    expected.m[1][2] = 0.0;
+    expected.m[1][3] = 0.0;
+    expected.m[2][0] = 0.0;
+    expected.m[2][1] = 0.0;
+    expected.m[2][2] = 1.0;
+    expected.m[2][3] = 0.0;
+    expected.m[3][0] = 0.0;
+    expected.m[3][1] = 0.0;
+    expected.m[3][2] = 0.0;
+    expected.m[3][3] = 1.0;
+
+    expectMatrixNear(view, expected);
 }
 
 // Vector3D augmented assignment operators
