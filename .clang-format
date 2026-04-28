@@ -1,11 +1,28 @@
-# .clang-format configuration for C++ Projects
-# Based on LLVM with modern readability enhancements
+# .clang-format configuration
 BasedOnStyle: LLVM
 
 # --- INDENTATION & LAYOUT ---
 IndentWidth: 4
 ColumnLimit: 100
-BreakBeforeBraces: Attach
+
+# --- ACCOLADES ---
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true      # Accolade à la ligne pour les fonctions
+  AfterClass: false      # Reste sur la même ligne pour les classes
+  AfterControlStatement: Never # Reste sur la même ligne pour if/else/while/for
+  AfterEnum: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyFunction: false # Garde les fct vides sur une ligne si possible
+
+# --- COMPACITÉ ---
+# C'est ici qu'on autorise la fonction sur une seule ligne si elle est courte
+AllowShortFunctionsOnASingleLine: Inline
 
 # --- SYMBOLS & ALIGNMENT ---
 PointerAlignment: Left

@@ -1,6 +1,18 @@
 #include "Sphere.hpp"
 #include "factory/PrimitiveFactory.hpp"
 
+namespace {
+
+static void getSphereUV(const Raytracer::Vector3D& p, double& u, double& v) {
+    double theta = acos(-p.y);
+    double phi = atan2(-p.z, p.x) + M_PI;
+
+    u = phi / (2 * M_PI);
+    v = theta / M_PI;
+}
+
+} // namespace
+
 namespace Raytracer {
 
 extern "C" void registerPlugin(PrimitiveFactory& factory) {
@@ -64,6 +76,8 @@ bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     rec.setFaceNormal(r, normal);
 
     rec.material = _material;
+
+    getSphereUV(normal, rec.u, rec.v);
 
     return true;
 }

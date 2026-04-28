@@ -3,6 +3,7 @@
 #include "core/image/Image.hpp"
 #include "lights/point_light/PointLight.hpp"
 #include "materials/lambertian/Lambertian.hpp"
+#include "materials/texture/Texture.hpp"
 #include "materials/transparent/Transparent.hpp"
 #include "primitives/sphere/Sphere.hpp"
 #include "skies/atmospheric_sky/AtmosphericSky.hpp"
@@ -11,12 +12,14 @@
 
 namespace Raytracer {
 
-Raytracer::Raytracer(int argc, const char** argv) {
+Raytracer::Raytracer(int argc, const char** argv)
+{
     (void)argc;
     (void)argv;
 }
 
-void Raytracer::run() {
+void Raytracer::run()
+{
     if (_exitCode != SUCCESS_STATUS)
         return;
 
@@ -27,20 +30,23 @@ void Raytracer::run() {
     std::shared_ptr<IMaterial> lambertianGreen = std::make_shared<Lambertian>(Color(0.3, 0.7, 0.3));
     std::shared_ptr<IMaterial> transparent =
         std::make_shared<Transparent>(Color(0.8, 0.8, 0.8), 0.8);
+    std::shared_ptr<IMaterial> textureMaterial =
+        std::make_shared<TextureMaterial>(std::string("assets/planet/earth.jpg"));
 
     auto sky = std::make_unique<AtmosphericSky>(Color(0.5, 0.7, 1.0), Color(0.5, 0.5, 0.5));
     auto emptySky = std::make_unique<EmptySky>();
-    auto galaxySky = std::make_unique<GalaxySky>();
-    auto sphere = std::make_shared<Sphere>(Vector3D(0, 0, -3), 0.5, lambertianRed);
+    auto galaxySky =
+        std::make_unique<GalaxySky>(0.001, Color(0.025 / 2, 0.01 / 2, 0.05 / 2), 0.7, 3.0);
+    auto sphere = std::make_shared<Sphere>(Vector3D(0, 0, -3), 1.2, textureMaterial);
     auto sphere2 = std::make_shared<Sphere>(Vector3D(1.2, 0, -3), 0.5, lambertianRed);
     auto sphere3 = std::make_shared<Sphere>(Vector3D(-0.5, 0, -2), 0.5, transparent);
     auto bigSphere = std::make_shared<Sphere>(Vector3D(0, -100.5, -1), 100, lambertianGreen);
-    auto light = std::make_shared<PointLight>(Vector3D(1, 1.4, -2), Color(1, 1, 1), .5);
-    _scene.setSky(std::move(sky));
+    auto light = std::make_shared<PointLight>(Vector3D(1, 1.4, -1), Color(1, 1, 1), .5);
+    _scene.setSky(std::move(galaxySky));
     _scene.addPrimitive(sphere);
-    _scene.addPrimitive(sphere2);
-    _scene.addPrimitive(sphere3);
-    _scene.addPrimitive(bigSphere);
+    // _scene.addPrimitive(sphere2);
+    // _scene.addPrimitive(sphere3);
+    // _scene.addPrimitive(bigSphere);
     _scene.addLight(light);
     _scene.setBackgroundColor(Color(0, 0, 0));
 
