@@ -7,25 +7,28 @@
 #include "components/IPrimitive.hpp"
 #include "math/HitRecord.hpp"
 #include "math/Interval.hpp"
+#include "math/Matrix.hpp"
 #include "math/Ray.hpp"
 
 namespace Raytracer {
 
 /**
- * @brief Entity class - a decorator that adds material to a primitive.
+ * @brief Entity class - a decorator that combines transformation and material.
  *
  * An Entity is a decorator that:
- * - Wraps a transformed primitive (IPrimitive with decorators applied)
+ * - Wraps a primitive (IPrimitive)
+ * - Applies transformations (translation, rotation, scale)
  * - Includes the material for rendering
  * - Inherits from IPrimitive for uniform composition
  *
- * This allows for flexible composition: Entity can wrap any IPrimitive (Sphere, Plane,
- * TransformDecorator, or even another Entity).
+ * This allows for flexible composition: Entity wraps any IPrimitive (Sphere, Plane, etc.)
+ * and can apply transformations without needing separate decorator layers.
  *
  * Usage:
  *   auto sphere = std::make_shared<Sphere>(...);
- *   auto translated = std::make_shared<TranslateDecorator>(sphere, 10, 0, 0);
- *   auto entity = std::make_shared<Entity>("My Sphere", translated, material);
+ *   auto entity = std::make_shared<Entity>("My Sphere", sphere, material);
+ *   entity->translate(10, 0, 0);
+ *   entity->rotateX(M_PI / 4);
  *   scene.addPrimitive(entity);  // Entity IS an IPrimitive
  */
 class Entity : public IPrimitive {
@@ -34,16 +37,65 @@ public:
      * @brief Construct a new Entity.
      *
      * @param name Descriptive name for debugging
-     * @param primitive The transformed primitive (with decorators)
+     * @param primitive The wrapped primitive
      * @param material The material (optional)
      */
     Entity(const std::string& name,
            std::shared_ptr<IPrimitive> primitive,
            std::shared_ptr<IMaterial> material = nullptr) noexcept
-        : _name(name), _primitive(primitive), _material(material) {}
+        : _name(name), _primitive(primitive), _material(material), _transform(), _transform_inv() {}
 
     /**
-     * @brief Test ray/object intersection and attach material to hit record.
+     * @brief Apply translation transformation.
+     * @param x Translation along X axis.
+     * @param y Translation along Y axis.
+     * @param z Translation along Z axis.
+     */
+    void translate(double x, double y, double z) noexcept {
+        _transform = Matrix::translate(x, y, z) * _transform;
+        _transform_inv = _transform.inverse();
+    }
+
+    /**
+     * @brief Apply rotation transformation around X axis.
+     * @param angle Angle in radians.
+     */
+    void rotateX(double angle) noexcept {
+        _transform = Matrix::rotateX(angle) * _transform;
+        _transform_inv = _transform.inverse();
+    }
+
+    /**
+     * @brief Apply rotation transformation around Y axis.
+     * @param angle Angle in radians.
+     */
+    void rotateY(double angle) noexcept {
+        _transform = Matrix::rotateY(angle) * _transform;
+        _transform_inv = _transform.inverse();
+    }
+
+    /**
+     * @brief Apply rotation transformation around Z axis.
+     * @param angle Angle in radians.
+     */
+    void rotateZ(double angle) noexcept {
+        _transform = Matrix::rotateZ(angle) * _transform;
+        _transform_inv = _transform.inverse();
+    }
+
+    /**
+     * @brief Apply scale transformation.
+     * @param sx Scale factor along X axis.
+     * @param sy Scale factor along Y axis.
+     * @param sz Scale factor along Z axis.
+     */
+    void scale(double sx, double sy, double sz) noexcept {
+        _transform = Matrix::scale(sx, sy, sz) * _transform;
+        _transform_inv = _transform.inverse();
+    }
+
+    /**
+     * @brief Test ray/object intersection with transformation and material.
      *
      * @param r Candidate ray.
      * @param ray_t Valid interval for hit distance along the ray.
@@ -51,9 +103,13 @@ public:
      * @return true if a valid hit exists in the interval.
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        if (!_primitive->hit(r, ray_t, rec)) {
+        Ray local_ray(_transform_inv * r.origin(), _transform_inv * r.direction());
+
+        if (!_primitive->hit(local_ray, ray_t, rec)) {
             return false;
         }
+        rec.point = _transform * rec.point;
+        rec.normal = (_transform_inv * rec.normal).normalized();
         rec.material = _material;
         return true;
     }
@@ -82,6 +138,8 @@ private:
     std::string _name;
     std::shared_ptr<IPrimitive> _primitive;
     std::shared_ptr<IMaterial> _material;
+    Matrix _transform;
+    Matrix _transform_inv;
 };
 
 } // namespace Raytracer
