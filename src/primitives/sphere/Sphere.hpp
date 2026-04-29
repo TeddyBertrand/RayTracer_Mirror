@@ -32,6 +32,8 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
+    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
+
 private:
     Point3D _center;
     double _radius;

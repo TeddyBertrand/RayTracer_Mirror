@@ -63,10 +63,8 @@ void PluginLoader::handlePrimitive(const std::string& path) {
         _loader, _factories.primitive, path);
 }
 
-void PluginLoader::handleSky([[maybe_unused]] const std::string& path) {
-    // No Sky factory in SceneFactories; keep behavior explicit and minimal.
-    std::cerr << "PluginLoader: 'skies' directory found, but no sky factory to register into."
-              << std::endl;
+void PluginLoader::handleSky(const std::string& path) {
+    registerPlugins<ISky* (*)(const ISetting&), SkyFactory>(_loader, _factories.sky, path);
 }
 
 } // namespace Raytracer

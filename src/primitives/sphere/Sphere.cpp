@@ -1,5 +1,7 @@
 #include "Sphere.hpp"
 #include "factory/PrimitiveFactory.hpp"
+#include "materials/lambertian/Lambertian.hpp"
+#include "parser/PrimitiveSettings.hpp" // Pour accéder au wrapper
 
 namespace Raytracer {
 
@@ -9,9 +11,16 @@ const char* getName() { return "sphere"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
     Vector3D pos = settings.getVector("position");
-    float radius = settings.getFloat("radius");
+    double radius = settings.getFloat("radius");
 
-    return new Sphere(pos, radius, nullptr);
+    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
+
+    std::shared_ptr<IMaterial> mat = nullptr;
+    if (pSettings) {
+        mat = pSettings->getMaterial();
+    }
+
+    return new Sphere(pos, radius, mat);
 }
 }
 

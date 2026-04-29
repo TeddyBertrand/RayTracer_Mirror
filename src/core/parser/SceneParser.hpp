@@ -4,6 +4,7 @@
 #include "math/Color.hpp"
 #include "math/Vector3D.hpp"
 #include "parser/LibConfigSettings.hpp"
+#include "parser/PrimitiveSettings.hpp"
 #include <iostream>
 #include <libconfig.h++>
 #include <unordered_map>
@@ -55,7 +56,6 @@ private:
     void parseLights(const libconfig::Setting& lightsSetting, Scene& outScene);
     void parseEnvironment(const libconfig::Setting& environmentSetting, Scene& outScene);
     Color normalizeColor(const Color& color) const;
-    std::unordered_map<std::string, std::shared_ptr<IMaterial>> _materials;
     SceneFactories& _factories;
     std::vector<void*> _pluginHandles;
 

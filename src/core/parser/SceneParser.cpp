@@ -26,29 +26,35 @@ void SceneParser::parseCamera(const libconfig::Setting& camSetting, Scene& outSc
     }
 }
 
-void SceneParser::parseMaterials(const libconfig::Setting& matSetting, Scene& /*outScene*/) {
-    std::string type = matSetting["type"];
-    std::string id = matSetting["id"];
+void SceneParser::parseMaterials(const libconfig::Setting& matsSetting, Scene& outScene) {
+    for (int i = 0; i < matsSetting.getLength(); ++i) {
+        const libconfig::Setting& mat = matsSetting[i];
 
-    LibconfigSetting matConfig(matSetting);
-    auto material = _factories.material.create(type, matConfig);
-    if (material) {
-        _materials[id] = material;
+        std::string type = mat["type"];
+
+        std::string id = mat["id"];
+
+        LibconfigSetting matConfig(mat);
+
+        auto material = _factories.material.create(type, matConfig);
+
+        if (material) {
+            outScene.addMaterial(id, material);
+        }
     }
 }
 
 void SceneParser::parseShapes(const libconfig::Setting& shapesSetting, Scene& outScene) {
     for (int i = 0; i < shapesSetting.getLength(); ++i) {
-        const libconfig::Setting& shape = shapesSetting[i];
-        std::string type = shape["type"];
+        LibconfigSetting baseConfig(shapesSetting[i]);
 
-        LibconfigSetting shapeConfig(shape);
+        PrimitiveSetting shapeConfig(baseConfig, outScene.getMaterials());
+
+        std::string type = shapesSetting[i]["type"];
         auto primitive = _factories.primitive.create(type, shapeConfig);
 
         if (primitive) {
             outScene.addPrimitive(std::move(primitive));
-        } else {
-            std::cerr << "Primitive ignoree (type inconnu): " << type << std::endl;
         }
     }
 }
@@ -87,19 +93,30 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
         cfg.readFile(filePath.c_str());
         const libconfig::Setting& root = cfg.getRoot();
 
-        _materials.clear();
+        if (root.exists("materials")) {
+            const libconfig::Setting& materials = root["materials"];
+            auto it = _sectionDispatch.find("materials");
+            if (it != _sectionDispatch.end()) {
+                (this->*(it->second))(materials, outScene);
+            }
+        }
 
         for (int i = 0; i < root.getLength(); ++i) {
             const libconfig::Setting& section = root[i];
             std::string sectionName = section.getName();
+
+            if (sectionName == "materials")
+                continue;
 
             auto it = _sectionDispatch.find(sectionName);
             if (it != _sectionDispatch.end()) {
                 (this->*(it->second))(section, outScene);
             }
         }
+
         if (!root.exists("environment")) {
-            throw SceneParserException("Scene configuration must include an 'environment' section.");
+            throw SceneParserException(
+                "Scene configuration must include an 'environment' section.");
         }
 
     } catch (const libconfig::SettingException& e) {

@@ -3,7 +3,17 @@
 
 namespace Raytracer {
 
-extern "C" const char* getName() { return "transparent"; }
+extern "C" {
+
+const char* getName() { return "transparent"; }
+
+IMaterial* createPlugin(const ISetting& settings) {
+    Color albedo = settings.getColor("color");
+    double ref_idx = settings.getFloat("ref");
+
+    return new Transparent(albedo, ref_idx);
+}
+}
 
 bool Transparent::scatter(const Ray& r_in,
                           const HitRecord& rec,

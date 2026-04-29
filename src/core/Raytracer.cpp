@@ -6,8 +6,7 @@
 
 namespace Raytracer {
 
-Raytracer::Raytracer(int argc, const char** argv)
-    : _pluginLoader(_factories), _parser(_factories) {
+Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _parser(_factories) {
     if (argc < 2) {
         std::cerr << "Erreur : Aucun fichier de configuration fourni." << std::endl;
         std::cerr << "Usage: ./raytracer <config_file.cfg>" << std::endl;
@@ -19,6 +18,7 @@ Raytracer::Raytracer(int argc, const char** argv)
     try {
         _pluginLoader.loadPlugins("plugins");
         _parser.loadScene(configPath, _scene);
+        _scene.dump();
     } catch (const std::exception& e) {
         std::cerr << "Erreur lors du chargement de la scène : " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;

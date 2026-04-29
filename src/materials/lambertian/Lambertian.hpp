@@ -1,7 +1,7 @@
 #pragma once
 
 #include "materials/commun/AMaterial.hpp"
-
+#include "parser/ISettings.hpp"
 namespace Raytracer {
 
 class Lambertian : public AMaterial {
