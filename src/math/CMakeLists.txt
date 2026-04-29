@@ -1,5 +1,6 @@
 add_library(raytracer_math STATIC
     Matrix.cpp
+    ../primitives/transform/TransformDecorator.cpp
 )
 
 target_include_directories(raytracer_math PUBLIC
