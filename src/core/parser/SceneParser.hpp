@@ -54,8 +54,7 @@ private:
      * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
      */
     void parseLights(const libconfig::Setting& lightsSetting, Scene& outScene);
-    void parseEnvironment(const libconfig::Setting& environmentSetting, Scene& outScene);
-    Color normalizeColor(const Color& color) const;
+    void parseSky(const libconfig::Setting& skySetting, Scene& outScene);
     SceneFactories& _factories;
     std::vector<void*> _pluginHandles;
 
@@ -63,7 +62,7 @@ private:
     using SectionTable = std::unordered_map<std::string, SectionParser>;
 
     static inline const SectionTable _sectionDispatch = {
-        {"environment", &SceneParser::parseEnvironment},
+        {"sky", &SceneParser::parseSky},
         {"camera", &SceneParser::parseCamera},
         {"materials", &SceneParser::parseMaterials},
         {"shapes", &SceneParser::parseShapes},

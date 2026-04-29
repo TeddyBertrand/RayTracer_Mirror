@@ -1,10 +1,25 @@
 #include "GalaxySky.hpp"
+#include "parser/ISettings.hpp"
 #include <algorithm>
 #include <cmath>
 
 namespace Raytracer {
 
-extern "C" const char* getName() { return "galaxy_sky"; }
+extern "C" {
+const char* getName() { return "galaxy"; }
+
+ISky* createPlugin(const ISetting& settings) {
+
+    double starDensity = settings.getFloat("starDensity", 0.001);
+
+    Color nebulaColor = settings.getColor("nebulaColor", Color(0.025, 0.01, 0.05));
+
+    double nebulaDensity = settings.getFloat("nebulaDensity", 0.7);
+    double nebulaContrast = settings.getFloat("nebulaContrast", 3.0);
+
+    return new GalaxySky(starDensity, nebulaColor, nebulaDensity, nebulaContrast);
+}
+}
 
 double GalaxySky::hash(Vector3D v) const {
     double dot = v.x * 12.9898 + v.y * 78.233 + v.z * 37.719;

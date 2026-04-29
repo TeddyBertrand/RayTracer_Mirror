@@ -4,7 +4,7 @@
 
 namespace Raytracer {
 
-extern "C" const char* getName() { return "point_light"; }
+extern "C" const char* getName() { return "point"; }
 
 LightSample PointLight::computeLight(const Point3D& hit_point) const {
     Vector3D direction = (_position - hit_point);
