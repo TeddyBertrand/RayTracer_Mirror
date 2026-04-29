@@ -75,7 +75,7 @@ void SceneParser::parseSky(const libconfig::Setting& skySetting, Scene& outScene
     if (sky) {
         outScene.setSky(std::move(sky));
     } else {
-        std::cerr << "sky ignoree (type inconnu): " << type << std::endl;
+        outScene.setSky(std::make_unique<EmptySky>());
     }
     return;
 }

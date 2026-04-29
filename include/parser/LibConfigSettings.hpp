@@ -7,7 +7,7 @@
 
 namespace Raytracer {
 /**
- * @brief Implémentation Header-Only de ISetting pour libconfig++
+ * @brief Implementation Header-Only of ISetting for libconfig++
  */
 class LibconfigSetting : public ISetting {
 public:
@@ -15,7 +15,6 @@ public:
 
     virtual ~LibconfigSetting() = default;
 
-    /** @brief Vérifie l'existence d'un chemin. */
     bool exists(const std::string& path) const override { return _setting.exists(path); }
 
     int getInt(const std::string& path) const override {

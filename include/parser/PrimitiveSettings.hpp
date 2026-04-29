@@ -9,18 +9,25 @@
 namespace Raytracer {
 
 /**
- * @brief Wrapper pour les primitives permettant de lier les IDs de matériaux
- * aux instances réelles de IMaterial tout en déléguant le reste à ISetting.
+ * @class PrimitiveSetting
+ * @brief Decorator for ISetting that handles material resolution for primitives.
+ * * This class wraps a base ISetting object and provides specialized logic to map material
+ * identifiers (strings) found in the configuration to actual IMaterial instances.
+ * All standard configuration calls are delegated to the underlying base setting.
  */
 class PrimitiveSetting : public ISetting {
 public:
+    /**
+     * @brief Constructs a PrimitiveSetting wrapper.
+     * @param base Reference to the underlying configuration group for this primitive.
+     * @param materials Map of available material instances indexed by their unique identifiers.
+     */
     PrimitiveSetting(const ISetting& base,
                      const std::unordered_map<std::string, std::shared_ptr<IMaterial>>& materials)
         : _base(base), _materials(materials) {}
 
     virtual ~PrimitiveSetting() = default;
 
-    /** @brief Relaye la vérification d'existence à la base. */
     bool exists(const std::string& path) const override { return _base.exists(path); }
 
     // --- Int ---
@@ -68,8 +75,11 @@ public:
     }
 
     /**
-     * @brief Récupère le matériau associé à la primitive.
-     * @return shared_ptr vers IMaterial ou nullptr si non trouvé/défini.
+     * @brief Resolves and retrieves the material associated with this primitive.
+     * * This method looks for a "material" key in the configuration, retrieves the
+     * identifier string, and performs a lookup in the provided material map.
+     * * @return A shared_ptr to the resolved IMaterial, or nullptr if the key is
+     * missing or the identifier does not exist in the material map.
      */
     std::shared_ptr<IMaterial> getMaterial() const {
         if (!exists("material"))
