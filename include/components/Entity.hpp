@@ -5,26 +5,30 @@
 
 #include "components/IMaterial.hpp"
 #include "components/IPrimitive.hpp"
+#include "math/HitRecord.hpp"
+#include "math/Interval.hpp"
+#include "math/Ray.hpp"
 
 namespace Raytracer {
 
 /**
- * @brief Entity class - represents a transformed primitive with a material.
+ * @brief Entity class - a decorator that adds material to a primitive.
  *
- * An Entity is the highest-level composition:
+ * An Entity is a decorator that:
  * - Wraps a transformed primitive (IPrimitive with decorators applied)
  * - Includes the material for rendering
- * - Can be positioned, rotated, scaled in the scene
+ * - Inherits from IPrimitive for uniform composition
  *
- * This is the object you actually add to a Scene.
+ * This allows for flexible composition: Entity can wrap any IPrimitive (Sphere, Plane,
+ * TransformDecorator, or even another Entity).
  *
  * Usage:
  *   auto sphere = std::make_shared<Sphere>(...);
  *   auto translated = std::make_shared<TranslateDecorator>(sphere, 10, 0, 0);
- *   Entity entity("My Sphere", translated, material);
- *   scene.addEntity(entity);
+ *   auto entity = std::make_shared<Entity>("My Sphere", translated, material);
+ *   scene.addPrimitive(entity);  // Entity IS an IPrimitive
  */
-class Entity {
+class Entity : public IPrimitive {
 public:
     /**
      * @brief Construct a new Entity.
@@ -37,6 +41,22 @@ public:
            std::shared_ptr<IPrimitive> primitive,
            std::shared_ptr<IMaterial> material = nullptr) noexcept
         : _name(name), _primitive(primitive), _material(material) {}
+
+    /**
+     * @brief Test ray/object intersection and attach material to hit record.
+     *
+     * @param r Candidate ray.
+     * @param ray_t Valid interval for hit distance along the ray.
+     * @param rec Output hit information when an intersection is found.
+     * @return true if a valid hit exists in the interval.
+     */
+    bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
+        if (!_primitive->hit(r, ray_t, rec)) {
+            return false;
+        }
+        rec.material = _material;
+        return true;
+    }
 
     /**
      * @brief Get the entity name.
