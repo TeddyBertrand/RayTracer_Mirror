@@ -16,8 +16,6 @@ public:
     Color getBackgroundColor(const Ray& r) const override;
     Color getEnvironmentColor(const Ray& r) const override;
 
-    std::string getName() const override { return "galaxy_sky"; }
-
 private:
     double _starDensity;
     Color _nebulaColor;

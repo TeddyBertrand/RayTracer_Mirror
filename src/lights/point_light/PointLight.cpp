@@ -1,6 +1,10 @@
 #include "PointLight.hpp"
+#include "factory/LightFactory.hpp"
+#include "parser/ISettings.hpp"
 
 namespace Raytracer {
+
+extern "C" const char* getName() { return "point_light"; }
 
 LightSample PointLight::computeLight(const Point3D& hit_point) const {
     Vector3D direction = (_position - hit_point);
@@ -15,6 +19,11 @@ LightSample PointLight::computeLight(const Point3D& hit_point) const {
     sample.isActive = true;
 
     return sample;
+}
+
+extern "C" ILight* createPlugin(const ISetting& settings) {
+    return new PointLight(
+        settings.getVector("position"), settings.getColor("color"), settings.getFloat("intensity"));
 }
 
 } // namespace Raytracer

@@ -30,13 +30,13 @@ public:
      * @param init Callable creating an instance from settings.
      */
     void registerType(const std::string& name,
-                      std::function<std::shared_ptr<T>(const ISetting&)> init) {
+                      std::function<T* (const ISetting&)> init) {
         _factoryMap[name] = init;
     }
 
 protected:
     /** Runtime map from plugin name to constructor callback. */
-    std::unordered_map<std::string, std::function<std::shared_ptr<T>(const ISetting& settings)>>
+    std::unordered_map<std::string, std::function<T* (const ISetting&)>>
         _factoryMap;
 };
 }; // namespace Raytracer

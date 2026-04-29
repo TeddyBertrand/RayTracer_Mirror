@@ -42,6 +42,8 @@ public:
         openLibrary(libraryPath);
     };
 
+    DLLoader() = default;
+
     /**
      * @brief Open and register a shared library handle.
      * @param libraryPath Path to the target shared object.
@@ -57,12 +59,12 @@ public:
     }
 
     /**
-        * @brief Resolve and cast a symbol from a previously loaded library.
-        * @tparam T Callable/function pointer type expected for the symbol.
-        * @param registerFunction Symbol name to query with `dlsym`.
-        * @param libraryName Key used when the library was opened.
-        * @return Symbol cast to `T`.
-        * @throw DLLoaderException If the library or symbol is not found.
+     * @brief Resolve and cast a symbol from a previously loaded library.
+     * @tparam T Callable/function pointer type expected for the symbol.
+     * @param registerFunction Symbol name to query with `dlsym`.
+     * @param libraryName Key used when the library was opened.
+     * @return Symbol cast to `T`.
+     * @throw DLLoaderException If the library or symbol is not found.
      */
     template <typename T>
     T getFunction(const std::string& registerFunction, const std::string& libraryName) const {
@@ -74,16 +76,16 @@ public:
         void* entry = dlsym(handle->second, registerFunction.c_str());
         const char* error = dlerror();
         if (error)
-            throw DLLoaderException("On dlsym of " + _libPath + ": " + error);
+            throw DLLoaderException("On dlsym of " + libraryName + ": " + error);
 
         T fptr = reinterpret_cast<T>(entry);
         if (!fptr)
-            throw DLLoaderException("On function recuperation from " + _libPath);
+            throw DLLoaderException("On function recuperation from " + libraryName);
         return fptr;
     };
 
     /**
-        * @brief Close all loaded libraries and clear internal handle storage.
+     * @brief Close all loaded libraries and clear internal handle storage.
      */
     void closeLibrary() override {
         for (auto lib : _libMap) {
@@ -96,7 +98,7 @@ public:
     }
 
     /**
-        * @brief Destroy loader and release every loaded library.
+     * @brief Destroy loader and release every loaded library.
      */
     ~DLLoader() { closeLibrary(); }
 

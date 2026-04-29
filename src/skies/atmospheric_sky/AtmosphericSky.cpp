@@ -2,6 +2,8 @@
 
 namespace Raytracer {
 
+extern "C" const char* getName() { return "atmospheric_sky"; }
+
 Color AtmosphericSky::getBackgroundColor(const Ray& r) const {
     Vector3D unit_direction = r.direction().normalized();
 

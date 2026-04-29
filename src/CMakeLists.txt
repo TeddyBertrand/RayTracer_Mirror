@@ -1,11 +1,13 @@
 add_subdirectory(core)
-add_subdirectory(materials)
 add_subdirectory(lights)
+add_subdirectory(materials)
 add_subdirectory(primitives)
+add_subdirectory(cameras)
 add_subdirectory(skies)
 add_subdirectory(math)
 
 add_executable(raytracer main.cpp)
+target_link_libraries(raytracer PRIVATE raytracer_core)
 
 target_include_directories(raytracer PRIVATE
     ${PROJECT_SOURCE_DIR}/include
@@ -22,3 +24,4 @@ target_link_libraries(raytracer PRIVATE
     raytracer_core
     raytracer_math
 )
+set_target_properties(raytracer PROPERTIES ENABLE_EXPORTS ON)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "materials/commun/AMaterial.hpp"
+#include "parser/ISettings.hpp"
 
 namespace Raytracer {
 
@@ -16,8 +17,6 @@ public:
     double getSpecularWeight() const override { return 1.0; }
 
     Color getTransmittance() const override { return _albedo; }
-
-    virtual std::string getName() const override { return "transparent"; }
 
 private:
     Color _albedo;

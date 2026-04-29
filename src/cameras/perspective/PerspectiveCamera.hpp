@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ACamera.hpp"
+#include "cameras/ACamera.hpp"
 
 namespace Raytracer {
 

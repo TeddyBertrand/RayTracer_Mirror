@@ -1,8 +1,14 @@
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "core/plugin_loader/PluginLoader.hpp"
 #include "core/renderer/Renderer.hpp"
 #include "core/scene/Scene.hpp"
-#include "math/Ray.hpp"
+#include "factory/SceneFactories.hpp"
+#include "parser/SceneParser.hpp"
 
 namespace Raytracer {
 
@@ -18,12 +24,12 @@ private:
     static constexpr int SUCCESS_STATUS = 0;
     static constexpr int ERROR_STATUS = 84;
 
-private:
     int _exitCode = SUCCESS_STATUS;
 
-private:
+    SceneFactories _factories;
+    PluginLoader _pluginLoader;
+    SceneParser _parser;
     Renderer _renderer;
     Scene _scene;
 };
-
 } // namespace Raytracer

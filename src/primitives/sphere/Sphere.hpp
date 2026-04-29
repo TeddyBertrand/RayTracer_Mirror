@@ -7,6 +7,7 @@
 #include <math/Vector3D.hpp>
 
 namespace Raytracer {
+
 class Sphere : public virtual IPrimitive {
 public:
     /**
@@ -31,7 +32,7 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
-    std::string getName() const override { return "Sphere"; }
+    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
 
 private:
     Point3D _center;

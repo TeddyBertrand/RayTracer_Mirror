@@ -11,8 +11,6 @@ public:
 
     Color getBackgroundColor(const Ray& r) const override;
 
-    std::string getName() const override { return "atmospheric_sky"; }
-
 private:
     Color _groundColor;
     Color _zenithColor;

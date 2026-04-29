@@ -1,7 +1,7 @@
 #pragma once
 
 #include "materials/commun/AMaterial.hpp"
-
+#include "parser/ISettings.hpp"
 namespace Raytracer {
 
 class Lambertian : public AMaterial {
@@ -12,8 +12,6 @@ public:
                  const HitRecord& rec,
                  Color& attenuation,
                  Ray& scattered) const override;
-
-    std::string getName() const override { return "lambertian"; }
 
 private:
     Color _albedo;

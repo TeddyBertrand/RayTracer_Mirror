@@ -4,6 +4,8 @@
 
 namespace Raytracer {
 
+extern "C" const char* getName() { return "galaxy_sky"; }
+
 double GalaxySky::hash(Vector3D v) const {
     double dot = v.x * 12.9898 + v.y * 78.233 + v.z * 37.719;
     return std::abs(std::fmod(std::sin(dot) * 43758.5453123, 1.0));

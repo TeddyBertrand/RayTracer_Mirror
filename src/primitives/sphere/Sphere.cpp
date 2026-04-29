@@ -1,19 +1,27 @@
 #include "Sphere.hpp"
 #include "factory/PrimitiveFactory.hpp"
+#include "materials/lambertian/Lambertian.hpp"
+#include "parser/PrimitiveSettings.hpp" // Pour accéder au wrapper
 
 namespace Raytracer {
 
-extern "C" void registerPlugin(PrimitiveFactory& factory) {
-    factory.registerType("sphere", [](const ISetting& settings) -> std::shared_ptr<IPrimitive> {
-        float x = settings.getFloat("x");
-        float y = settings.getFloat("y");
-        float z = settings.getFloat("z");
-        float radius = settings.getFloat("r");
+extern "C" {
 
-        // add materials later
+const char* getName() { return "sphere"; }
 
-        return std::make_shared<Sphere>(Point3D{x, y, z}, radius, nullptr);
-    });
+IPrimitive* createPlugin(const ISetting& settings) {
+    Vector3D pos = settings.getVector("position");
+    double radius = settings.getFloat("radius");
+
+    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
+
+    std::shared_ptr<IMaterial> mat = nullptr;
+    if (pSettings) {
+        mat = pSettings->getMaterial();
+    }
+
+    return new Sphere(pos, radius, mat);
+}
 }
 
 bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, float& x1) {

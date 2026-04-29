@@ -1,5 +1,6 @@
 #pragma once
 
+#include "factory/CameraFactory.hpp"
 #include "factory/LightFactory.hpp"
 #include "factory/MaterialFactory.hpp"
 #include "factory/PrimitiveFactory.hpp"
@@ -44,7 +45,7 @@ public:
     /**
      * @brief Signature of light registration functions exported by plugins.
      */
-    using lightFunction = void (*)(MaterialFactory&);
+    using lightFunction = void (*)(LightFactory&);
 
     /**
      * @brief Retrieve light registration function from a library.
@@ -52,6 +53,19 @@ public:
     lightFunction getLightFunction(const std::string& registerFunction,
                                    const std::string& libName) const {
         return DLLoader::getFunction<lightFunction>(registerFunction, libName);
+    }
+
+    /**
+     * @brief Signature of primitive registration functions exported by plugins.
+     */
+    using cameraFunction = void (*)(CameraFactory&);
+
+    /**
+     * @brief Retrieve camera registration function from a library.
+     */
+    cameraFunction getCameraFunction(const std::string& registerFunction,
+                                     const std::string& libName) const {
+        return DLLoader::getFunction<cameraFunction>(registerFunction, libName);
     }
 };
 }; // namespace Raytracer

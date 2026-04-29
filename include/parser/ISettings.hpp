@@ -1,5 +1,6 @@
 #pragma once
 
+#include "math/Color.hpp"
 #include "math/Vector3D.hpp"
 #include <memory>
 #include <string>
@@ -34,6 +35,9 @@ public:
 
     /** @brief Read a 3D vector value at a path. */
     virtual Vector3D getVector(const std::string& path) const = 0;
+
+    /** @brief Read color value at a path.  */
+    virtual Color getColor(const std::string& path) const = 0;
 
     /** @brief Check whether a path exists in the underlying configuration tree. */
     virtual bool exists(const std::string& path) const = 0;

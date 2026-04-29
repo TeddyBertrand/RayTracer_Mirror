@@ -17,7 +17,7 @@ public:
     /**
      * @brief Return the unique runtime name of this plugin instance/type.
      */
-    virtual std::string getName() const = 0;
+    // virtual std::string getName() const = 0;
 };
 
 } // namespace Raytracer
