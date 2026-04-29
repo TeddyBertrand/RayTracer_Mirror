@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-option(BUILD_TESTING "Build the testing suite" ON)
+option(TEST "Build the testing suite" OFF)
 option(ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
 
 add_compile_options(-fno-gnu-unique -Wall -Wextra)
@@ -22,6 +22,13 @@ if(ENABLE_COVERAGE)
     endif()
 endif()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/plugins)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/plugins)
+
+set(FETCHCONTENT_BASE_DIR ${PROJECT_BINARY_DIR}/_deps)
+
+# Dossiers de sortie pour les plugins
 set(PLUGIN_DIR ${CMAKE_BINARY_DIR}/plugins)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/primitives)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/materials)
@@ -34,14 +41,17 @@ pkg_check_modules(LIBCONFIGPP REQUIRED libconfig++)
 
 add_subdirectory(src)
 
-if(BUILD_TESTING)
+set(LIBCONFIGPP_LIBRARIES ${LIBCONFIGPP_LIBRARIES} CACHE INTERNAL "")
+set(LIBCONFIGPP_INCLUDE_DIRS ${LIBCONFIGPP_INCLUDE_DIRS} CACHE INTERNAL "")
+
+if(TEST)
     if(EXISTS ${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt)
         enable_testing()
         add_subdirectory(tests)
-        message(STATUS "[Config] Testing enabled and directory found.")
+        message(STATUS "[Config] Testing enabled (-DTEST=ON).")
     else()
-        message(WARNING "[Config] Testing enabled but 'tests/CMakeLists.txt' not found. Skipping.")
+        message(WARNING "[Config] Testing enabled but 'tests/CMakeLists.txt' not found.")
     endif()
 else()
-    message(STATUS "[Config] Testing disabled by user (-DBUILD_TESTING=OFF).")
+    message(STATUS "[Config] Testing disabled (Default). Use -DTEST=ON to enable.")
 endif()

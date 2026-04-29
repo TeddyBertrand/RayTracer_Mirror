@@ -4,7 +4,6 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
-#include <type_traits>
 
 namespace Raytracer {
 
