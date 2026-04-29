@@ -99,4 +99,73 @@ Matrix Matrix::lookAt(const Point3D& position, const Point3D& target, const Vect
     return result;
 }
 
+Matrix Matrix::translate(double x, double y, double z) noexcept {
+    Matrix result;
+    result.m[0][3] = x;
+    result.m[1][3] = y;
+    result.m[2][3] = z;
+    return result;
+}
+
+Matrix Matrix::scale(double sx, double sy, double sz) noexcept {
+    Matrix result;
+    result.m[0][0] = sx;
+    result.m[1][1] = sy;
+    result.m[2][2] = sz;
+    return result;
+}
+
+Matrix Matrix::inverse() const noexcept {
+    Matrix inv;
+
+    double aug[4][8];
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            aug[i][j] = m[i][j];
+            aug[i][j + 4] = (i == j) ? 1.0 : 0.0;
+        }
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        int pivot = i;
+        for (int j = i + 1; j < 4; ++j) {
+            if (std::fabs(aug[j][i]) > std::fabs(aug[pivot][i])) {
+                pivot = j;
+            }
+        }
+
+        if (pivot != i) {
+            for (int j = 0; j < 8; ++j) {
+                std::swap(aug[i][j], aug[pivot][j]);
+            }
+        }
+
+        if (std::fabs(aug[i][i]) < 1e-15) {
+            return Matrix();
+        }
+
+        double diag = aug[i][i];
+        for (int j = 0; j < 8; ++j) {
+            aug[i][j] /= diag;
+        }
+
+        for (int j = 0; j < 4; ++j) {
+            if (j != i) {
+                double factor = aug[j][i];
+                for (int k = 0; k < 8; ++k) {
+                    aug[j][k] -= factor * aug[i][k];
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            inv.m[i][j] = aug[i][j + 4];
+        }
+    }
+
+    return inv;
+}
+
 } // namespace Raytracer

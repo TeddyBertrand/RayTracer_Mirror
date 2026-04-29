@@ -50,6 +50,28 @@ public:
      */
     static Matrix
     lookAt(const Point3D& position, const Point3D& target, const Vector3D& up) noexcept;
+
+    /**
+     * @brief Generate a translation matrix.
+     * @param x Translation along X axis.
+     * @param y Translation along Y axis.
+     * @param z Translation along Z axis.
+     */
+    static Matrix translate(double x, double y, double z) noexcept;
+
+    /**
+     * @brief Generate a scale matrix.
+     * @param sx Scale factor along X axis.
+     * @param sy Scale factor along Y axis.
+     * @param sz Scale factor along Z axis.
+     */
+    static Matrix scale(double sx, double sy, double sz) noexcept;
+
+    /**
+     * @brief Compute and return the inverse of this matrix.
+     * @return Inverse matrix. Returns identity if determinant is near zero.
+     */
+    [[nodiscard]] Matrix inverse() const noexcept;
 };
 
 } // namespace Raytracer
