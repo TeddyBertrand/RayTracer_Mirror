@@ -2,6 +2,7 @@
 
 #include "components/ICamera.hpp"
 #include "math/MathUtils.hpp"
+#include "math/Matrix.hpp"
 #include "math/Vector3D.hpp"
 
 namespace Raytracer {
@@ -41,12 +42,11 @@ protected:
 
 private:
     void setupBase(const Vector3D& vup) {
-        if (std::abs(_forward.dot(vup)) > 0.999) {
-            _right = _forward.cross(Vector3D::unitZ()).normalized();
-        } else {
-            _right = _forward.cross(vup).normalized();
-        }
-        _up = _right.cross(_forward);
+        const Matrix basis = Matrix::lookAt(_origin, _origin + _forward, vup);
+
+        _right = {basis.m[0][0], basis.m[0][1], basis.m[0][2]};
+        _up = {basis.m[1][0], basis.m[1][1], basis.m[1][2]};
+        _forward = {-basis.m[2][0], -basis.m[2][1], -basis.m[2][2]};
     }
 };
 

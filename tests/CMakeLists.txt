@@ -53,6 +53,7 @@ target_include_directories(raytracer_unit_tests PRIVATE
 
 target_link_libraries(raytracer_unit_tests PRIVATE
     raytracer_core
+    raytracer_math
     GTest::gtest_main
 )
 

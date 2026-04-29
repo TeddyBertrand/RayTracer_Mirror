@@ -3,6 +3,7 @@ add_subdirectory(materials)
 add_subdirectory(lights)
 add_subdirectory(primitives)
 add_subdirectory(skies)
+add_subdirectory(math)
 
 add_executable(raytracer main.cpp)
 
@@ -19,4 +20,5 @@ target_compile_options(raytracer PRIVATE
 
 target_link_libraries(raytracer PRIVATE
     raytracer_core
+    raytracer_math
 )
