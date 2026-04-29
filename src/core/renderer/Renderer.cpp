@@ -35,64 +35,61 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
     }
 }
 
-Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth, bool isFirstRay) {
+Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
     if (depth <= 0)
         return Color(0, 0, 0);
 
     HitRecord rec;
     if (!scene.getWorld().hit(r, Interval(0.001, std::numeric_limits<double>::max()), rec)) {
-        return isFirstRay ? scene.getSky().getBackgroundColor(r)
-                          : scene.getSky().getEnvironmentColor(r);
+        if (r.type() == RayType::CAMERA || r.type() == RayType::REFLECT) {
+            return scene.getSky().getBackgroundColor(r);
+        }
+        return scene.getSky().getEnvironmentColor(r);
     }
 
-    Color emission = (isFirstRay) ? rec.material->emit(rec) : Color(0, 0, 0);
+    if (!rec.material) {
+        return Color(0, 0, 0);
+    }
+
+    auto bsdf = rec.material->getBSDF(rec);
+
+    Color color_emitted = bsdf->emitted(rec.u, rec.v, rec.point);
+
+    Color direct = computeDirectLighting(r, rec, scene, *bsdf);
 
     Ray scattered;
     Color attenuation;
-    if (rec.material->scatter(r, rec, attenuation, scattered)) {
-        Color direct = computeDirectLighting(rec, scene, attenuation);
+    Color indirect(0, 0, 0);
 
-        double diffuseWeight = 1.0 - rec.material->getSpecularWeight();
-        Color indirect = attenuation * computeRayColor(scattered, scene, depth - 1, false);
-
-        return emission + (direct * diffuseWeight) + indirect;
+    if (bsdf->scatter(r, rec, attenuation, scattered)) {
+        indirect = attenuation * computeRayColor(scattered, scene, depth - 1);
     }
 
-    return emission;
+    return color_emitted + direct + indirect;
 }
 
-Color Renderer::computeDirectLighting(const HitRecord& rec,
+Color Renderer::computeDirectLighting(const Ray& r_in,
+                                      const HitRecord& rec,
                                       const Scene& scene,
-                                      const Color& attenuation) {
+                                      const IBSDF& bsdf) {
     Color total_direct_light(0, 0, 0);
+    Vector3D view_dir = -r_in.direction();
 
     for (const auto& light : scene.getLights()) {
         LightSample sample = light->computeLight(rec.point);
         if (!sample.isActive)
             continue;
 
-        Ray shadow_ray(rec.point + rec.normal * 0.001, sample.direction);
-        Color light_visibility(1.0, 1.0, 1.0);
-        double t_min = 0.001;
+        Ray shadow_ray(rec.point + rec.normal * 0.001, sample.direction, RayType::SHADOW);
 
         HitRecord shadow_rec;
-        while (scene.getWorld().hit(shadow_ray, Interval(t_min, sample.distance), shadow_rec)) {
-            Color transmittance = shadow_rec.material->getTransmittance();
-
-            light_visibility *= transmittance;
-
-            if (light_visibility.isNearZero()) {
-                light_visibility = Color(0, 0, 0);
-                break;
-            }
-
-            t_min = shadow_rec.t + 0.001;
+        if (scene.getWorld().hit(shadow_ray, Interval(0.001, sample.distance), shadow_rec)) {
+            continue;
         }
 
-        if (!light_visibility.isNearZero()) {
-            double cos_theta = std::max(0.0, rec.normal.dot(sample.direction));
-            total_direct_light += (attenuation * sample.color * light_visibility) * cos_theta;
-        }
+        Color f = bsdf.evaluate(sample.direction, view_dir, rec);
+
+        total_direct_light += sample.color * f;
     }
     return total_direct_light;
 }

@@ -10,11 +10,9 @@ camera:
 };
 
 materials: (
-    { id = "gold"; type = "lambertian"; color = { r = 0.8; g = 0.6; b = 0.2; }; },
-    { id = "glass"; type = "transparent"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; },
-    { id = "water"; type = "transparent"; color = { r = 0.8; g = 0.9; b = 1.0; }; ref = 1.33; },
-    { id = "red_plastic"; type = "lambertian"; color = { r = 0.7; g = 0.1; b = 0.1; }; },
-    { id = "ground"; type = "lambertian"; color = { r = 0.15; g = 0.15; b = 0.15; }; }
+    { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; }; },
+    { id = "red_plastic"; type = "flat_color"; color = { r = 0.7; g = 0.1; b = 0.1; }; },
+    { id = "ground"; type = "flat_color"; color = { r = 0.15; g = 0.15; b = 0.15; }; }
 );
 
 shapes: (

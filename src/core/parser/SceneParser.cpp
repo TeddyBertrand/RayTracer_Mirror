@@ -42,6 +42,12 @@ void SceneParser::parseShapes(const libconfig::Setting& shapesSetting, Scene& ou
 
         PrimitiveSetting shapeConfig(baseConfig, outScene.getMaterials());
 
+        if (shapeConfig.exists("material") && !shapeConfig.getMaterial()) {
+            std::cerr << "Forme ignoree: materiau introuvable ("
+                      << shapeConfig.getString("material") << ")" << std::endl;
+            continue;
+        }
+
         std::string type = shapesSetting[i]["type"];
         auto primitive = _factories.primitive.create(type, shapeConfig);
 

@@ -1,7 +1,6 @@
 #include "Sphere.hpp"
 #include "factory/PrimitiveFactory.hpp"
-#include "materials/lambertian/Lambertian.hpp"
-#include "parser/PrimitiveSettings.hpp" // Pour accéder au wrapper
+#include "parser/PrimitiveSettings.hpp"
 
 namespace Raytracer {
 

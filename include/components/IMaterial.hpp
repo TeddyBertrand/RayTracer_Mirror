@@ -4,7 +4,7 @@
 #include "math/HitRecord.hpp"
 #include "math/Ray.hpp"
 
-#include "components/IPlugin.hpp"
+#include "components/IBSDF.hpp"
 
 namespace Raytracer {
 
@@ -14,41 +14,11 @@ namespace Raytracer {
  * Materials define how incoming rays interact with surfaces: they can scatter
  * rays, attenuate light, transmit energy and emit radiance.
  */
-class IMaterial : public IPlugin {
+class IMaterial {
 public:
-    /**
-     * @brief Virtual destructor for safe polymorphic deletion.
-     */
     virtual ~IMaterial() = default;
-
-    /**
-     * @brief Compute scattered ray and attenuation for an incoming ray hit.
-     *
-     * @param r_in Incoming ray.
-     * @param rec Intersection information.
-     * @param attenuation Output multiplicative color attenuation.
-     * @param scattered Output scattered ray.
-     * @return true if scattering occurs, false if the ray is absorbed.
-     */
-    virtual bool
-    scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const = 0;
-
-    /**
-     * @brief Return the specular blend factor used by the shading model.
-     */
-    virtual double getSpecularWeight() const = 0;
-
-    /**
-     * @brief Return per-channel transmittance of the material.
-     */
-    virtual Color getTransmittance() const = 0;
-
-    /**
-     * @brief Return emitted radiance at the hit point.
-     *
-     * Non-emissive materials typically return black.
-     */
-    virtual Color emit(const HitRecord& rec) const = 0;
+    // Le matériau crée un BSDF à la volée lors de l'impact
+    virtual std::unique_ptr<IBSDF> getBSDF(const HitRecord& hit) const = 0;
 };
 
 } // namespace Raytracer

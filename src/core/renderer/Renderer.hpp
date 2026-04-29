@@ -2,6 +2,7 @@
 
 #include "components/ICamera.hpp"
 #include "components/IPrimitive.hpp"
+#include "components/IMaterial.hpp"
 #include "core/scene/Scene.hpp"
 #include "render/FrameBuffer.hpp"
 #include <memory>
@@ -25,8 +26,11 @@ private:
 private:
     int _samples;
     int _maxDepth;
-    Color computeRayColor(const Ray& r, const Scene& scene, int depth, bool isFirstRay = true);
-    Color computeDirectLighting(const HitRecord& rec, const Scene& scene, const Color& attenuation);
+    Color computeRayColor(const Ray& r, const Scene& scene, int depth);
+    Color computeDirectLighting(const Ray& r_in,
+                                const HitRecord& rec,
+                                const Scene& scene,
+                                const IBSDF& bsdf);
 };
 
 } // namespace Raytracer
