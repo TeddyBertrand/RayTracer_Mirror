@@ -163,6 +163,32 @@ TEST(Matrix, LookAtBuildsExpectedBasis) {
     expectMatrixNear(view, expected);
 }
 
+TEST(Matrix, TranslationInverseRestoresPoint) {
+    const Raytracer::Matrix translation = Raytracer::Matrix::translate(3.0, -4.0, 2.0);
+    const Raytracer::Matrix inverse = translation.inverse();
+    const Raytracer::Vector3D point{1.0, 2.0, 3.0};
+
+    expectVectorNear(translation * point, {4.0, -2.0, 5.0});
+    expectVectorNear(inverse * (translation * point), point);
+
+    Raytracer::Matrix identity;
+    expectMatrixNear(translation * inverse, identity);
+    expectMatrixNear(inverse * translation, identity);
+}
+
+TEST(Matrix, ScaleInverseRestoresPoint) {
+    const Raytracer::Matrix scale = Raytracer::Matrix::scale(2.0, 3.0, 4.0);
+    const Raytracer::Matrix inverse = scale.inverse();
+    const Raytracer::Vector3D point{1.0, 2.0, 3.0};
+
+    expectVectorNear(scale * point, {2.0, 6.0, 12.0});
+    expectVectorNear(inverse * (scale * point), point);
+
+    Raytracer::Matrix identity;
+    expectMatrixNear(scale * inverse, identity);
+    expectMatrixNear(inverse * scale, identity);
+}
+
 // Vector3D augmented assignment operators
 TEST(Vector3D, CompoundAssignment) {
     Raytracer::Vector3D v{1.0, 2.0, 3.0};
