@@ -7,13 +7,6 @@
 
 namespace Raytracer {
 
-Color SceneParser::normalizeColor(const Color& color) const {
-    if (color.r > 1.0 || color.g > 1.0 || color.b > 1.0) {
-        return Color(color.r / 255.0, color.g / 255.0, color.b / 255.0);
-    }
-    return color;
-}
-
 void SceneParser::parseCamera(const libconfig::Setting& camSetting, Scene& outScene) {
     std::string type = camSetting["type"];
 
@@ -74,15 +67,17 @@ void SceneParser::parseLights(const libconfig::Setting& lightsSetting, Scene& ou
     }
 }
 
-void SceneParser::parseEnvironment(const libconfig::Setting& environmentSetting, Scene& outScene) {
-    if (environmentSetting.exists("sky")) {
-        LibconfigSetting envConfig(environmentSetting);
-        const Color skyColor = normalizeColor(envConfig.getColor("sky"));
-        outScene.setBackgroundColor(skyColor);
-        outScene.setSky(std::make_unique<EmptySky>());
-        return;
+void SceneParser::parseSky(const libconfig::Setting& skySetting, Scene& outScene) {
+    std::string type = skySetting["type"];
+    LibconfigSetting skyConfig(skySetting);
+
+    auto sky = _factories.sky.create(type, skyConfig);
+    if (sky) {
+        outScene.setSky(std::move(sky));
+    } else {
+        std::cerr << "sky ignoree (type inconnu): " << type << std::endl;
     }
-    outScene.setSky(std::make_unique<EmptySky>());
+    return;
 }
 
 void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
@@ -111,11 +106,6 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
             if (it != _sectionDispatch.end()) {
                 (this->*(it->second))(section, outScene);
             }
-        }
-
-        if (!root.exists("environment")) {
-            throw SceneParserException(
-                "Scene configuration must include an 'environment' section.");
         }
 
     } catch (const libconfig::SettingException& e) {

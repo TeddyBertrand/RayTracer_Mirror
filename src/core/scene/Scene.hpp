@@ -42,7 +42,7 @@ public:
 
     // --- Environnement & Caméra ---
     void setBackgroundColor(const Color& color) { _backgroundColor = color; }
-    void setSky(std::unique_ptr<ISky> sky) { _sky = std::move(sky); }
+    void setSky(std::shared_ptr<ISky> sky) { _sky = std::move(sky); }
     const ISky& getSky() const {
         if (!_sky)
             throw std::runtime_error("Scene: Sky is not set.");
@@ -61,7 +61,7 @@ private:
     PrimitiveList _world;
     std::vector<std::shared_ptr<ILight>> _lights;
     std::unordered_map<std::string, std::shared_ptr<IMaterial>> _materials;
-    std::unique_ptr<ISky> _sky;
+    std::shared_ptr<ISky> _sky;
     std::shared_ptr<ICamera> _camera;
 
     Color _backgroundColor = Color(0.5, 0.7, 1.0);

@@ -4,7 +4,7 @@ camera:
     width = 1280;
     height = 720;
     position = { x = 0.0; y = 2.5; z = 8.0; };
-    look_at = { x = 0.0; y = 1.0; z = 0.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
     up = { x = 0.0; y = 1.0; z = 0.0; };
     fieldOfView = 75.0;
 };
@@ -19,36 +19,31 @@ materials: (
 
 shapes: (
     { type = "sphere"; position = { x = 0.0; y = -1000.0; z = 0.0; }; radius = 1000.0; material = "ground"; },
-
     { type = "sphere"; position = { x = 0.0; y = 1.5; z = 0.0; }; radius = 1.5; material = "glass"; },
-
-    { type = "sphere"; position = { x = 0.0; y = 1.5; z = 0.0; }; radius = -1.4; material = "glass"; }, # Rayon négatif pour inverser la normale (effet bulle d'air)
-
+    { type = "sphere"; position = { x = 0.0; y = 1.5; z = 0.0; }; radius = -1.4; material = "glass"; },
     { type = "sphere"; position = { x = -4.0; y = 1.0; z = -2.0; }; radius = 1.0; material = "gold"; },
     { type = "sphere"; position = { x = 4.0; y = 1.0; z = -2.0; }; radius = 1.0; material = "red_plastic"; },
     { type = "sphere"; position = { x = -2.5; y = 0.7; z = 3.0; }; radius = 0.7; material = "water"; },
     { type = "sphere"; position = { x = 2.5; y = 0.7; z = 3.0; }; radius = 0.7; material = "water"; },
-
     { type = "sphere"; position = { x = 0.0; y = 10.0; z = -15.0; }; radius = 5.0; material = "gold"; }
 );
 
 lights: (
     {
-        type = "point_light";
-        position = { x = 5.0; y = 10.0; z = 5.0; };
+        type = "point"
+        position = { x = 10.0; y = 5.0; z = 0.0; };
         color = { r = 255.0; g = 0.0; b = 0.0; };
-        intensity = 1.2;
+        intensity = 1.3
     },
     {
-        type = "point_light";
-        position = { x = -5.0; y = 5.0; z = -5.0; };
-        color = { r = 0.0; g = 0.0; b = 255.0; };
-        intensity = 0.8;
+        type = "point"
+        position = { x = -10.0; y = 5.0; z = 0.0; };
+        color = { r = 0.0; g = 255.0; b = 0.0; };
+        intensity = 1.3
     }
-);
+)
 
-environment: {
-    sky = {
-        
-    };
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.0; g = 0.0; b = 1.0; };
 };
