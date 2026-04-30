@@ -1,9 +1,10 @@
 #pragma once
 
 #include "components/ICamera.hpp"
-#include "components/IPrimitive.hpp"
 #include "components/IMaterial.hpp"
+#include "components/IPrimitive.hpp"
 #include "core/scene/Scene.hpp"
+#include "math/Color.hpp"
 #include "render/FrameBuffer.hpp"
 #include <memory>
 #include <vector>
@@ -27,6 +28,8 @@ private:
     int _samples;
     int _maxDepth;
     Color computeRayColor(const Ray& r, const Scene& scene, int depth);
+    Color
+    samplePixel(int x, int y, int width, int height, const ICamera& camera, const Scene& scene);
     Color computeDirectLighting(const Ray& r_in,
                                 const HitRecord& rec,
                                 const Scene& scene,

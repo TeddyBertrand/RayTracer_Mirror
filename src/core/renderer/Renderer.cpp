@@ -13,34 +13,41 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            Color pixel_color(0, 0, 0);
-            int sqrt_samples = std::sqrt(_samples);
-
-            for (int s_y = 0; s_y < sqrt_samples; ++s_y) {
-                for (int s_x = 0; s_x < sqrt_samples; ++s_x) {
-                    double u_offset =
-                        (s_x + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
-                    double v_offset =
-                        (s_y + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
-
-                    double u = (static_cast<double>(x) + u_offset) / (width - 1.0);
-                    double v = 1.0 - (static_cast<double>(y) + v_offset) / (height - 1.0);
-
-                    Ray r = camera.getRay(u, v);
-                    pixel_color += computeRayColor(r, scene, 50);
-                }
-            }
-            buffer[y * width + x] = pixel_color / static_cast<double>(_samples);
+            buffer[y * width + x] = samplePixel(x, y, width, height, camera, scene);
         }
     }
 }
 
+Color Renderer::samplePixel(
+    int x, int y, int width, int height, const ICamera& camera, const Scene& scene) {
+    Color pixel_color(0, 0, 0);
+    int sqrt_samples = static_cast<int>(std::sqrt(_samples));
+
+    for (int s_y = 0; s_y < sqrt_samples; ++s_y) {
+        for (int s_x = 0; s_x < sqrt_samples; ++s_x) {
+            double u_offset =
+                (s_x + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
+            double v_offset =
+                (s_y + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
+
+            double u = (static_cast<double>(x) + u_offset) / (width - 1.0);
+            double v = 1.0 - (static_cast<double>(y) + v_offset) / (height - 1.0);
+
+            Ray r = camera.getRay(u, v);
+            pixel_color += computeRayColor(r, scene, _maxDepth);
+        }
+    }
+
+    return pixel_color / static_cast<double>(_samples);
+}
+
 Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
-    if (depth <= 0)
+    if (depth <= 0) {
         return Color(0, 0, 0);
+    }
 
     HitRecord rec;
-    if (!scene.getWorld().hit(r, Interval(0.001, std::numeric_limits<double>::max()), rec)) {
+    if (!scene.getWorld().hit(r, Interval(0.001, Interval::universe.max), rec)) {
         if (r.type() == RayType::CAMERA || r.type() == RayType::REFLECT) {
             return scene.getSky().getBackgroundColor(r);
         }

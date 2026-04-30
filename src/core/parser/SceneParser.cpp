@@ -114,8 +114,14 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
             }
         }
 
+    } catch (const libconfig::FileIOException& e) {
+        throw SceneParserException("Unable to read config file: " + filePath);
+    } catch (const libconfig::ParseException& e) {
+        throw SceneParserException(std::string("Parse error in config file: ") + e.what());
     } catch (const libconfig::SettingException& e) {
         throw SceneParserException("Error parsing config file: " + std::string(e.what()));
+    } catch (const std::exception& e) {
+        throw SceneParserException(std::string("Unknown error while parsing config: ") + e.what());
     }
 }
 } // namespace Raytracer
