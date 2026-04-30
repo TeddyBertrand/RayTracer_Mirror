@@ -1,5 +1,6 @@
 add_library(raytracer_materials_common STATIC
     bsdf/lambertian/LambertianBSDF.cpp
+    bsdf/emissive/EmissiveBSDF.cpp
 )
 
 set_target_properties(raytracer_materials_common PROPERTIES
