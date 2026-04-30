@@ -14,7 +14,8 @@ namespace Raytracer {
  */
 class LambertianBSDF : public ABSDF {
 public:
-    explicit LambertianBSDF(const Color& a) : _albedo(a) {}
+    explicit LambertianBSDF(const Color& a, double randomness = 1.0)
+        : _albedo(a), _randomness(randomness < 0.0 ? 0.0 : (randomness > 1.0 ? 1.0 : randomness)) {}
 
     /**
      * Sample one diffuse bounce.
@@ -35,6 +36,7 @@ public:
 
 private:
     Color _albedo;
+    double _randomness;
 };
 
 } // namespace Raytracer

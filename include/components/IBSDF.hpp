@@ -20,7 +20,23 @@ class IBSDF {
 public:
     virtual ~IBSDF() = default;
 
-    /**
+    /**## FIXES
+
+Issue #
+
+## Description
+
+### How
+
+### Testing
+1. **Execution**:
+2. **Validation**: 
+
+### Notes
+- **Next**:
+- **Technical Details**: 
+- **Refactoring**: 
+
      * Sample a scattered ray.
      *
      * `attenuation` is the color multiplier for the bounce. Return `false` when
