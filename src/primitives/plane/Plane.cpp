@@ -1,4 +1,5 @@
 #include "Plane.hpp"
+#include "components/Entity.hpp"
 #include "factory/PrimitiveFactory.hpp"
 #include "parser/PrimitiveSettings.hpp"
 
@@ -9,9 +10,7 @@ extern "C" {
 const char* getName() { return "plane"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
-    Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
-    Vector3D normal = settings.getVector("normal", Vector3D(0, 1, 0));
-    normal.normalize();
+    const std::string type = settings.getString("type");
     const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
 
     std::shared_ptr<IMaterial> mat = nullptr;
@@ -19,9 +18,21 @@ IPrimitive* createPlugin(const ISetting& settings) {
         mat = pSettings->getMaterial();
     }
 
-    return new Plane(pos, normal, mat);
+    auto planePrimitive = std::make_shared<Plane>();
+    auto* entity = new Entity(type, planePrimitive, mat);
+
+    Vector3D pos = settings.getVector("position");
+    entity->translate(pos.x, pos.y, pos.z);
+    entity->scale(1, 1, 1);
+    Vector3D rot = settings.getVector("rotation");
+    entity->rotateX(rot.x);
+    entity->rotateY(rot.y);
+    entity->rotateZ(rot.z);
+
+    return entity;
 }
-}
+
+} // extern "C"
 
 bool Plane::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     float denom = _normal.dot(r.direction());
@@ -32,12 +43,12 @@ bool Plane::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
 
     float t = (_position - r.origin()).dot(_normal) / denom;
 
-    if (t < ray_t.min || t > ray_t.max) {
+    if (ray_t.excludes(t)) {
         return false;
     }
 
     rec.t = t;
-    rec.point = r.origin() + t * r.direction();
+    rec.point = r.at(t);
 
     rec.setFaceNormal(r, _normal);
 

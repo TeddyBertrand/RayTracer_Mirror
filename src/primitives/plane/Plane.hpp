@@ -17,8 +17,7 @@ public:
      * @param radius
      * @param material
      */
-    Plane(Vector3D position, Vector3D normal, std::shared_ptr<IMaterial> material)
-        : _position(position), _normal(normal), _material(material) {}
+    Plane() = default;
 
     /**
      * @brief Hit function
@@ -40,4 +39,4 @@ private:
     double _radius;
     std::shared_ptr<IMaterial> _material;
 };
-}; // namespace Raytracer
+} // namespace Raytracer
