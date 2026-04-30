@@ -23,6 +23,7 @@ Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _
         std::cerr << "Erreur lors du chargement de la scène : " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;
     }
+    _scene.buildBVH();
 }
 
 void Raytracer::run() {
