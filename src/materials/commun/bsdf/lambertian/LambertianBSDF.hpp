@@ -1,7 +1,6 @@
 #pragma once
 
-#include "components/IBSDF.hpp"
-#include "components/IMaterial.hpp"
+#include "materials/commun/bsdf/ABSDF.hpp"
 
 namespace Raytracer {
 
@@ -13,7 +12,7 @@ namespace Raytracer {
  * - `scatter()` samples a cosine-weighted hemisphere.
  * - `emitted()` always returns black.
  */
-class LambertianBSDF : public IBSDF {
+class LambertianBSDF : public ABSDF {
 public:
     explicit LambertianBSDF(const Color& a) : _albedo(a) {}
 
@@ -33,15 +32,6 @@ public:
     Color evaluate(const Vector3D& light_dir,
                    const Vector3D& view_dir,
                    const HitRecord& hit) const override;
-
-    /**
-     * Diffuse materials do not emit light.
-     */
-    Color emitted([[maybe_unused]] double u,
-                  [[maybe_unused]] double v,
-                  [[maybe_unused]] const Vector3D& p) const override {
-        return Color(0, 0, 0);
-    }
 
 private:
     Color _albedo;

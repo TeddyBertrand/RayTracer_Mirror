@@ -1,6 +1,6 @@
 #pragma once
 
-#include "components/IBSDF.hpp"
+#include "materials/commun/bsdf/ABSDF.hpp"
 
 namespace Raytracer {
 
@@ -11,7 +11,7 @@ namespace Raytracer {
  * - `evaluate()` is black.
  * - `scatter()` returns false because the surface does not bounce light.
  */
-class EmissiveBSDF : public IBSDF {
+class EmissiveBSDF : public ABSDF {
 public:
     explicit EmissiveBSDF(const Color& c) : _emitColor(c) {}
 
