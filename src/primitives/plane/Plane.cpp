@@ -1,6 +1,7 @@
 #include "Plane.hpp"
 #include "components/Entity.hpp"
 #include "factory/PrimitiveFactory.hpp"
+#include "math/MathUtils.hpp"
 #include "parser/PrimitiveSettings.hpp"
 
 namespace Raytracer {
@@ -21,13 +22,14 @@ IPrimitive* createPlugin(const ISetting& settings) {
     auto planePrimitive = std::make_shared<Plane>();
     auto* entity = new Entity(type, planePrimitive, mat);
 
-    Vector3D pos = settings.getVector("position");
+    // Unit plane: local origin (0,0,0), local normal (0,1,0).
+    // Transform order must be rotate -> translate so position is not rotated.
+    Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
+    entity->rotateX(Math::degreesToRadians(rot.x));
+    entity->rotateY(Math::degreesToRadians(rot.y));
+    entity->rotateZ(Math::degreesToRadians(rot.z));
+    Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
     entity->translate(pos.x, pos.y, pos.z);
-    entity->scale(1, 1, 1);
-    Vector3D rot = settings.getVector("rotation");
-    entity->rotateX(rot.x);
-    entity->rotateY(rot.y);
-    entity->rotateZ(rot.z);
 
     return entity;
 }

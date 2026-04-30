@@ -17,7 +17,7 @@ public:
      * @param radius
      * @param material
      */
-    Plane() = default;
+    Plane() : _position(0, 0, 0), _normal(0, 1, 0), _material(nullptr) {}
 
     /**
      * @brief Hit function
