@@ -14,17 +14,7 @@ extern "C" {
 const char* getName() { return "light_material"; }
 
 IMaterial* createPlugin(const ISetting& settings) {
-    std::shared_ptr<ITexture> tex = nullptr;
-
-    if (settings.exists("color")) {
-        Color c = settings.getColor("color");
-        tex = std::make_shared<Texture>(c);
-    } else if (settings.exists("texture")) {
-        std::string filename = settings.getString("texture");
-        tex = std::make_shared<Texture>(filename);
-    } else {
-        throw std::runtime_error("LightMaterial requires either a 'color' or 'texture' setting.");
-    }
+    std::shared_ptr<ITexture> tex = Texture::fromSetting(settings, "color");
 
     return new LightMaterial(tex);
 }
