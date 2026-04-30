@@ -1,13 +1,9 @@
+
 #include "LightMaterial.hpp"
 #include "materials/commun/texture/Texture.hpp"
 #include "parser/ISettings.hpp"
 
 namespace Raytracer {
-
-std::unique_ptr<IBSDF> LightMaterial::getBSDF(const HitRecord& rec) const {
-    Color c = _emission_tex->value(rec.u, rec.v);
-    return std::make_unique<EmissiveBSDF>(c);
-}
 
 extern "C" {
 

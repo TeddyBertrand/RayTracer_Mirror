@@ -58,17 +58,17 @@ Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
         return Color(0, 0, 0);
     }
 
-    auto bsdf = rec.material->getBSDF(rec);
+    const IBSDF& bsdf = rec.material->getBSDF();
 
-    Color color_emitted = bsdf->emitted(rec.u, rec.v, rec.point);
+    Color color_emitted = bsdf.emitted(rec.u, rec.v, rec.point);
 
-    Color direct = computeDirectLighting(r, rec, scene, *bsdf);
+    Color direct = computeDirectLighting(r, rec, scene, bsdf);
 
     Ray scattered;
     Color attenuation;
     Color indirect(0, 0, 0);
 
-    if (bsdf->scatter(r, rec, attenuation, scattered)) {
+    if (bsdf.scatter(r, rec, attenuation, scattered)) {
         indirect = attenuation * computeRayColor(scattered, scene, depth - 1);
     }
 

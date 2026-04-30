@@ -5,30 +5,27 @@
 #include "math/Ray.hpp"
 
 #include "components/IBSDF.hpp"
+#include <memory>
 
 namespace Raytracer {
 
 /**
  * @brief Material interface.
  *
- * A material is a factory for per-hit shading behavior. It stores shared
- * parameters, then creates an `IBSDF` for each surface intersection.
- *
- * Contract:
- * - `getBSDF()` must return the shading model for the given `HitRecord`.
- * - Returned BSDFs must implement scattering, evaluation, and emission.
- * - Colors are linear RGB; keep implementations energy-aware.
+ * A material stores a pre-built BSDF that is created once at construction
+ * and reused for all surface intersections.
+ * Zero heap allocation per frame.
  */
 class IMaterial {
 public:
     virtual ~IMaterial() = default;
+
     /**
-     * Create the BSDF used to shade one hit.
-     *
-     * `hit` contains position, normal, and UVs. Return `nullptr` only when the
-     * material cannot shade this intersection.
+     * Get the pre-built BSDF for this material.
+     * This BSDF is created once at construction and never changes.
+     * NO allocation per call.
      */
-    virtual std::unique_ptr<IBSDF> getBSDF(const HitRecord& hit) const = 0;
+    virtual const IBSDF& getBSDF() const = 0;
 };
 
 } // namespace Raytracer

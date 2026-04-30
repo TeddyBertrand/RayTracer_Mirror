@@ -1,19 +1,21 @@
 #pragma once
 
+#include "components/ITexture.hpp"
 #include "materials/commun/bsdf/ABSDF.hpp"
+#include <memory>
 
 namespace Raytracer {
 
 /**
  * @brief Emissive BSDF for light sources.
  *
- * - `emitted()` returns the light color.
+ * - `emitted()` evaluates the emission texture at u,v.
  * - `evaluate()` is black.
  * - `scatter()` returns false because the surface does not bounce light.
  */
 class EmissiveBSDF : public ABSDF {
 public:
-    explicit EmissiveBSDF(const Color& c) : _emitColor(c) {}
+    explicit EmissiveBSDF(std::shared_ptr<ITexture> tex) : _emission_texture(tex) {}
 
     /**
      * No BRDF contribution for emitters.
@@ -35,16 +37,16 @@ public:
     }
 
     /**
-     * Return the constant emitted radiance.
+     * Return the emission color evaluated from the texture at u,v.
      */
     Color emitted([[maybe_unused]] double u,
                   [[maybe_unused]] double v,
                   [[maybe_unused]] const Point3D& p) const override {
-        return _emitColor;
+        return _emission_texture->value(u, v);
     }
 
 private:
-    Color _emitColor;
+    std::shared_ptr<ITexture> _emission_texture;
 };
 
 } // namespace Raytracer
