@@ -41,23 +41,46 @@ struct AABB {
         const auto& origin = r.origin();
         const auto& direction = r.direction();
 
-        const auto update_axis =
-            [&](double minVal, double maxVal, double originVal, double directionVal) {
-                const double invD = 1.0 / directionVal;
-                double t0 = (minVal - originVal) * invD;
-                double t1 = (maxVal - originVal) * invD;
+        // X axis
+        {
+            const double invD = 1.0 / direction.x;
+            double t0 = (min.x - origin.x) * invD;
+            double t1 = (max.x - origin.x) * invD;
+            if (invD < 0.0)
+                std::swap(t0, t1);
+            ray_t.min = std::max(ray_t.min, t0);
+            ray_t.max = std::min(ray_t.max, t1);
+            if (ray_t.max <= ray_t.min)
+                return false;
+        }
 
-                if (invD < 0.0)
-                    std::swap(t0, t1);
+        // Y axis
+        {
+            const double invD = 1.0 / direction.y;
+            double t0 = (min.y - origin.y) * invD;
+            double t1 = (max.y - origin.y) * invD;
+            if (invD < 0.0)
+                std::swap(t0, t1);
+            ray_t.min = std::max(ray_t.min, t0);
+            ray_t.max = std::min(ray_t.max, t1);
+            if (ray_t.max <= ray_t.min)
+                return false;
+        }
 
-                ray_t.min = std::max(ray_t.min, t0);
-                ray_t.max = std::min(ray_t.max, t1);
-                return ray_t.max > ray_t.min;
-            };
+        // Z axis
+        {
+            const double invD = 1.0 / direction.z;
+            double t0 = (min.z - origin.z) * invD;
+            double t1 = (max.z - origin.z) * invD;
+            if (invD < 0.0)
+                std::swap(t0, t1);
+            ray_t.min = std::max(ray_t.min, t0);
+            ray_t.max = std::min(ray_t.max, t1);
+            if (ray_t.max <= ray_t.min)
+                return false;
+        }
 
-        return update_axis(min.x, max.x, origin.x, direction.x) &&
-               update_axis(min.y, max.y, origin.y, direction.y) &&
-               update_axis(min.z, max.z, origin.z, direction.z);
+        return true;
     }
 
     static AABB combine(const AABB& box0, const AABB& box1) {
@@ -70,17 +93,13 @@ struct AABB {
         if (box1.isEmpty())
             return box0;
 
-        Point3D small(
-            std::min(box0.min.x, box1.min.x),
-            std::min(box0.min.y, box1.min.y),
-            std::min(box0.min.z, box1.min.z)
-        );
+        Point3D small(std::min(box0.min.x, box1.min.x),
+                      std::min(box0.min.y, box1.min.y),
+                      std::min(box0.min.z, box1.min.z));
 
-        Point3D big(
-            std::max(box0.max.x, box1.max.x),
-            std::max(box0.max.y, box1.max.y),
-            std::max(box0.max.z, box1.max.z)
-        );
+        Point3D big(std::max(box0.max.x, box1.max.x),
+                    std::max(box0.max.y, box1.max.y),
+                    std::max(box0.max.z, box1.max.z));
 
         return AABB{small, big};
     }
