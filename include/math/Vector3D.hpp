@@ -128,7 +128,7 @@ struct Vector3D {
      * @brief Return a random scalar in `[min, max)`.
      */
     static double getRandomDouble(double min, double max) {
-        static std::mt19937 generator(std::random_device{}());
+        thread_local static std::mt19937 generator(std::random_device{}());
         std::uniform_real_distribution<double> distribution(min, max);
         return distribution(generator);
     }

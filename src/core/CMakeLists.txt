@@ -16,6 +16,7 @@ target_include_directories(raytracer_core PUBLIC
 )
 
 target_link_libraries(raytracer_core PUBLIC ${LIBCONFIGPP_LIBRARIES})
+target_link_libraries(raytracer_core PUBLIC TBB::tbb)
 
 target_compile_options(raytracer_core PRIVATE
     -W

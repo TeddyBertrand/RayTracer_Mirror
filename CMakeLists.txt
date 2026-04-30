@@ -75,6 +75,7 @@ file(MAKE_DIRECTORY ${PLUGIN_DIR}/cameras)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCONFIGPP REQUIRED libconfig++)
+find_package(TBB REQUIRED)
 
 add_subdirectory(src)
 

@@ -3,6 +3,9 @@
 #include "math/Color.hpp"
 #include "math/MathUtils.hpp"
 
+#include <execution>
+#include <numeric>
+
 namespace Raytracer {
 
 void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& buffer) {
@@ -11,11 +14,14 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 
     buffer.assign(width * height, Color(0, 0, 0));
 
-    for (int y = 0; y < height; ++y) {
+    std::vector<int> rows(height);
+    std::iota(rows.begin(), rows.end(), 0);
+
+    std::for_each(std::execution::par, rows.begin(), rows.end(), [&](int y) {
         for (int x = 0; x < width; ++x) {
             buffer[y * width + x] = samplePixel(x, y, width, height, camera, scene);
         }
-    }
+    });
 }
 
 Color Renderer::samplePixel(
