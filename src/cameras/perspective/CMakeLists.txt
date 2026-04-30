@@ -1,7 +1,7 @@
 add_library(raytracer_perspective_camera SHARED
     PerspectiveCamera.cpp
-    ../../math/Matrix.cpp
 )
+
 
 target_include_directories(raytracer_perspective_camera PRIVATE
     ${PROJECT_SOURCE_DIR}/include
