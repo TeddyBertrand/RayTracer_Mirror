@@ -103,13 +103,13 @@ public:
      * @return true if a valid hit exists in the interval.
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        Ray local_ray(_transform_inv * r.origin(), _transform_inv * r.direction());
+        Ray local_ray(_transform_inv * r.origin(), _transform_inv.transformDirection(r.direction()));
 
         if (!_primitive->hit(local_ray, ray_t, rec)) {
             return false;
         }
         rec.point = _transform * rec.point;
-        rec.normal = (_transform_inv * rec.normal).normalized();
+        rec.normal = (_transform_inv.transpose() * rec.normal).normalized();
         rec.material = _material;
         return true;
     }
