@@ -1,9 +1,22 @@
 #include "Sphere.hpp"
 #include "factory/PrimitiveFactory.hpp"
-#include "materials/lambertian/Lambertian.hpp"
-#include "parser/PrimitiveSettings.hpp" // Pour accéder au wrapper
+#include "parser/PrimitiveSettings.hpp"
+#include <cmath>
 
 namespace Raytracer {
+
+namespace {
+
+void getSphereUV(const Vector3D& p, double& u, double& v) {
+    constexpr double pi = 3.14159265358979323846;
+    const double theta = std::acos(-p.y);
+    const double phi = std::atan2(-p.z, p.x) + pi;
+
+    u = phi / (2.0 * pi);
+    v = theta / pi;
+}
+
+} // namespace
 
 extern "C" {
 
@@ -67,6 +80,9 @@ bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
 
     // impact distance
     Vector3D normal = (rec.point - _center) / _radius;
+
+    // Compute UVs from the geometric normal for texture lookup.
+    getSphereUV(normal.normalized(), rec.u, rec.v);
 
     // check if ray hit inside or outside and oriente in function
     rec.setFaceNormal(r, normal);

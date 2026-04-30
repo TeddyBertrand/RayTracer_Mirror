@@ -4,51 +4,31 @@
 #include "math/HitRecord.hpp"
 #include "math/Ray.hpp"
 
-#include "components/IPlugin.hpp"
+#include "components/IBSDF.hpp"
 
 namespace Raytracer {
 
 /**
- * @brief Interface for BRDF/BSDF-like material behavior.
+ * @brief Material interface.
  *
- * Materials define how incoming rays interact with surfaces: they can scatter
- * rays, attenuate light, transmit energy and emit radiance.
+ * A material is a factory for per-hit shading behavior. It stores shared
+ * parameters, then creates an `IBSDF` for each surface intersection.
+ *
+ * Contract:
+ * - `getBSDF()` must return the shading model for the given `HitRecord`.
+ * - Returned BSDFs must implement scattering, evaluation, and emission.
+ * - Colors are linear RGB; keep implementations energy-aware.
  */
-class IMaterial : public IPlugin {
+class IMaterial {
 public:
-    /**
-     * @brief Virtual destructor for safe polymorphic deletion.
-     */
     virtual ~IMaterial() = default;
-
     /**
-     * @brief Compute scattered ray and attenuation for an incoming ray hit.
+     * Create the BSDF used to shade one hit.
      *
-     * @param r_in Incoming ray.
-     * @param rec Intersection information.
-     * @param attenuation Output multiplicative color attenuation.
-     * @param scattered Output scattered ray.
-     * @return true if scattering occurs, false if the ray is absorbed.
+     * `hit` contains position, normal, and UVs. Return `nullptr` only when the
+     * material cannot shade this intersection.
      */
-    virtual bool
-    scatter(const Ray& r_in, const HitRecord& rec, Color& attenuation, Ray& scattered) const = 0;
-
-    /**
-     * @brief Return the specular blend factor used by the shading model.
-     */
-    virtual double getSpecularWeight() const = 0;
-
-    /**
-     * @brief Return per-channel transmittance of the material.
-     */
-    virtual Color getTransmittance() const = 0;
-
-    /**
-     * @brief Return emitted radiance at the hit point.
-     *
-     * Non-emissive materials typically return black.
-     */
-    virtual Color emit(const HitRecord& rec) const = 0;
+    virtual std::unique_ptr<IBSDF> getBSDF(const HitRecord& hit) const = 0;
 };
 
 } // namespace Raytracer
