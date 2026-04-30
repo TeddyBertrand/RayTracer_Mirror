@@ -3,6 +3,9 @@ add_library(raytracer_materials_common STATIC
     bsdf/emissive/EmissiveBSDF.cpp
 )
 
+find_package(SFML COMPONENTS Graphics System REQUIRED)
+target_link_libraries(raytracer_materials_common PUBLIC SFML::Graphics SFML::System)
+
 set_target_properties(raytracer_materials_common PROPERTIES
     POSITION_INDEPENDENT_CODE ON
 )
