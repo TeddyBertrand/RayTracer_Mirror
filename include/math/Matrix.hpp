@@ -115,7 +115,8 @@ public:
      * @brief Generates a transformation utility (LookAt).
      * Transforms from world space to camera view space.
      */
-    static Matrix lookAt(const Point3D& position, const Point3D& target, const Vector3D& up) noexcept {
+    static Matrix
+    lookAt(const Point3D& position, const Point3D& target, const Vector3D& up) noexcept {
         Vector3D forward = (position - target).normalized(); // z-axis
         Vector3D right = up.cross(forward).normalized();     // x-axis
         Vector3D new_up = forward.cross(right);              // y-axis
