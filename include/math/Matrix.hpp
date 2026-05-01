@@ -42,7 +42,7 @@ public:
     }
 
     /**
-     * @brief Matrix-Vector multiplication (Transformation).
+     * @brief Matrix-Vector multiplication (Transformation of points with translation).
      */
     [[nodiscard]] Vector3D operator*(const Vector3D& vec) const noexcept {
         double x = m[0][0] * vec.x + m[0][1] * vec.y + m[0][2] * vec.z + m[0][3] * 1.0;
@@ -53,6 +53,16 @@ public:
         if (w != 0.0 && w != 1.0) {
             return Vector3D(x / w, y / w, z / w);
         }
+        return Vector3D(x, y, z);
+    }
+
+    /**
+     * @brief Transform a direction vector (no translation applied, only rotation/scale).
+     */
+    [[nodiscard]] Vector3D transformDirection(const Vector3D& vec) const noexcept {
+        double x = m[0][0] * vec.x + m[0][1] * vec.y + m[0][2] * vec.z;
+        double y = m[1][0] * vec.x + m[1][1] * vec.y + m[1][2] * vec.z;
+        double z = m[2][0] * vec.x + m[2][1] * vec.y + m[2][2] * vec.z;
         return Vector3D(x, y, z);
     }
 
@@ -105,7 +115,8 @@ public:
      * @brief Generates a transformation utility (LookAt).
      * Transforms from world space to camera view space.
      */
-    static Matrix lookAt(const Point3D& position, const Point3D& target, const Vector3D& up) noexcept {
+    static Matrix
+    lookAt(const Point3D& position, const Point3D& target, const Vector3D& up) noexcept {
         Vector3D forward = (position - target).normalized(); // z-axis
         Vector3D right = up.cross(forward).normalized();     // x-axis
         Vector3D new_up = forward.cross(right);              // y-axis
@@ -159,6 +170,20 @@ public:
         result.m[0][0] = sx;
         result.m[1][1] = sy;
         result.m[2][2] = sz;
+        return result;
+    }
+
+    /**
+     * @brief Transpose this matrix.
+     * @return Transposed matrix.
+     */
+    [[nodiscard]] Matrix transpose() const noexcept {
+        Matrix result;
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                result.m[i][j] = m[j][i];
+            }
+        }
         return result;
     }
 

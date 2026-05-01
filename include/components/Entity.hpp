@@ -103,13 +103,14 @@ public:
      * @return true if a valid hit exists in the interval.
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        Ray local_ray(_transform_inv * r.origin(), _transform_inv * r.direction());
+        Ray local_ray(_transform_inv * r.origin(),
+                      _transform_inv.transformDirection(r.direction()));
 
         if (!_primitive->hit(local_ray, ray_t, rec)) {
             return false;
         }
         rec.point = _transform * rec.point;
-        rec.normal = (_transform_inv * rec.normal).normalized();
+        rec.normal = (_transform_inv.transpose() * rec.normal).normalized();
         rec.material = _material;
         return true;
     }
@@ -133,6 +134,50 @@ public:
      * @brief Set the material.
      */
     void setMaterial(std::shared_ptr<IMaterial> material) noexcept { _material = material; }
+
+    AABB getBoundingBox() const override {
+        if (!_primitive) {
+            return AABB();
+        }
+
+        AABB local_box = _primitive->getBoundingBox();
+
+        if (local_box.isEmpty()) {
+            return AABB();
+        }
+
+        if (local_box.isInfinite()) {
+            return AABB::infinite();
+        }
+
+        Point3D min(std::numeric_limits<double>::infinity(),
+                    std::numeric_limits<double>::infinity(),
+                    std::numeric_limits<double>::infinity());
+        Point3D max(-std::numeric_limits<double>::infinity(),
+                    -std::numeric_limits<double>::infinity(),
+                    -std::numeric_limits<double>::infinity());
+
+        for (int i = 0; i < 2; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                for (int k = 0; k < 2; ++k) {
+                    double x = (i == 0) ? local_box.min.x : local_box.max.x;
+                    double y = (j == 0) ? local_box.min.y : local_box.max.y;
+                    double z = (k == 0) ? local_box.min.z : local_box.max.z;
+
+                    Point3D transformed_point = _transform * Point3D(x, y, z);
+
+                    min.x = std::min(min.x, transformed_point.x);
+                    min.y = std::min(min.y, transformed_point.y);
+                    min.z = std::min(min.z, transformed_point.z);
+
+                    max.x = std::max(max.x, transformed_point.x);
+                    max.y = std::max(max.y, transformed_point.y);
+                    max.z = std::max(max.z, transformed_point.z);
+                }
+            }
+        }
+        return AABB{min, max};
+    }
 
 private:
     std::string _name;

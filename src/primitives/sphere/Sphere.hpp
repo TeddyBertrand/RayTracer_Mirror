@@ -32,6 +32,11 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
+    AABB getBoundingBox() const override {
+        Point3D radiusVec(_radius, _radius, _radius);
+        return AABB{_center - radiusVec, _center + radiusVec};
+    }
+
     void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
 
 private:

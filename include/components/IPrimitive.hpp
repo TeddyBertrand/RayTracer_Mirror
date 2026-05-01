@@ -1,5 +1,6 @@
 #pragma once
 
+#include "math/AABB.hpp"
 #include "math/HitRecord.hpp"
 #include "math/Interval.hpp"
 #include "math/Ray.hpp"
@@ -27,6 +28,12 @@ public:
      * @return true if a valid hit exists in the interval.
      */
     virtual bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const = 0;
+
+    /**
+     * @brief Return the axis-aligned bounding box of this primitive.
+     */
+    virtual AABB getBoundingBox() const = 0;
+
     virtual void setMaterial(std::shared_ptr<IMaterial> m) = 0;
 };
 

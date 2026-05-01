@@ -32,15 +32,12 @@ public:
         return _materials;
     }
 
-    // --- Géométrie ---
     void addPrimitive(std::shared_ptr<IPrimitive> primitive) { _world.add(primitive); }
     const IPrimitive& getWorld() const { return _world; }
 
-    // --- Lumières ---
     void addLight(std::shared_ptr<ILight> light) { _lights.push_back(light); }
     const std::vector<std::shared_ptr<ILight>>& getLights() const { return _lights; }
 
-    // --- Environnement & Caméra ---
     void setBackgroundColor(const Color& color) { _backgroundColor = color; }
     void setSky(std::shared_ptr<ISky> sky) { _sky = std::move(sky); }
     const ISky& getSky() const {
@@ -56,6 +53,8 @@ public:
         return *_camera;
     }
     void dump();
+
+    void buildBVH() { _world.buildBVH(); }
 
 private:
     PrimitiveList _world;
