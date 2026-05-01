@@ -32,8 +32,8 @@ public:
      * @param max Exclusive upper bound.
      */
     static inline double randomDouble(double min, double max) {
-        static std::uniform_real_distribution<double> distribution(min, max);
-        static std::mt19937 generator;
+        thread_local static std::mt19937 generator(std::random_device{}());
+        std::uniform_real_distribution<double> distribution(min, max);
         return distribution(generator);
     }
 
@@ -43,8 +43,8 @@ public:
      * @param max Inclusive upper bound.
      */
     static inline int randomInt(int min, int max) {
-        static std::uniform_int_distribution<int> distribution(min, max);
-        static std::mt19937 generator;
+        thread_local static std::mt19937 generator(std::random_device{}());
+        std::uniform_int_distribution<int> distribution(min, max);
         return distribution(generator);
     }
 
