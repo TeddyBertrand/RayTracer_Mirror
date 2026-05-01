@@ -33,6 +33,11 @@ public:
         std::string _msg;
     };
 
+    class RenderSettingsException : public SceneParserException {
+    public:
+        explicit RenderSettingsException(const std::string& msg) : SceneParserException(msg) {}
+    };
+
 private:
     /**
      * @param camSetting La section camera du fichier

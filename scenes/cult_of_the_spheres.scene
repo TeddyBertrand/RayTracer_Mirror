@@ -60,5 +60,5 @@ sky = {
 };
 
 render = {
-    samples = 100;
+    samples = 16;
 }

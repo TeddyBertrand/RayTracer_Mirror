@@ -92,20 +92,20 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
         return;
 
     try {
-        int s = static_cast<int>(renderSetting["samples"]);
+        const int s = static_cast<int>(renderSetting["samples"]);
         if (s < 1) {
-            std::cerr << "Warning: render.samples < 1, using default (" << _renderSamples << ")"
-                      << std::endl;
+            throw RenderSettingsException("render.samples must be >= 1 (received " +
+                                          std::to_string(s) + ")");
         } else if (s > 100000) {
             std::cerr << "Warning: render.samples too large, clamping to 100000" << std::endl;
             _renderSamples = 100000;
         } else {
             _renderSamples = s;
         }
-    } catch (const libconfig::SettingTypeException& e) {
-        std::cerr << "Warning: invalid type for render.samples, expected integer." << std::endl;
-    } catch (...) {
-        std::cerr << "Warning: unable to read render.samples, using default." << std::endl;
+    } catch (const libconfig::SettingTypeException&) {
+        throw RenderSettingsException("render.samples has an invalid type (expected integer)");
+    } catch (const libconfig::SettingNotFoundException&) {
+        throw RenderSettingsException("render.samples is missing");
     }
 }
 
@@ -126,7 +126,12 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
 
         if (root.exists("render")) {
             const libconfig::Setting& render = root["render"];
-            parseRender(render, outScene);
+            try {
+                parseRender(render, outScene);
+            } catch (const RenderSettingsException& e) {
+                std::cerr << "Warning: " << e.what() << ". Using default samples ("
+                          << _renderSamples << ")." << std::endl;
+            }
         }
 
         for (int i = 0; i < root.getLength(); ++i) {

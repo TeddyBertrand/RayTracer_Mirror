@@ -46,8 +46,11 @@ Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _
     try {
         _pluginLoader.loadPlugins("plugins");
         _parser.loadScene(configPath, _scene);
+    } catch (const SceneParser::SceneParserException& e) {
+        std::cerr << "Scene parser error for '" << configPath << "': " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
     } catch (const std::exception& e) {
-        std::cerr << "Error while loading scene: " << e.what() << std::endl;
+        std::cerr << "Unexpected initialization error: " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;
     }
     _scene.buildBVH();
@@ -57,44 +60,52 @@ void Raytracer::run() {
     if (_exitCode != SUCCESS_STATUS)
         return;
 
-    FrameBuffer frameBuffer;
-    int samples = _parser.getRenderSamples();
-    _renderer.setSamples(samples);
-    auto& camera = _scene.getCamera();
+    try {
+        FrameBuffer frameBuffer;
+        int samples = _parser.getRenderSamples();
+        _renderer.setSamples(samples);
+        auto& camera = _scene.getCamera();
 
-    auto renderTask =
-        std::async(std::launch::async, [&]() { _renderer.render(camera, _scene, frameBuffer); });
+        auto renderTask = std::async(std::launch::async,
+                                     [&]() { _renderer.render(camera, _scene, frameBuffer); });
 
-    auto start_time = std::chrono::steady_clock::now();
-    if (_logEnabled && _logger && _logger->isOpen()) {
-        _logger->writeLine("--- Render Start ---");
-        _logger->writeKV("Config", _configPath);
-        _logger->writeKV("Resolution",
-                         std::to_string(camera.getWidth()) + "x" +
-                             std::to_string(camera.getHeight()));
-        _logger->writeKV("Samples", std::to_string(samples));
-        _logger->writeKV("StartTimestamp",
-                         std::to_string(std::chrono::duration_cast<std::chrono::seconds>(
-                                            std::chrono::system_clock::now().time_since_epoch())
-                                            .count()));
-    }
+        auto start_time = std::chrono::steady_clock::now();
+        if (_logEnabled && _logger && _logger->isOpen()) {
+            _logger->writeLine("--- Render Start ---");
+            _logger->writeKV("Config", _configPath);
+            _logger->writeKV("Resolution",
+                             std::to_string(camera.getWidth()) + "x" +
+                                 std::to_string(camera.getHeight()));
+            _logger->writeKV("Samples", std::to_string(samples));
+            _logger->writeKV("StartTimestamp",
+                             std::to_string(std::chrono::duration_cast<std::chrono::seconds>(
+                                                std::chrono::system_clock::now().time_since_epoch())
+                                                .count()));
+        }
 
-    _loadingBar.start();
-    while (renderTask.wait_for(std::chrono::milliseconds(100)) != std::future_status::ready) {
-        _loadingBar.update(_renderer);
-    }
-    _loadingBar.finish(_renderer);
+        _loadingBar.start();
+        while (renderTask.wait_for(std::chrono::milliseconds(100)) != std::future_status::ready) {
+            _loadingBar.update(_renderer);
+        }
+        _loadingBar.finish(_renderer);
 
-    Image img(camera.getWidth(), camera.getHeight());
-    img.drawFromBuffer(frameBuffer);
+        Image img(camera.getWidth(), camera.getHeight());
+        img.drawFromBuffer(frameBuffer);
 
-    auto end_time = std::chrono::steady_clock::now();
-    auto elapsed_ms =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-    if (_logEnabled && _logger && _logger->isOpen()) {
-        _logger->writeKV("TotalRows", std::to_string(camera.getHeight()));
-        _logger->writeKV("ElapsedMs", std::to_string(elapsed_ms));
-        _logger->writeLine("--- Render End ---");
+        auto end_time = std::chrono::steady_clock::now();
+        auto elapsed_ms =
+            std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
+        if (_logEnabled && _logger && _logger->isOpen()) {
+            _logger->writeKV("TotalRows", std::to_string(camera.getHeight()));
+            _logger->writeKV("ElapsedMs", std::to_string(elapsed_ms));
+            _logger->writeLine("--- Render End ---");
+        }
+    } catch (const Scene::SceneException& e) {
+        std::cerr << "Scene error while running render: " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
+    } catch (const std::exception& e) {
+        std::cerr << "Unexpected runtime error: " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
     }
 }
 
