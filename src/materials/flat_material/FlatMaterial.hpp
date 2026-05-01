@@ -13,14 +13,14 @@ namespace Raytracer {
 class FlatMaterial : public IMaterial {
 public:
     FlatMaterial(std::shared_ptr<ITexture> tex, double randomness = 1.0)
-        : _albedo(tex),
-          _randomness(randomness < 0.0 ? 0.0 : (randomness > 1.0 ? 1.0 : randomness)) {}
+        : _randomness(randomness < 0.0 ? 0.0 : (randomness > 1.0 ? 1.0 : randomness)),
+          _bsdf(std::make_unique<LambertianBSDF>(tex, _randomness)) {}
 
-    std::unique_ptr<IBSDF> getBSDF(const HitRecord& hit) const override;
+    const IBSDF& getBSDF() const override { return *_bsdf; }
 
 private:
-    std::shared_ptr<ITexture> _albedo;
     double _randomness;
+    std::unique_ptr<IBSDF> _bsdf; // Pre-built once at construction
 };
 
 } // namespace Raytracer

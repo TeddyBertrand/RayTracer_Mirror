@@ -38,6 +38,17 @@ public:
     }
 
     /**
+     * @brief Generate a random integer in `[min, max]`.
+     * @param min Inclusive lower bound.
+     * @param max Inclusive upper bound.
+     */
+    static inline int randomInt(int min, int max) {
+        static std::uniform_int_distribution<int> distribution(min, max);
+        static std::mt19937 generator;
+        return distribution(generator);
+    }
+
+    /**
      * @brief Reflect vector `v` around surface normal `n`.
      */
     static inline Vector3D reflect(const Vector3D& v, const Vector3D& n) {

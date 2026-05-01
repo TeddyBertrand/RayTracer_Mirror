@@ -4,6 +4,7 @@ add_library(raytracer_core STATIC
     renderer/Renderer.cpp
     scene/Scene.cpp
     scene/PrimitiveList.cpp
+    scene/bvh/BVHNode.cpp
     image/Image.cpp
     parser/SceneParser.cpp
 )

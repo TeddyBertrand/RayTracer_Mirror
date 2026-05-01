@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "components/IMaterial.hpp"
+#include "math/AABB.hpp"
 #include <components/IPrimitive.hpp>
 #include <math/Vector3D.hpp>
 
@@ -32,6 +33,10 @@ public:
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
     void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
+
+    AABB getBoundingBox() const override {
+        return AABB::infinite();
+    }
 
 private:
     Vector3D _position;

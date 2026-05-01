@@ -1,14 +1,9 @@
+
 #include "FlatMaterial.hpp"
 #include "materials/commun/texture/Texture.hpp"
 #include "parser/ISettings.hpp"
 
 namespace Raytracer {
-
-std::unique_ptr<IBSDF> FlatMaterial::getBSDF(const HitRecord& hit) const {
-    Color color = _albedo->value(hit.u, hit.v);
-
-    return std::make_unique<LambertianBSDF>(color, _randomness);
-}
 
 extern "C" {
 
