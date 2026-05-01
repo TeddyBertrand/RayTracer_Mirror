@@ -1,6 +1,5 @@
 #include "Cylinder.hpp"
 #include "factory/PrimitiveFactory.hpp"
-#include "materials/lambertian/Lambertian.hpp"
 #include "parser/PrimitiveSettings.hpp"
 
 namespace Raytracer {
