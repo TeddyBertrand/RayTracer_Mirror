@@ -10,12 +10,12 @@ camera:
 };
 
 materials: (
-    { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; }; },
-    { id = "glass"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; },
-    { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; }; },
-    { id = "ruby"; type = "flat_color"; color = { r = 0.9; g = 0.1; b = 0.1; }; },
-    { id = "ice"; type = "flat_color"; color = { r = 0.9; g = 0.9; b = 1.0; }; ref = 1.31; },
-    { id = "white_wall"; type = "flat_color"; color = { r = 0.9; g = 0.9; b = 0.9; }; }
+    { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; }; randomness = 2.0; },
+    { id = "glass"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; randomness = 2.0;},
+    { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; }; randomness = 2.0;},
+    { id = "ruby"; type = "flat_color"; color = { r = 0.9; g = 0.1; b = 0.1; }; randomness = 2.0;},
+    { id = "ice"; type = "flat_color"; color = { r = 0.9; g = 0.9; b = 1.0; }; ref = 1.31; randomness = 2.0;},
+    { id = "white_wall"; type = "flat_color"; color = { r = 0.9; g = 0.9; b = 0.9; }; randomness = 2.0;}
 );
 
 shapes: (
@@ -58,3 +58,7 @@ sky = {
     type = "galaxy";
     nebulaColor = { r = 0.1; g = 0.0; b = 0.3; }; # Un violet profond
 };
+
+render = {
+    samples = 100;
+}

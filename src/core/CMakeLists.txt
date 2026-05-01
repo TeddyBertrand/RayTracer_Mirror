@@ -7,6 +7,8 @@ add_library(raytracer_core STATIC
     scene/bvh/BVHNode.cpp
     image/Image.cpp
     parser/SceneParser.cpp
+    display/loading_bar/LoadingBar.cpp
+    logging/Logger.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC
