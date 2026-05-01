@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "core/display/loading_bar/LoadingBar.hpp"
+#include "core/logging/Logger.hpp"
 #include "core/plugin_loader/PluginLoader.hpp"
 #include "core/renderer/Renderer.hpp"
 #include "core/scene/Scene.hpp"
@@ -31,5 +33,9 @@ private:
     SceneParser _parser;
     Renderer _renderer;
     Scene _scene;
+    LoadingBar _loadingBar;
+    std::unique_ptr<Logger> _logger;
+    bool _logEnabled{false};
+    std::string _configPath;
 };
 } // namespace Raytracer

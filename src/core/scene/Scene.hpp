@@ -6,8 +6,8 @@
 #include "components/ISky.hpp"
 #include "math/Color.hpp"
 #include "math/Ray.hpp"
+#include <exception>
 #include <memory>
-#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 
@@ -15,6 +15,15 @@ namespace Raytracer {
 
 class Scene {
 public:
+    class SceneException : public std::exception {
+    public:
+        explicit SceneException(const std::string& message) : _message(message) {}
+        const char* what() const noexcept override { return _message.c_str(); }
+
+    private:
+        std::string _message;
+    };
+
     Scene() = default;
     ~Scene() = default;
 
@@ -42,14 +51,14 @@ public:
     void setSky(std::shared_ptr<ISky> sky) { _sky = std::move(sky); }
     const ISky& getSky() const {
         if (!_sky)
-            throw std::runtime_error("Scene: Sky is not set.");
+            throw SceneException("Scene error: sky is not set.");
         return *_sky;
     }
 
     void setCamera(std::shared_ptr<ICamera> camera) { _camera = camera; }
     const ICamera& getCamera() const {
         if (!_camera)
-            throw std::runtime_error("Scene: Camera is not set.");
+            throw SceneException("Scene error: camera is not set.");
         return *_camera;
     }
     void dump();

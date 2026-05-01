@@ -86,6 +86,29 @@ void SceneParser::parseSky(const libconfig::Setting& skySetting, Scene& outScene
     return;
 }
 
+void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& outScene) {
+    (void)outScene;
+    if (!renderSetting.exists("samples"))
+        return;
+
+    try {
+        const int s = static_cast<int>(renderSetting["samples"]);
+        if (s < 1) {
+            throw RenderSettingsException("render.samples must be >= 1 (received " +
+                                          std::to_string(s) + ")");
+        } else if (s > 100000) {
+            std::cerr << "Warning: render.samples too large, clamping to 100000" << std::endl;
+            _renderSamples = 100000;
+        } else {
+            _renderSamples = s;
+        }
+    } catch (const libconfig::SettingTypeException&) {
+        throw RenderSettingsException("render.samples has an invalid type (expected integer)");
+    } catch (const libconfig::SettingNotFoundException&) {
+        throw RenderSettingsException("render.samples is missing");
+    }
+}
+
 void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
     libconfig::Config cfg;
 
@@ -98,6 +121,16 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
             auto it = _sectionDispatch.find("materials");
             if (it != _sectionDispatch.end()) {
                 (this->*(it->second))(materials, outScene);
+            }
+        }
+
+        if (root.exists("render")) {
+            const libconfig::Setting& render = root["render"];
+            try {
+                parseRender(render, outScene);
+            } catch (const RenderSettingsException& e) {
+                std::cerr << "Warning: " << e.what() << ". Using default samples ("
+                          << _renderSamples << ")." << std::endl;
             }
         }
 

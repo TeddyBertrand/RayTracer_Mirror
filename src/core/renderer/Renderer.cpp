@@ -12,6 +12,10 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
     int width = camera.getWidth();
     int height = camera.getHeight();
 
+    _total_rows = height;
+    _is_rendering = false;
+    _completed_rows = 0;
+
     buffer.assign(width * height, Color(0, 0, 0));
 
     std::vector<int> rows(height);
@@ -21,6 +25,7 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
         for (int x = 0; x < width; ++x) {
             buffer[y * width + x] = samplePixel(x, y, width, height, camera, scene);
         }
+        _completed_rows++;
     });
 }
 

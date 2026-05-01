@@ -8,7 +8,7 @@ namespace Raytracer {
 namespace {
 
 void getSphereUV(const Vector3D& p, double& u, double& v) {
-    constexpr double pi = 3.14159265358979323846;
+    constexpr double pi = M_PI;
     const double theta = std::acos(-p.y);
     const double phi = std::atan2(-p.z, p.x) + pi;
 

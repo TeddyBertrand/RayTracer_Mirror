@@ -8,6 +8,7 @@
 #include "render/FrameBuffer.hpp"
 #include <memory>
 #include <vector>
+#include <atomic>
 
 namespace Raytracer {
 
@@ -21,12 +22,22 @@ public:
     void setSamples(int samples) { _samples = samples; }
     void setMaxDepth(int depth) { _maxDepth = depth; }
 
+    int getCompletedRows() const { return _completed_rows.load(); }
+    int getTotalRows() const { return _total_rows; }
+    bool isRendering() const { return _is_rendering.load(); }
+
 private:
     static constexpr float anti_aliasing_interval = 0.5f;
 
 private:
     int _samples;
     int _maxDepth;
+
+    std::atomic<int> _completed_rows{0};
+    std::atomic<bool> _is_rendering{false};
+    int _total_rows{0};
+
+private:
     Color computeRayColor(const Ray& r, const Scene& scene, int depth);
     Color
     samplePixel(int x, int y, int width, int height, const ICamera& camera, const Scene& scene);

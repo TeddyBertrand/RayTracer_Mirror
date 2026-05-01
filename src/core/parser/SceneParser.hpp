@@ -15,6 +15,8 @@ class SceneParser {
 public:
     explicit SceneParser(SceneFactories& factories) : _factories(factories) {}
 
+    int getRenderSamples() const { return _renderSamples; }
+
     /**
      * @param filePath Chemin vers le fichier .cfg à charger
      * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
@@ -29,6 +31,11 @@ public:
 
     private:
         std::string _msg;
+    };
+
+    class RenderSettingsException : public SceneParserException {
+    public:
+        explicit RenderSettingsException(const std::string& msg) : SceneParserException(msg) {}
     };
 
 private:
@@ -55,8 +62,10 @@ private:
      */
     void parseLights(const libconfig::Setting& lightsSetting, Scene& outScene);
     void parseSky(const libconfig::Setting& skySetting, Scene& outScene);
+    void parseRender(const libconfig::Setting& renderSetting, Scene& outScene);
     SceneFactories& _factories;
     std::vector<void*> _pluginHandles;
+    int _renderSamples = 16;
 
     using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
     using SectionTable = std::unordered_map<std::string, SectionParser>;

@@ -29,7 +29,7 @@ Color LambertianBSDF::evaluate(const Vector3D& light_dir,
                                const HitRecord& hit) const {
     double cos_theta = std::max(0.0, hit.normal.dot(light_dir));
     Color albedo = _albedo_texture->value(hit.u, hit.v);
-    return (albedo / 3.1415926535) * cos_theta;
+    return (albedo / M_PI) * cos_theta;
 }
 
 } // namespace Raytracer
