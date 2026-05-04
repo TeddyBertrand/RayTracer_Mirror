@@ -36,7 +36,7 @@ class EntityBuilder {
         EntityBuilder &parseTranslation(const ISetting &settings) {
             Vector3D position = settings.getVector("position");
 
-            _transform = Matrix::translate(position.x, position.y, position.z);
+            _transform = _transform * Matrix::translate(position.x, position.y, position.z);
             return *this;
         }
 
@@ -49,7 +49,7 @@ class EntityBuilder {
          */
         EntityBuilder &parseScale(const ISetting &settings) {
             Vector3D scale = settings.getVector("scale");
-            _transform = Matrix::scale(scale.x, scale.y, scale.z);
+            _transform = _transform * Matrix::scale(scale.x, scale.y, scale.z);
 
             return *this;
         }
@@ -63,7 +63,7 @@ class EntityBuilder {
          */
         EntityBuilder &parseScaleRadius(const ISetting &settings) {
             float radius = settings.getFloat("radius");
-            _transform = Matrix::scale(radius, radius, radius);
+            _transform = _transform * Matrix::scale(radius, radius, radius);
 
             return *this;
         }
@@ -77,9 +77,9 @@ class EntityBuilder {
         EntityBuilder &parseRotation(const ISetting &settings) {
             Vector3D rotation = settings.getVector("rotation");
 
-            _transform = Matrix::rotateX(rotation.x);
-            _transform = Matrix::rotateY(rotation.y);
-            _transform = Matrix::rotateZ(rotation.z);
+            _transform = _transform * Matrix::rotateX(rotation.x);
+            _transform = _transform * Matrix::rotateY(rotation.y);
+            _transform = _transform * Matrix::rotateZ(rotation.z);
             return *this;
         }
 
@@ -92,7 +92,7 @@ class EntityBuilder {
          * @param sz
          * @return EntityBuilder &         */
         EntityBuilder &addScale(double sx, double sy, double sz) {
-            _transform = Matrix::scale(sx, sy, sz);
+            _transform = _transform * Matrix::scale(sx, sy, sz);
             return *this;
         }
 
@@ -104,7 +104,7 @@ class EntityBuilder {
          * @param z
          * @return EntityBuilder &         */
         EntityBuilder &addTranslation(double x, double y, double z) {
-            _transform = Matrix::translate(x, y, z);
+            _transform = _transform * Matrix::translate(x, y, z);
             return *this;
         }
 
@@ -116,9 +116,9 @@ class EntityBuilder {
          * @param z
          * @return EntityBuilder &         */
         EntityBuilder &addRotation(double x, double y, double z) {
-            _transform = Matrix::rotateX(x);
-            _transform = Matrix::rotateY(y);
-            _transform = Matrix::rotateZ(z);
+            _transform = _transform * Matrix::rotateX(x);
+            _transform = _transform * Matrix::rotateY(y);
+            _transform = _transform * Matrix::rotateZ(z);
             return *this;
         }
 
