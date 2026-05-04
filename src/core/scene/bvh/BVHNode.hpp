@@ -17,8 +17,6 @@ public:
 
     AABB getBoundingBox() const override { return _bbox; }
 
-    void setMaterial([[maybe_unused]] std::shared_ptr<IMaterial> m) override {}
-
 private:
     std::shared_ptr<IPrimitive> _left;
     std::shared_ptr<IPrimitive> _right;

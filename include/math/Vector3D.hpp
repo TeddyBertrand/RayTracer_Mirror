@@ -49,6 +49,22 @@ struct Vector3D {
         }
     }
 
+    double operator[](int i) const {
+        if (i == 1)
+            return y;
+        if (i == 2)
+            return z;
+        return x;
+    }
+
+    double& operator[](int i) {
+        if (i == 1)
+            return y;
+        if (i == 2)
+            return z;
+        return x;
+    }
+
     /**
      * @brief Divide this vector by a scalar in place.
      */
