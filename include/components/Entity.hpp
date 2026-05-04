@@ -110,22 +110,19 @@ public:
             return false;
         }
 
+        // Transform point and normal back to world space
         rec.point = _transform * rec.point;
+        
+        // Normals must be transformed by the transpose of the inverse matrix
+        // and treated as direction vectors (no translation)
+        Vector3D world_outward_normal = _transform_inv.transpose().transformDirection(
+            rec.front_face ? rec.normal : -rec.normal
+        );
+        rec.setFaceNormal(r, world_outward_normal.normalized());
 
-        rec.normal = _transform_inv.transpose().transformDirection(rec.normal).normalized();
-
-        rec.front_face = r.direction().dot(rec.normal) < 0;
-        if (!rec.front_face) {
-            rec.normal = -rec.normal;
+        if (_material) {
+            rec.material = _material;
         }
-
-        const Vector3D world_delta = rec.point - r.origin();
-        const double dir_len = r.direction().dot(r.direction());
-        if (dir_len > 0.0) {
-            rec.t = world_delta.dot(r.direction()) / dir_len;
-        }
-
-        rec.material = _material;
         return true;
     }
 
