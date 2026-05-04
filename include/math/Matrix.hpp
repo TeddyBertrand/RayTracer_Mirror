@@ -174,6 +174,20 @@ public:
     }
 
     /**
+     * @brief Generate a scale matrix with one argument.
+     * 
+     * @param radius 
+     * @return Matrix 
+     */
+    static Matrix scale(double radius) noexcept {
+        Matrix result;
+        result.m[0][0] = radius;
+        result.m[1][1] = radius;
+        result.m[2][2] = radius;
+        return result;
+    }
+
+    /**
      * @brief Transpose this matrix.
      * @return Transposed matrix.
      */
