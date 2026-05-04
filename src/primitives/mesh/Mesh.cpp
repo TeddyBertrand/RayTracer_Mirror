@@ -1,5 +1,5 @@
 #include "Mesh.hpp"
-#include "components/Entity.hpp"
+#include "builder/EntityBuilder.hpp"
 #include "math/MathUtils.hpp"
 #include "parser/PrimitiveSettings.hpp"
 
@@ -22,17 +22,16 @@ IPrimitive* createPlugin(const ISetting& settings) {
 
     auto mesh = std::make_shared<Mesh>(path);
 
-    auto* entity = new Entity(type, mesh, mat);
+    auto entity = EntityBuilder(type)
+                      .setPrimitive(mesh)
+                      .parseTranslation(settings)
+                      .parseRotation(settings)
+                      .parseScale(settings)
+                      .build();
 
-    // Apply transformations: rotation first, then translation
-    Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
-    entity->rotateX(Math::degreesToRadians(rot.x));
-    entity->rotateY(Math::degreesToRadians(rot.y));
-    entity->rotateZ(Math::degreesToRadians(rot.z));
-    Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
-    entity->translate(pos.x, pos.y, pos.z);
+    entity->setMaterial(mat);
 
-    return entity;
+    return entity.release();
 }
 }
 
