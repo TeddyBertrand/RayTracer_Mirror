@@ -61,7 +61,7 @@ class EntityBuilder {
          * @param settings 
          * @return EntityBuilder &
          */
-        EntityBuilder &arseScaleRadius(const ISetting &settings) {
+        EntityBuilder &parseScaleRadius(const ISetting &settings) {
             float radius = settings.getFloat("radius");
             _transform = Matrix::scale(radius, radius, radius);
 
