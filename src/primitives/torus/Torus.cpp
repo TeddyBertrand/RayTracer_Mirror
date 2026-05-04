@@ -1,4 +1,5 @@
 #include "Torus.hpp"
+#include "builder/EntityBuilder.hpp"
 #include "components/Entity.hpp"
 #include "parser/PrimitiveSettings.hpp"
 
@@ -6,62 +7,42 @@ namespace Raytracer {
 
 extern "C" {
 
+namespace {
+
+void getTorusUV(const Vector3D& p, double majorR, double& u, double& v) {
+    double phi = std::atan2(p.z, p.x);
+    u = 1.0 - (phi + M_PI) / (2.0 * M_PI);
+
+    Vector3D centerOnTube(std::cos(phi) * majorR, 0, std::sin(phi) * majorR);
+    Vector3D relP = p - centerOnTube;
+
+    double localX = std::sqrt(relP.x * relP.x + relP.z * relP.z);
+    double theta = std::atan2(relP.y, std::sqrt(p.x * p.x + p.z * p.z) - majorR);
+
+    v = (theta + M_PI) / (2.0 * M_PI);
+}
+
+} // namespace
+
 const char* getName() { return "torus"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
-    std::cout << "\n[TorusPlugin] --- Start Creation ---" << std::endl;
-
-    const std::string type = settings.getString("type");
-    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
-
-    std::shared_ptr<IMaterial> mat = nullptr;
-    if (pSettings) {
-        mat = pSettings->getMaterial();
-        std::cout << "[TorusPlugin] Material found: " << (mat ? "Yes" : "No (nullptr!)")
-                  << std::endl;
-    }
-
-    // Récupération des rayons avec feedback
     float majorR = settings.getFloat("major_radius", 1.0f);
     float minorR = settings.getFloat("minor_radius", 0.25f);
 
     auto torusPrimitive = std::make_shared<Torus>(majorR, minorR);
-    torusPrimitive->setMaterial(mat);
-    auto* entity = new Entity(type, torusPrimitive, mat);
 
-    // Debug Transformations
-    Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
-    Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
-    Vector3D sca = settings.getVector("scale", Vector3D(1, 1, 1));
+    EntityBuilder builder(settings);
 
-    std::cout << "[TorusPlugin] Position:  (" << pos.x << ", " << pos.y << ", " << pos.z << ")"
-              << std::endl;
-    std::cout << "[TorusPlugin] Rotation:  (" << rot.x << ", " << rot.y << ", " << rot.z << ")"
-              << std::endl;
-    std::cout << "[TorusPlugin] Scale:     (" << sca.x << ", " << sca.y << ", " << sca.z << ")"
-              << std::endl;
+    std::unique_ptr<Entity> entity = builder.setPrimitive(torusPrimitive)
+                                         .parseTransform(settings)
+                                         .parseMaterial(settings)
+                                         .build();
 
-    entity->scale(sca.x, sca.y, sca.z);
-    entity->rotateX(Math::degreesToRadians(rot.x));
-    entity->rotateY(Math::degreesToRadians(rot.y));
-    entity->rotateZ(Math::degreesToRadians(rot.z));
-    entity->translate(pos.x, pos.y, pos.z);
-
-    // Vérification de la Bounding Box après transformation
-    AABB bbox = entity->getBoundingBox();
-    std::cout << "[TorusPlugin] BBox Min: (" << bbox.min.x << ", " << bbox.min.y << ", "
-              << bbox.min.z << ")" << std::endl;
-    std::cout << "[TorusPlugin] BBox Max: (" << bbox.max.x << ", " << bbox.max.y << ", "
-              << bbox.max.z << ")" << std::endl;
-
-    std::cout << "[TorusPlugin] --- Creation Success ---" << std::endl;
-    return entity;
+    return entity.release();
 }
+
 } // extern "C"
-
-Torus::Torus() : _majorRadius(1.0), _minorRadius(0.25) {}
-
-Torus::Torus(double majorR, double minorR) : _majorRadius(majorR), _minorRadius(minorR) {}
 
 bool Torus::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     Math::QuarticCoeffs coeffs = computeCoefficients(r);
@@ -138,13 +119,8 @@ void Torus::fillHitRecord(const Ray& r, double t, HitRecord& rec) const {
     }
 
     rec.setFaceNormal(r, local_normal.normalized());
-    rec.material = _material;
-}
 
-AABB Torus::getBoundingBox() const {
-    double r_total = _majorRadius + _minorRadius;
-    return AABB(Vector3D(-r_total, -_minorRadius, -r_total),
-                Vector3D(r_total, _minorRadius, r_total));
+    getTorusUV(rec.point, _majorRadius, rec.u, rec.v);
 }
 
 }; // namespace Raytracer

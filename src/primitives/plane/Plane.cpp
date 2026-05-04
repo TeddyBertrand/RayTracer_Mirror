@@ -8,34 +8,33 @@ namespace Raytracer {
 
 extern "C" {
 
+namespace {
+
+void getPlaneUV(
+    const Vector3D& point, const Vector3D& normal, const Vector3D& pos, double& u, double& v) {
+    Vector3D up = (std::abs(normal.y) < 0.9) ? Vector3D(0, 1, 0) : Vector3D(1, 0, 0);
+
+    Vector3D u_axis = normal.cross(up).normalized();
+    Vector3D v_axis = u_axis.cross(normal);
+
+    Vector3D relative_point = point - pos;
+    u = relative_point.dot(u_axis);
+    v = relative_point.dot(v_axis);
+}
+
+} // namespace
+
 const char* getName() { return "plane"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
-    const std::string type = settings.getString("type");
-    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
-
-    std::shared_ptr<IMaterial> mat = nullptr;
-    if (pSettings) {
-        mat = pSettings->getMaterial();
-    }
-
     auto planePrimitive = std::make_shared<Plane>();
 
-    Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
-    Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
+    EntityBuilder builder(settings);
 
-    auto entity = EntityBuilder(type)
-                      .setPrimitive(planePrimitive)
-                      .addRotation(Math::degreesToRadians(rot.x),
-                                   Math::degreesToRadians(rot.y),
-                                   Math::degreesToRadians(rot.z))
-                      .addTranslation(pos.x, pos.y, pos.z)
-                      .build();
-
-    if (!entity)
-        return nullptr;
-
-    entity->setMaterial(mat);
+    std::unique_ptr<Entity> entity = builder.setPrimitive(planePrimitive)
+                                         .parseTransform(settings)
+                                         .parseMaterial(settings)
+                                         .build();
 
     return entity.release();
 }
@@ -57,11 +56,9 @@ bool Plane::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
 
     rec.t = t;
     rec.point = r.at(t);
-
     rec.setFaceNormal(r, _normal);
 
-    rec.material = _material;
-
+    getPlaneUV(rec.point, _normal, _position, rec.u, rec.v);
     return true;
 }
 

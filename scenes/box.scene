@@ -1,0 +1,45 @@
+camera:
+{
+    type = "perspective";
+    width = 1920;
+    height = 1080;
+    position = { x = 0.0; y = 1.0; z = 5.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 90.0;
+};
+
+materials: (
+    { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; };},
+    { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; };},
+    { id = "white_wall"; type = "flat_color"; color = { r = 0.9; g = 0.9; b = 0.9; };}
+);
+
+shapes: (
+    { type = "plane"; position = { x = 0.0; y = -1.5; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 0.0; }; material = "obsidian"; },
+    { 
+        type = "box"; 
+        position = { x = 0.0; y = 2.0; z = 0.0; }; 
+        rotation = { x = 45.0; y = 0.0; z = 20.0; }; 
+        scale = { x = 2.0; y = 2.0; z = 2.0; }; 
+        material = "gold"; 
+    }
+
+);
+
+lights: (
+    # Lumière principale (chaude)
+    { type = "point"; position = { x = 5.0; y = 10.0; z = 5.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 0.6 },
+    
+    # Lumière d'ambiance (froide pour déboucher les ombres)
+    { type = "point"; position = { x = -5.0; y = 2.0; z = 2.0; }; color = { r = 150.0; g = 200.0; b = 255.0; }; intensity = 0.3 }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.05; g = 0.05; b = 0.1; };
+};
+
+render = {
+    samples = 32;
+}

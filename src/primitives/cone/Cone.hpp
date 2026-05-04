@@ -13,7 +13,7 @@ public:
     /**
      * @brief Construct a new Cone object
      */
-    Cone() : _material(nullptr) {}
+    Cone() = default;
 
     /**
      * @brief Hit function
@@ -27,14 +27,11 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
-    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
-
     AABB getBoundingBox() const override {
         return AABB::infinite();
     }
 
 private:
-    std::shared_ptr<IMaterial> _material;
     bool solve(const Ray& r, float& t0, float& t1) const;
 };
 } // namespace Raytracer
