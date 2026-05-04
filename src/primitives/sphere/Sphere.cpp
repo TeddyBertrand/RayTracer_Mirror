@@ -1,4 +1,6 @@
 #include "Sphere.hpp"
+#include "components/Entity.hpp"
+#include "builder/EntityBuilder.hpp"
 #include "factory/PrimitiveFactory.hpp"
 #include "parser/PrimitiveSettings.hpp"
 #include <cmath>
@@ -23,9 +25,6 @@ extern "C" {
 const char* getName() { return "sphere"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
-    Vector3D pos = settings.getVector("position");
-    double radius = settings.getFloat("radius");
-
     const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
 
     std::shared_ptr<IMaterial> mat = nullptr;
@@ -33,7 +32,20 @@ IPrimitive* createPlugin(const ISetting& settings) {
         mat = pSettings->getMaterial();
     }
 
-    return new Sphere(pos, radius, mat);
+    auto sphere = std::make_shared<Sphere>();
+
+    auto entity = EntityBuilder("sphere")
+                .setPrimitive(sphere)
+                .parseTranslation(settings)
+                .parseScaleRadius(settings)
+                .build();
+
+    if (!entity)
+        return nullptr;
+
+    entity->setMaterial(mat);
+
+    return entity.release();
 }
 }
 
@@ -57,10 +69,10 @@ bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, f
 }
 
 bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
-    Vector3D L = r.origin() - _center;          // vector from center to ray origin
+    Vector3D L = r.origin();                    // vector from center to ray origin
     float a = r.direction().dot(r.direction()); // direction lenght square
     float b = 2 * r.direction().dot(L);         // ray/ sphere alignement
-    float c = L.dot(L) - _radius * _radius;     // start position
+    float c = L.dot(L) - 1;                     // start position
 
     float t0, t1;
     if (!solveQuadratic(a, b, c, t0, t1))
@@ -79,15 +91,13 @@ bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     rec.point = r.origin() + r.direction() * rec.t; // impact point
 
     // impact distance
-    Vector3D normal = (rec.point - _center) / _radius;
+    Vector3D normal = rec.point;
 
     // Compute UVs from the geometric normal for texture lookup.
     getSphereUV(normal.normalized(), rec.u, rec.v);
 
-    // check if ray hit inside or outside and oriente in function
+    // check if ray hit inside or outside and orient in function
     rec.setFaceNormal(r, normal);
-
-    rec.material = _material;
 
     return true;
 }
