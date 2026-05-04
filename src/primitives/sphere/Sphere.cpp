@@ -1,6 +1,6 @@
 #include "Sphere.hpp"
-#include "components/Entity.hpp"
 #include "builder/EntityBuilder.hpp"
+#include "components/Entity.hpp"
 #include "factory/PrimitiveFactory.hpp"
 #include "parser/PrimitiveSettings.hpp"
 #include <cmath>
@@ -35,10 +35,10 @@ IPrimitive* createPlugin(const ISetting& settings) {
     auto sphere = std::make_shared<Sphere>();
 
     auto entity = EntityBuilder("sphere")
-                .setPrimitive(sphere)
-                .parseTranslation(settings)
-                .parseScaleRadius(settings)
-                .build();
+                      .setPrimitive(sphere)
+                      .parseTranslation(settings)
+                      .parseScaleRadius(settings)
+                      .build();
 
     if (!entity)
         return nullptr;
@@ -69,10 +69,10 @@ bool solveQuadratic(const float& a, const float& b, const float& c, float& x0, f
 }
 
 bool Sphere::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
-    Vector3D L = r.origin();                    // vector from center to ray origin
+    Vector3D L = r.origin() - _center;          // vector from center to ray origin
     float a = r.direction().dot(r.direction()); // direction lenght square
     float b = 2 * r.direction().dot(L);         // ray/ sphere alignement
-    float c = L.dot(L) - 1;                     // start position
+    float c = L.dot(L) - (_radius * _radius);   // start position
 
     float t0, t1;
     if (!solveQuadratic(a, b, c, t0, t1))

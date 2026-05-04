@@ -17,8 +17,8 @@ public:
      * @param radius
      * @param material
      */
-    
-    Sphere() = default;
+
+    Sphere() : _center(0.0, 0.0, 0.0), _radius(1.0) {}
 
     /**
      * @brief Hit function
