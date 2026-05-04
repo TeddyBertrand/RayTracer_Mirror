@@ -1,0 +1,60 @@
+camera:
+{
+    type = "perspective";
+    width = 1920;
+    height = 1080;
+    position = { x = 0.0; y = 5.0; z = 15.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 50.0;
+};
+
+materials: (
+    { id = "ruby";     type = "flat_color"; color = { r = 0.8; g = 0.1; b = 0.1; }; },
+    { id = "emerald";  type = "flat_color"; color = { r = 0.1; g = 0.8; b = 0.2; }; },
+    { id = "sapphire"; type = "flat_color"; color = { r = 0.1; g = 0.3; b = 0.9; }; },
+    { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; }; }
+);
+
+shapes: (
+    # Sol
+    { type = "plane"; position = { x = 0.0; y = -2.0; z = 0.0; }; material = "obsidian"; },
+
+    # Sphère 1 : Shear sur XY (Penche vers la droite)
+    { 
+        type = "sphere"; 
+        position = { x = -6.0; y = 2.0; z = 0.0; }; 
+        radius = 1.5; 
+        material = "ruby"; 
+        shear = { xy = 1.5; }; 
+    },
+
+    { 
+        type = "sphere"; 
+        position = { x = 0.0; y = 2.0; z = 0.0; }; 
+        radius = 1.5; 
+        material = "emerald"; 
+        shear = { yz = 2.0; }; 
+    },
+
+    # Sphère 3 : Double Shear (Déformation complexe)
+    { 
+        type = "sphere"; 
+        position = { x = 6.0; y = 2.0; z = 0.0; }; 
+        radius = 1.5; 
+        material = "sapphire"; 
+        shear = { xy = 1.0; zx = 1.0; }; 
+    }
+);
+
+lights: (
+    { type = "point"; position = { x = 10.0; y = 10.0; z = 10.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 0.8 },
+    { type = "point"; position = { x = -10.0; y = 5.0; z = 5.0; }; color = { r = 100.0; g = 150.0; b = 255.0; }; intensity = 0.4 }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.05; g = 0.05; b = 0.1; };
+};
+
+render = { samples = 16; };

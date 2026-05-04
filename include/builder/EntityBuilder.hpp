@@ -51,6 +51,28 @@ public:
     }
 
     /**
+     * @brief Parse shear transformation
+     *
+     * @param settings
+     * @return EntityBuilder&
+     */
+    EntityBuilder& parseShear(const ISetting& settings) {
+        if (settings.exists("shear")) {
+            auto shearPtr = settings.getGroup("shear");
+            const ISetting& shear = *shearPtr;
+
+            _shearXY.x = shear.getFloat("xy", 0.0f);
+            _shearXY.y = shear.getFloat("xz", 0.0f);
+            _shearXY.z = shear.getFloat("yx", 0.0f);
+
+            _shearYZ.x = shear.getFloat("yz", 0.0f);
+            _shearYZ.y = shear.getFloat("zx", 0.0f);
+            _shearYZ.z = shear.getFloat("zy", 0.0f);
+        }
+        return *this;
+    }
+
+    /**
      * @brief Parse scale
      *
      * Store scale from settings
@@ -111,6 +133,10 @@ public:
 
         if (settings.exists("scale")) {
             parseScale(settings);
+        }
+
+        if (settings.exists("shear")) {
+            parseShear(settings);
         }
         return *this;
     }
@@ -181,13 +207,19 @@ public:
      */
     std::unique_ptr<Entity> build() {
         if (!_primitive)
-            return NULL;
+            return nullptr;
 
-        Matrix transform = Matrix::rotateX(_rotation.x);
-        transform = Matrix::rotateY(_rotation.y) * transform;
-        transform = Matrix::rotateZ(_rotation.z) * transform;
-        transform = Matrix::scale(_scale.x, _scale.y, _scale.z) * transform;
-        transform = Matrix::translate(_position.x, _position.y, _position.z) * transform;
+        Matrix transform = Matrix::translate(_position.x, _position.y, _position.z);
+
+        transform = transform * Matrix::rotateX(_rotation.x);
+        transform = transform * Matrix::rotateY(_rotation.y);
+        transform = transform * Matrix::rotateZ(_rotation.z);
+
+        transform =
+            transform
+            * Matrix::shear(_shearXY.x, _shearXY.y, _shearXY.z, _shearYZ.x, _shearYZ.y, _shearYZ.z);
+
+        transform = transform * Matrix::scale(_scale.x, _scale.y, _scale.z);
 
         std::unique_ptr<Entity> entity = std::make_unique<Entity>(_name, _primitive, _material);
         entity->setTransform(transform);
@@ -202,6 +234,8 @@ private:
     Vector3D _position{0.0, 0.0, 0.0};
     Vector3D _rotation{0.0, 0.0, 0.0};
     Vector3D _scale{1.0, 1.0, 1.0};
+    Vector3D _shearXY{0.0, 0.0, 0.0};
+    Vector3D _shearYZ{0.0, 0.0, 0.0};
 };
 
 }; // namespace Raytracer
