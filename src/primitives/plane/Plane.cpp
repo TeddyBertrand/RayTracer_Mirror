@@ -1,6 +1,5 @@
 #include "Plane.hpp"
 #include "components/Entity.hpp"
-#include "factory/PrimitiveFactory.hpp"
 #include "math/MathUtils.hpp"
 #include "parser/PrimitiveSettings.hpp"
 
