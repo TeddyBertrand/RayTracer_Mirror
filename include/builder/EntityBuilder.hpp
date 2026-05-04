@@ -3,6 +3,7 @@
 #include "components/Entity.hpp"
 #include "math/MathUtils.hpp"
 #include "parser/ISettings.hpp"
+#include "parser/PrimitiveSettings.hpp"
 #include <utility>
 
 namespace Raytracer {
@@ -15,6 +16,16 @@ public:
      * @param name
      */
     EntityBuilder(std::string name) : _name(std::move(name)) {}
+
+    /**
+     * @brief Construct a new Entity Builder object
+     *
+     * @param name
+     */
+    EntityBuilder(const ISetting& settings) {
+        const std::string type = settings.getString("type");
+        _name = std::move(type);
+    }
 
     /**
      * @brief Set the Primitive object
@@ -58,9 +69,49 @@ public:
      * @param settings
      * @return EntityBuilder &
      */
-    EntityBuilder& parseScaleRadius(const ISetting& settings) {
+    EntityBuilder& parseRadius(const ISetting& settings) {
         float radius = settings.getFloat("radius");
         _scale = Vector3D(radius, radius, radius);
+        return *this;
+    }
+
+    /**
+     * @brief Parse and assign material to the entity.
+     *
+     * Attempts to cast the settings to a PrimitiveSetting to extract
+     * a shared pointer to an IMaterial. If the cast fails or no material
+     * is found, the material remains unchanged (or null).
+     *
+     * @param settings The settings object (expected to be a PrimitiveSetting).
+     * @return EntityBuilder& A reference to the current builder instance.
+     */
+    EntityBuilder& parseMaterial(const ISetting& settings) {
+        const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
+
+        if (pSettings) {
+            _material = pSettings->getMaterial();
+        }
+        return *this;
+    }
+
+    /**
+     * @brief Parse all transformations (position, rotation, scale/radius)
+     *
+     * @param settings The settings block for the entity
+     * @return EntityBuilder&
+     */
+    EntityBuilder& parseTransform(const ISetting& settings) {
+        if (settings.exists("position")) {
+            parseTranslation(settings);
+        }
+
+        if (settings.exists("rotation")) {
+            _rotation = settings.getVector("rotation");
+        }
+
+        if (settings.exists("scale")) {
+            parseScale(settings);
+        }
         return *this;
     }
 

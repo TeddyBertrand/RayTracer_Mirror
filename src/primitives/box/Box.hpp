@@ -9,7 +9,7 @@
 
 namespace Raytracer {
 
-class Plane : public virtual IPrimitive {
+class Box : public virtual IPrimitive {
 public:
     /**
      * @brief Construct a new Sphere object with params
@@ -18,7 +18,7 @@ public:
      * @param radius
      * @param material
      */
-    Plane() : _position(0, 0, 0), _normal(0, 1, 0) {}
+    Box() : _min(-0.5, -0.5, -0.5), _max(0.5, 0.5, 0.5) {};
 
     /**
      * @brief Hit function
@@ -32,11 +32,19 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
+    /**
+     * @brief Get the Normal vector at a specific point on the Box surfaces
+     *
+     * @param p The hit point (in local space)
+     * @return Vector3D The outward normal (unit vector)
+     */
+    Vector3D getNormalAt(const Vector3D& p) const;
+
     AABB getBoundingBox() const override { return AABB::infinite(); }
 
 private:
-    Vector3D _position;
-    Vector3D _normal;
-    double _radius;
+    Vector3D _min;
+    Vector3D _max;
+    std::shared_ptr<IMaterial> _material;
 };
 } // namespace Raytracer

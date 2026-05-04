@@ -16,8 +16,6 @@ public:
 
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override;
 
-    void setMaterial([[maybe_unused]] std::shared_ptr<IMaterial> m) override {}
-
     void buildBVH();
 
     AABB getBoundingBox() const override;

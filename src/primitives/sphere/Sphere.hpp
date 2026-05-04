@@ -18,7 +18,7 @@ public:
      * @param material
      */
 
-    Sphere() : _center(0.0, 0.0, 0.0), _radius(1.0) {}
+    Sphere() : _center(0.0, 0.0, 0.0), _radius(1.0) {};
 
     /**
      * @brief Hit function
@@ -36,8 +36,6 @@ public:
         Point3D radiusVec(_radius, _radius, _radius);
         return AABB{_center - radiusVec, _center + radiusVec};
     }
-
-    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
 
 private:
     Point3D _center;
