@@ -1,46 +1,13 @@
 #include "Triangle.hpp"
-#include "parser/PrimitiveSettings.hpp"
-#include "components/Entity.hpp"
-#include "math/MathUtils.hpp"
+
 
 namespace Raytracer {
-
-extern "C" {
-
-const char* getName() { return "triangle"; }
-
-IPrimitive* createPlugin(const ISetting& settings) {
-    const std::string type = settings.getString("type");
-    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
-
-    std::shared_ptr<IMaterial> mat = nullptr;
-    if (pSettings) {
-        mat = pSettings->getMaterial();
-    }
-
-    Vector3D v0 = pSettings->getVector("v0");
-    Vector3D v1 = pSettings->getVector("v1");
-    Vector3D v2 = pSettings->getVector("v2");
-
-    auto triangle = std::make_shared<Triangle>(v0, v1, v2, mat);
-    auto* entity = new Entity(type, triangle, mat);
-
-    Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
-    entity->rotateX(Math::degreesToRadians(rot.x));
-    entity->rotateY(Math::degreesToRadians(rot.y));
-    entity->rotateZ(Math::degreesToRadians(rot.z));
-    Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
-    entity->translate(pos.x, pos.y, pos.z);
-
-    return entity;
-}
-}
 
 Triangle::Triangle(const Point3D& v0,
                    const Point3D& v1,
                    const Point3D& v2,
                    std::shared_ptr<IMaterial> material)
-    : _v0(v0), _v1(v1), _v2(v2), _material(material) {
+    : _v0(v0), _v1(v1), _v2(v2), _material(material), _has_extra(false) {
     _edge1 = _v1 - _v0;
     _edge2 = _v2 - _v0;
 }
@@ -97,6 +64,17 @@ AABB Triangle::getBoundingBox() const {
                 Point3D(max_x + bounding_box_epsilon,
                         max_y + bounding_box_epsilon,
                         max_z + bounding_box_epsilon)};
+}
+
+void Triangle::setExtraData(const Vector3D n[3],
+                            const double u_coords[3],
+                            const double v_coords[3]) {
+    for (int i = 0; i < 3; ++i) {
+        _normals[i] = n[i];
+        _u[i] = u_coords[i];
+        _v[i] = v_coords[i];
+    }
+    _has_extra = true;
 }
 
 } // namespace Raytracer

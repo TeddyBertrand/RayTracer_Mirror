@@ -1,5 +1,6 @@
 add_library(raytracer_triangle SHARED
 	Triangle.cpp
+	TriangleExtern.cpp
 )
 
 target_include_directories(raytracer_triangle PRIVATE
