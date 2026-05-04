@@ -18,7 +18,7 @@ public:
      */
     explicit ImageTexture(const std::string& filename) {
         if (!_image.loadFromFile(filename)) {
-            _image.resize({1, 1}, sf::Color::Magenta);
+            _image.create(1, 1, sf::Color::Magenta);
         }
     }
 
@@ -36,7 +36,7 @@ public:
         auto i = static_cast<unsigned int>(u * (size.x - 1));
         auto j = static_cast<unsigned int>(v * (size.y - 1));
 
-        sf::Color pixel = _image.getPixel({i, j});
+        sf::Color pixel = _image.getPixel(i, j);
 
         return Color(static_cast<double>(pixel.r) / 255.0,
                      static_cast<double>(pixel.g) / 255.0,
