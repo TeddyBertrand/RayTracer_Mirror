@@ -79,10 +79,4 @@ bool Mesh::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
 
 AABB Mesh::getBoundingBox() const { return _bvh_root->getBoundingBox(); }
 
-void Mesh::setMaterial(std::shared_ptr<IMaterial> m) {
-    if (_bvh_root) {
-        _bvh_root->setMaterial(m);
-    }
-}
-
 } // namespace Raytracer

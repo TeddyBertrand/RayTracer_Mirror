@@ -14,8 +14,6 @@ public:
     virtual bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override;
     virtual AABB getBoundingBox() const override;
 
-    virtual void setMaterial(std::shared_ptr<IMaterial> m) override;
-
 private:
     std::shared_ptr<IPrimitive> createTriangle(const MeshData::TriangleIndices& triIdx) const;
 

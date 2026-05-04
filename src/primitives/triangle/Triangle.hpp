@@ -15,8 +15,6 @@ public:
 
     AABB getBoundingBox() const override;
 
-    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
-
     void setExtraData(const Vector3D n[3], const double u_coords[3], const double v_coords[3]);
 
 private:
