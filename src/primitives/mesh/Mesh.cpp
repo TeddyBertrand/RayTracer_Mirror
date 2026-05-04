@@ -10,26 +10,15 @@ extern "C" {
 const char* getName() { return "mesh"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
-    const std::string type = settings.getString("type");
     std::string path = settings.getString("file");
-
-    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
-
-    std::shared_ptr<IMaterial> mat = nullptr;
-    if (pSettings) {
-        mat = pSettings->getMaterial();
-    }
 
     auto mesh = std::make_shared<Mesh>(path);
 
-    auto entity = EntityBuilder(type)
+    auto entity = EntityBuilder(settings)
                       .setPrimitive(mesh)
-                      .parseTranslation(settings)
-                      .parseRotation(settings)
-                      .parseScale(settings)
+                      .parseMaterial(settings)
+                      .parseTransform(settings)
                       .build();
-
-    entity->setMaterial(mat);
 
     return entity.release();
 }
