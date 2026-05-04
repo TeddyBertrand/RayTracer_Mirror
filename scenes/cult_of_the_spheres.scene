@@ -60,5 +60,6 @@ sky = {
 };
 
 render = {
-    samples = 16;
+    samples = 100;
+    adaptive_threshold = 0.05;
 }

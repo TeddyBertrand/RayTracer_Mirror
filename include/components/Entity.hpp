@@ -109,8 +109,18 @@ public:
         if (!_primitive->hit(local_ray, ray_t, rec)) {
             return false;
         }
+
         rec.point = _transform * rec.point;
-        rec.normal = (_transform_inv.transpose() * rec.normal).normalized();
+
+        rec.normal = _transform_inv.transpose().transformDirection(rec.normal).normalized();
+
+        rec.front_face = r.direction().dot(rec.normal) < 0;
+        if (!rec.front_face) {
+            rec.normal = -rec.normal;
+        }
+
+        rec.t = (rec.point - r.origin()).length();
+
         rec.material = _material;
         return true;
     }

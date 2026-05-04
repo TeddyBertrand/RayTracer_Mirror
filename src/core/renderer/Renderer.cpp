@@ -31,25 +31,56 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 
 Color Renderer::samplePixel(
     int x, int y, int width, int height, const ICamera& camera, const Scene& scene) {
-    Color pixel_color(0, 0, 0);
-    int sqrt_samples = static_cast<int>(std::sqrt(_samples));
 
-    for (int s_y = 0; s_y < sqrt_samples; ++s_y) {
-        for (int s_x = 0; s_x < sqrt_samples; ++s_x) {
-            double u_offset =
-                (s_x + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
-            double v_offset =
-                (s_y + Math::randomDouble(0, 1)) / sqrt_samples - anti_aliasing_interval;
-
-            double u = (static_cast<double>(x) + u_offset) / (width - 1.0);
-            double v = 1.0 - (static_cast<double>(y) + v_offset) / (height - 1.0);
-
-            Ray r = camera.getRay(u, v);
-            pixel_color += computeRayColor(r, scene, _maxDepth);
-        }
+    if (_samples < minimum_sampling) {
+        return renderFullBatch(x, y, width, height, camera, scene, _samples);
     }
 
-    return pixel_color / static_cast<double>(_samples);
+    double min_lum = 1e10, max_lum = -1e10;
+    Color initial_color(0, 0, 0);
+
+    for (int i = 0; i < initial_samples; ++i) {
+        Color c = traceSingleRay(x, y, width, height, camera, scene);
+        initial_color += c;
+
+        double lum = 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b;
+        if (lum < min_lum)
+            min_lum = lum;
+        if (lum > max_lum)
+            max_lum = lum;
+    }
+
+    double diff = max_lum - min_lum;
+
+    if (diff < _adaptiveThreshold) {
+        return initial_color / static_cast<double>(initial_samples);
+    }
+
+    Color remaining_color =
+        renderFullBatch(x, y, width, height, camera, scene, _samples - initial_samples);
+
+    return (initial_color + remaining_color) / static_cast<double>(_samples);
+}
+
+Color Renderer::traceSingleRay(
+    int x, int y, int width, int height, const ICamera& camera, const Scene& scene) {
+    double u_offset = Math::randomDouble(-anti_aliasing_interval, anti_aliasing_interval);
+    double v_offset = Math::randomDouble(-anti_aliasing_interval, anti_aliasing_interval);
+
+    double u = (static_cast<double>(x) + u_offset) / (width - 1.0);
+    double v = 1.0 - (static_cast<double>(y) + v_offset) / (height - 1.0);
+
+    Ray r = camera.getRay(u, v);
+    return computeRayColor(r, scene, _maxDepth);
+}
+
+Color Renderer::renderFullBatch(
+    int x, int y, int width, int height, const ICamera& camera, const Scene& scene, int count) {
+    Color sum(0, 0, 0);
+    for (int i = 0; i < count; ++i) {
+        sum += traceSingleRay(x, y, width, height, camera, scene);
+    }
+    return sum;
 }
 
 Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
