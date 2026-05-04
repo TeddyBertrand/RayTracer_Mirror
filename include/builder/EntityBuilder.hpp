@@ -119,6 +119,13 @@ class EntityBuilder
             return *this;
         }
 
+        /**
+         * @brief Build method
+         * 
+         * Create and return a unique ptr of entity with current shape and
+         * transformations
+         * @return std::unique_ptr<Entity> 
+         */
         std::unique_ptr<Entity> build() {
             if (!_primitive)
                 return NULL;
