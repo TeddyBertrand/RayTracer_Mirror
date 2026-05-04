@@ -8,17 +8,12 @@
 
 namespace Raytracer {
 
-class Sphere : public virtual IPrimitive {
+class Cone : public virtual IPrimitive {
 public:
     /**
-     * @brief Construct a new Sphere object with params
-     *
-     * @param center
-     * @param radius
-     * @param material
+     * @brief Construct a new Cone object
      */
-
-    Sphere() : _center(0.0, 0.0, 0.0), _radius(1.0) {}
+    Cone() : _material(nullptr) {}
 
     /**
      * @brief Hit function
@@ -32,16 +27,14 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
-    AABB getBoundingBox() const override {
-        Point3D radiusVec(_radius, _radius, _radius);
-        return AABB{_center - radiusVec, _center + radiusVec};
-    }
-
     void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
 
+    AABB getBoundingBox() const override {
+        return AABB::infinite();
+    }
+
 private:
-    Point3D _center;
-    double _radius;
     std::shared_ptr<IMaterial> _material;
+    bool solve(const Ray& r, float& t0, float& t1) const;
 };
-}; // namespace Raytracer
+} // namespace Raytracer

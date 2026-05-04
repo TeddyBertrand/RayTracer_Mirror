@@ -109,9 +109,20 @@ public:
         if (!_primitive->hit(local_ray, ray_t, rec)) {
             return false;
         }
+
+        // Transform point and normal back to world space
         rec.point = _transform * rec.point;
-        rec.normal = (_transform_inv.transpose() * rec.normal).normalized();
-        rec.material = _material;
+        
+        // Normals must be transformed by the transpose of the inverse matrix
+        // and treated as direction vectors (no translation)
+        Vector3D world_outward_normal = _transform_inv.transpose().transformDirection(
+            rec.front_face ? rec.normal : -rec.normal
+        );
+        rec.setFaceNormal(r, world_outward_normal.normalized());
+
+        if (_material) {
+            rec.material = _material;
+        }
         return true;
     }
 
@@ -134,6 +145,11 @@ public:
      * @brief Set the material.
      */
     void setMaterial(std::shared_ptr<IMaterial> material) noexcept { _material = material; }
+
+    void setTransform(const Matrix& m) {
+        _transform = m;
+        _transform_inv = m.inverse();
+    }
 
     AABB getBoundingBox() const override {
         if (!_primitive) {
