@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/Entity.hpp"
+#include "math/MathUtils.hpp"
 #include "parser/ISettings.hpp"
 #include "parser/PrimitiveSettings.hpp"
 #include <utility>
@@ -57,7 +58,7 @@ public:
      * @return EntityBuilder&
      */
     EntityBuilder& parseScale(const ISetting& settings) {
-        _scale = settings.getVector("scale");
+        _scale = settings.getVector("scale", Vector3D(1.0, 1.0, 1.0));
         return *this;
     }
 
@@ -117,12 +118,15 @@ public:
     /**
      * @brief Parse rotation
      *
-     * Store rotation from settings (in degrees)
+     * Store rotation from settings (converted from degrees to radians)
      * @param settings
      * @return EntityBuilder &
      */
     EntityBuilder& parseRotation(const ISetting& settings) {
-        _rotation = settings.getVector("rotation");
+        const Vector3D rot = settings.getVector("rotation", Vector3D(0.0, 0.0, 0.0));
+        _rotation = Vector3D(Math::degreesToRadians(rot.x),
+                             Math::degreesToRadians(rot.y),
+                             Math::degreesToRadians(rot.z));
         return *this;
     }
 
@@ -179,11 +183,11 @@ public:
         if (!_primitive)
             return NULL;
 
-        Matrix transform = Matrix::translate(_position.x, _position.y, _position.z);
-        transform = transform * Matrix::scale(_scale.x, _scale.y, _scale.z);
-        transform = transform * Matrix::rotateX(_rotation.x);
-        transform = transform * Matrix::rotateY(_rotation.y);
-        transform = transform * Matrix::rotateZ(_rotation.z);
+        Matrix transform = Matrix::rotateX(_rotation.x);
+        transform = Matrix::rotateY(_rotation.y) * transform;
+        transform = Matrix::rotateZ(_rotation.z) * transform;
+        transform = Matrix::scale(_scale.x, _scale.y, _scale.z) * transform;
+        transform = Matrix::translate(_position.x, _position.y, _position.z) * transform;
 
         std::unique_ptr<Entity> entity = std::make_unique<Entity>(_name, _primitive, _material);
         entity->setTransform(transform);

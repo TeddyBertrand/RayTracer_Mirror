@@ -1,0 +1,98 @@
+camera:
+{
+    type = "perspective";
+    width = 1920;
+    height = 1080;
+    position = { x = 0.0; y = 2.0; z = 12.0; };
+    look_at = { x = 0.0; y = 0.5; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 60.0;
+};
+
+materials: (
+    { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; }; randomness = 2.0; },
+    { id = "glass"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; randomness = 2.0;},
+    { id = "ruby"; type = "flat_color"; color = { r = 0.9; g = 0.1; b = 0.1; }; randomness = 2.0;},
+    { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; }; randomness = 2.0;}
+);
+
+shapes: (
+    # LE SOL
+    { type = "plane"; position = { x = 0.0; y = 0.0; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 0.0; }; material = "obsidian"; },
+
+    # --- TRIANGLES ---
+
+    # Un triangle "unitaire" posé au centre, agrandi par l'Entity
+    { 
+        type = "triangle"; 
+        v0 = { x = 0.0; y = 0.0; z = 0.0; };
+        v1 = { x = 1.0; y = 0.0; z = 0.0; };
+        v2 = { x = 0.0; y = 1.0; z = 0.0; };
+        position = { x = 0.0; y = 1.0; z = 0.0; }; # Déplacé par l'entity
+        rotation = { x = 0.0; y = 45.0; z = 0.0; }; # Tourné par l'entity
+        material = "gold";
+    },
+
+    # Une pyramide simple faite de 4 triangles
+    # Face Avant
+    { 
+        type = "triangle"; 
+        v0 = { x = -1.0; y = 0.0; z = 1.0; };
+        v1 = { x = 1.0; y = 0.0; z = 1.0; };
+        v2 = { x = 0.0; y = 2.0; z = 0.0; };
+        position = { x = -4.0; y = 0.0; z = 0.0; };
+        material = "ruby";
+    },
+    # Face Droite
+    { 
+        type = "triangle"; 
+        v0 = { x = 1.0; y = 0.0; z = 1.0; };
+        v1 = { x = 1.0; y = 0.0; z = -1.0; };
+        v2 = { x = 0.0; y = 2.0; z = 0.0; };
+        position = { x = -4.0; y = 0.0; z = 0.0; };
+        material = "ruby";
+    },
+    # Face Arrière
+    { 
+        type = "triangle"; 
+        v0 = { x = 1.0; y = 0.0; z = -1.0; };
+        v1 = { x = -1.0; y = 0.0; z = -1.0; };
+        v2 = { x = 0.0; y = 2.0; z = 0.0; };
+        position = { x = -4.0; y = 0.0; z = 0.0; };
+        material = "ruby";
+    },
+    # Face Gauche
+    { 
+        type = "triangle"; 
+        v0 = { x = -1.0; y = 0.0; z = -1.0; };
+        v1 = { x = -1.0; y = 0.0; z = 1.0; };
+        v2 = { x = 0.0; y = 2.0; z = 0.0; };
+        position = { x = -4.0; y = 0.0; z = 0.0; };
+        material = "ruby";
+    },
+
+    # Un grand éclat de verre flottant (Triangle)
+    { 
+        type = "triangle"; 
+        v0 = { x = -2.0; y = 0.0; z = 0.0; };
+        v1 = { x = 2.0; y = 0.0; z = 0.0; };
+        v2 = { x = 0.0; y = 3.0; z = 0.0; };
+        position = { x = 4.0; y = 2.0; z = -2.0; };
+        rotation = { x = -20.0; y = 0.0; z = 10.0; };
+        material = "glass";
+    }
+);
+
+lights: (
+    { type = "point"; position = { x = 10.0; y = 10.0; z = 10.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 0.5 }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.1; g = 0.0; b = 0.2; };
+};
+
+render = {
+    samples = 64;
+    adaptive_threshold = 0.02;
+}
