@@ -174,10 +174,34 @@ public:
     }
 
     /**
+     * @brief Generate a shear matrix.
+     * @param xy X depends on Y
+     * @param xz X depends on Z
+     * @param yx Y depends on X
+     * @param yz Y depends on Z
+     * @param zx Z depends on X
+     * @param zy Z depends on Y
+     */
+    static Matrix shear(double xy, double xz, double yx, double yz, double zx, double zy) noexcept {
+        Matrix result;
+
+        result.m[0][1] = xy;
+        result.m[0][2] = xz;
+
+        result.m[1][0] = yx;
+        result.m[1][2] = yz;
+
+        result.m[2][0] = zx;
+        result.m[2][1] = zy;
+
+        return result;
+    }
+
+    /**
      * @brief Generate a scale matrix with one argument.
-     * 
-     * @param radius 
-     * @return Matrix 
+     *
+     * @param radius
+     * @return Matrix
      */
     static Matrix scale(double radius) noexcept {
         Matrix result;
