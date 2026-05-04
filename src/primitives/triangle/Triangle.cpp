@@ -1,6 +1,5 @@
 #include "Triangle.hpp"
 
-
 namespace Raytracer {
 
 Triangle::Triangle(const Point3D& v0,
@@ -18,6 +17,7 @@ bool Triangle::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
 
     if (std::abs(det) < 1e-8)
         return false;
+
     double inv_det = 1.0 / det;
 
     Vector3D tvec = r.origin() - _v0;
@@ -37,15 +37,24 @@ bool Triangle::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
 
     rec.t = t;
     rec.point = r.at(t);
-
-    Vector3D normal = _edge1.cross(_edge2).normalized();
-    rec.setFaceNormal(r, normal);
-
     rec.material = _material;
 
-    rec.u = u;
-    rec.v = v;
+    double w = 1.0 - u - v;
 
+    if (_has_extra) {
+        Vector3D interpolated_normal = (_normals[0] * w) + (_normals[1] * u) + (_normals[2] * v);
+
+        rec.setFaceNormal(r, interpolated_normal.normalized());
+
+        rec.u = (_u[0] * w) + (_u[1] * u) + (_u[2] * v);
+        rec.v = (_v[0] * w) + (_v[1] * u) + (_v[2] * v);
+    } else {
+        Vector3D geometric_normal = _edge1.cross(_edge2).normalized();
+        rec.setFaceNormal(r, geometric_normal);
+
+        rec.u = u;
+        rec.v = v;
+    }
     return true;
 }
 
