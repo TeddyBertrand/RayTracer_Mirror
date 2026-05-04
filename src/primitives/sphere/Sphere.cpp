@@ -1,4 +1,5 @@
 #include "Sphere.hpp"
+
 #include "builder/EntityBuilder.hpp"
 #include "components/Entity.hpp"
 #include "factory/PrimitiveFactory.hpp"
@@ -25,25 +26,14 @@ extern "C" {
 const char* getName() { return "sphere"; }
 
 IPrimitive* createPlugin(const ISetting& settings) {
-    const auto* pSettings = dynamic_cast<const PrimitiveSetting*>(&settings);
-
-    std::shared_ptr<IMaterial> mat = nullptr;
-    if (pSettings) {
-        mat = pSettings->getMaterial();
-    }
-
     auto sphere = std::make_shared<Sphere>();
 
-    auto entity = EntityBuilder("sphere")
+    auto entity = EntityBuilder(settings)
                       .setPrimitive(sphere)
-                      .parseTranslation(settings)
-                      .parseScaleRadius(settings)
+                      .parseTransform(settings)
+                      .parseRadius(settings)
+                      .parseMaterial(settings)
                       .build();
-
-    if (!entity)
-        return nullptr;
-
-    entity->setMaterial(mat);
 
     return entity.release();
 }

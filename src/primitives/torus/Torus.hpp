@@ -19,8 +19,7 @@ public:
      * @param radius
      * @param material
      */
-    Torus();
-    Torus(double majorR, double minorR);
+    Torus(double majorR, double minorR) : _majorRadius(majorR), _minorRadius(minorR) {}
 
     /**
      * @brief Hit function
@@ -34,9 +33,11 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
-    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
-
-    AABB getBoundingBox() const override;
+    AABB getBoundingBox() const {
+        double r_total = _majorRadius + _minorRadius;
+        return AABB(Vector3D(-r_total, -_minorRadius, -r_total),
+                    Vector3D(r_total, _minorRadius, r_total));
+    }
 
 private:
     Math::QuarticCoeffs computeCoefficients(const Ray& r) const;
@@ -46,6 +47,5 @@ private:
 
     double _majorRadius;
     double _minorRadius;
-    std::shared_ptr<IMaterial> _material;
 };
 } // namespace Raytracer

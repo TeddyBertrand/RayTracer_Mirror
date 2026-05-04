@@ -18,7 +18,7 @@ public:
      * @param radius
      * @param material
      */
-    Plane() : _position(0, 0, 0), _normal(0, 1, 0), _material(nullptr) {}
+    Plane() : _position(0, 0, 0), _normal(0, 1, 0) {}
 
     /**
      * @brief Hit function
@@ -32,16 +32,11 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
-    void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
-
-    AABB getBoundingBox() const override {
-        return AABB::infinite();
-    }
+    AABB getBoundingBox() const override { return AABB::infinite(); }
 
 private:
     Vector3D _position;
     Vector3D _normal;
     double _radius;
-    std::shared_ptr<IMaterial> _material;
 };
 } // namespace Raytracer
