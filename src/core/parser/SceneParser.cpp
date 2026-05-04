@@ -107,6 +107,20 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
     } catch (const libconfig::SettingNotFoundException&) {
         throw RenderSettingsException("render.samples is missing");
     }
+
+    if (renderSetting.exists("adaptive_threshold")) {
+        try {
+            _renderThreshold = static_cast<double>(renderSetting["adaptive_threshold"]);
+            if (_renderThreshold < 0.0 || _renderThreshold > 1.0) {
+                std::cerr << "Warning: render.adaptive_threshold must be between 0.0 and 1.0, "
+                          << "using default 0.1" << std::endl;
+                _renderThreshold = 0.1;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            std::cerr << "Warning: render.adaptive_threshold has invalid type (expected float)"
+                      << std::endl;
+        }
+    }
 }
 
 void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
