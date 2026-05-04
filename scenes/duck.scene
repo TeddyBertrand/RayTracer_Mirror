@@ -14,7 +14,7 @@ materials: (
     { id = "glass"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; randomness = 2.0; },
     { id = "ruby"; type = "flat_color"; color = { r = 0.9; g = 0.1; b = 0.1; }; randomness = 2.0; },
     { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; }; randomness = 2.0; },
-    { id = "duck"; type = "flat_color"; color = "assets/obj/duck/bird.jpg";}
+    { id = "duck"; type = "flat_color"; color = "assets/obj/duck/bird.jpg"; randomness = 2.0;}
 );
 
 shapes: (
@@ -23,8 +23,8 @@ shapes: (
 );
 
 lights: (
-    { type = "point"; position = { x = 60.0; y = 10.0; z = 20.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 50.0; },
-    { type = "point"; position = { x = -60.0; y = 10.0; z = 20.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 50.0; }
+    #{ type = "point"; position = { x = 60.0; y = 10.0; z = 20.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 10.0; },
+    #{ type = "point"; position = { x = -60.0; y = 10.0; z = 20.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 10.0; }
 );
 
 sky = {
