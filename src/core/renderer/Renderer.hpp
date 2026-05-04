@@ -6,9 +6,9 @@
 #include "core/scene/Scene.hpp"
 #include "math/Color.hpp"
 #include "render/FrameBuffer.hpp"
+#include <atomic>
 #include <memory>
 #include <vector>
-#include <atomic>
 
 namespace Raytracer {
 
@@ -21,6 +21,7 @@ public:
 
     void setSamples(int samples) { _samples = samples; }
     void setMaxDepth(int depth) { _maxDepth = depth; }
+    void setAdaptiveThreshold(double threshold) { _adaptiveThreshold = threshold; }
 
     int getCompletedRows() const { return _completed_rows.load(); }
     int getTotalRows() const { return _total_rows; }
@@ -28,10 +29,13 @@ public:
 
 private:
     static constexpr float anti_aliasing_interval = 0.5f;
+    static constexpr int initial_samples = 4;
+    static constexpr int minimum_sampling = 8;
 
 private:
     int _samples;
     int _maxDepth;
+    double _adaptiveThreshold = 0.1;
 
     std::atomic<int> _completed_rows{0};
     std::atomic<bool> _is_rendering{false};
@@ -39,12 +43,18 @@ private:
 
 private:
     Color computeRayColor(const Ray& r, const Scene& scene, int depth);
-    Color
-    samplePixel(int x, int y, int width, int height, const ICamera& camera, const Scene& scene);
+
     Color computeDirectLighting(const Ray& r_in,
                                 const HitRecord& rec,
                                 const Scene& scene,
                                 const IBSDF& bsdf);
+
+    Color
+    samplePixel(int x, int y, int width, int height, const ICamera& camera, const Scene& scene);
+    Color renderFullBatch(
+        int x, int y, int width, int height, const ICamera& camera, const Scene& scene, int count);
+    Color
+    traceSingleRay(int x, int y, int width, int height, const ICamera& camera, const Scene& scene);
 };
 
 } // namespace Raytracer

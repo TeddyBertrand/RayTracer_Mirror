@@ -16,6 +16,7 @@ public:
     explicit SceneParser(SceneFactories& factories) : _factories(factories) {}
 
     int getRenderSamples() const { return _renderSamples; }
+    double getRenderThreshold() const { return _renderThreshold; }
 
     /**
      * @param filePath Chemin vers le fichier .cfg à charger
@@ -66,6 +67,7 @@ private:
     SceneFactories& _factories;
     std::vector<void*> _pluginHandles;
     int _renderSamples = 16;
+    double _renderThreshold = 0.1;
 
     using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
     using SectionTable = std::unordered_map<std::string, SectionParser>;
