@@ -119,7 +119,11 @@ public:
             rec.normal = -rec.normal;
         }
 
-        rec.t = (rec.point - r.origin()).length();
+        const Vector3D world_delta = rec.point - r.origin();
+        const double dir_len = r.direction().dot(r.direction());
+        if (dir_len > 0.0) {
+            rec.t = world_delta.dot(r.direction()) / dir_len;
+        }
 
         rec.material = _material;
         return true;
@@ -144,6 +148,11 @@ public:
      * @brief Set the material.
      */
     void setMaterial(std::shared_ptr<IMaterial> material) noexcept { _material = material; }
+
+    void setTransform(const Matrix& m) {
+        _transform = m;
+        _transform_inv = m.inverse();
+    }
 
     AABB getBoundingBox() const override {
         if (!_primitive) {

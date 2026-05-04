@@ -29,6 +29,10 @@ public:
 
     void setMaterial(std::shared_ptr<IMaterial> m) override { _material = m; }
 
+    AABB getBoundingBox() const override {
+        return AABB::infinite();
+    }
+
 private:
     std::shared_ptr<IMaterial> _material;
     bool solve(const Ray& r, float& t0, float& t1) const;

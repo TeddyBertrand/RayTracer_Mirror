@@ -17,8 +17,8 @@ public:
      * @param radius
      * @param material
      */
-    Sphere(Point3D center, double radius, std::shared_ptr<IMaterial> material)
-        : _center(center), _radius(radius), _material(material) {}
+
+    Sphere() : _center(0.0, 0.0, 0.0), _radius(1.0) {}
 
     /**
      * @brief Hit function
