@@ -1,0 +1,40 @@
+camera:
+{
+    type = "perspective";
+    width = 1920;
+    height = 1080;
+    position = { x = 0.0; y = 2.0; z = 5.0; };
+    look_at = { x = 0.0; y = 0.5; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 60.0;
+};
+
+materials: (
+    { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; }; randomness = 2.0; },
+    { id = "white"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; randomness = 2.0; },
+    { id = "glass"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; randomness = 2.0; },
+    { id = "ruby"; type = "flat_color"; color = { r = 0.9; g = 0.1; b = 0.1; }; randomness = 2.0; },
+    { id = "obsidian"; type = "flat_color"; color = { r = 0.05; g = 0.05; b = 0.05; }; randomness = 2.0; },
+    { id = "duck"; type = "flat_color"; color = "assets/obj/duck/bird.jpg"; randomness = 2.0;}
+);
+
+shapes: (
+    #{ type = "plane"; position = { x = 0.0; y = 0.0; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 0.0; }; material = "obsidian"; },
+    #{ type = "mesh"; position = { x = 20.0; y = -20.0; z = 0.0; }; rotation = { x = 0.0; y = 90.0; z = 90.0; }; material = "duck"; file = "assets/obj/duck/bird.obj"; }
+    { type = "mesh"; position = { x = 0.0; y = 0.5; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 0.0; }; material = "white"; file = "assets/obj/bin/corbeille.obj"; }
+);
+
+lights: (
+    { type = "point"; position = { x = 5.0; y = 15.0; z = 4.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 1.0; },
+    #{ type = "point"; position = { x = -60.0; y = 10.0; z = 20.0; }; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 10.0; }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.1; g = 0.0; b = 0.2; };
+};
+
+render = {
+    samples = 16;
+    adaptive_threshold = 0.02;
+};

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/Entity.hpp"
+#include "math/MathUtils.hpp"
 #include "parser/ISettings.hpp"
 #include "parser/PrimitiveSettings.hpp"
 #include <utility>
@@ -79,7 +80,7 @@ public:
      * @return EntityBuilder&
      */
     EntityBuilder& parseScale(const ISetting& settings) {
-        _scale = settings.getVector("scale");
+        _scale = settings.getVector("scale", Vector3D(1.0, 1.0, 1.0));
         return *this;
     }
 
@@ -143,12 +144,15 @@ public:
     /**
      * @brief Parse rotation
      *
-     * Store rotation from settings (in degrees)
+     * Store rotation from settings (converted from degrees to radians)
      * @param settings
      * @return EntityBuilder &
      */
     EntityBuilder& parseRotation(const ISetting& settings) {
-        _rotation = settings.getVector("rotation");
+        const Vector3D rot = settings.getVector("rotation", Vector3D(0.0, 0.0, 0.0));
+        _rotation = Vector3D(Math::degreesToRadians(rot.x),
+                             Math::degreesToRadians(rot.y),
+                             Math::degreesToRadians(rot.z));
         return *this;
     }
 
