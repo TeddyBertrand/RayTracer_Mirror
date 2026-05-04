@@ -146,6 +146,11 @@ public:
      */
     void setMaterial(std::shared_ptr<IMaterial> material) noexcept { _material = material; }
 
+    void setTransform(const Matrix& m) {
+        _transform = m;
+        _transform_inv = m.inverse();
+    }
+
     AABB getBoundingBox() const override {
         if (!_primitive) {
             return AABB();

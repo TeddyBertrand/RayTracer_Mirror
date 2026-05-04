@@ -1,4 +1,5 @@
 #include "Plane.hpp"
+#include "builder/EntityBuilder.hpp"
 #include "components/Entity.hpp"
 #include "math/MathUtils.hpp"
 #include "parser/PrimitiveSettings.hpp"
@@ -19,18 +20,24 @@ IPrimitive* createPlugin(const ISetting& settings) {
     }
 
     auto planePrimitive = std::make_shared<Plane>();
-    auto* entity = new Entity(type, planePrimitive, mat);
 
-    // Unit plane: local origin (0,0,0), local normal (0,1,0).
-    // Transform order must be rotate -> translate so position is not rotated.
     Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
-    entity->rotateX(Math::degreesToRadians(rot.x));
-    entity->rotateY(Math::degreesToRadians(rot.y));
-    entity->rotateZ(Math::degreesToRadians(rot.z));
     Vector3D pos = settings.getVector("position", Vector3D(0, 0, 0));
-    entity->translate(pos.x, pos.y, pos.z);
 
-    return entity;
+    auto entity = EntityBuilder(type)
+                      .setPrimitive(planePrimitive)
+                      .addRotation(Math::degreesToRadians(rot.x),
+                                   Math::degreesToRadians(rot.y),
+                                   Math::degreesToRadians(rot.z))
+                      .addTranslation(pos.x, pos.y, pos.z)
+                      .build();
+
+    if (!entity)
+        return nullptr;
+
+    entity->setMaterial(mat);
+
+    return entity.release();
 }
 
 } // extern "C"

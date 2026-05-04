@@ -3,6 +3,9 @@
 
 namespace Raytracer {
 
+static constexpr const char* createPluginFunction = "createPlugin";
+static constexpr const char* getNameFunction = "getName";
+
 void PluginLoader::loadPluginsForDirectory(const std::filesystem::directory_entry& directorypath) {
     const auto dirName = directorypath.path().filename().string();
     auto it = _dispatchTable.find(dirName);
@@ -37,8 +40,8 @@ static void registerPlugins(DLLoader& loader, Factory& factory, const std::strin
             continue;
         }
 
-        auto getName = loader.getFunction<nameFunction>("getName", libPath);
-        auto create = loader.getFunction<CreateFn>("createPlugin", libPath);
+        auto getName = loader.getFunction<nameFunction>(getNameFunction, libPath);
+        auto create = loader.getFunction<CreateFn>(createPluginFunction, libPath);
         std::string name = getName ? std::string(getName()) : lib.path().stem().string();
         if (create)
             factory.registerType(name, create);
