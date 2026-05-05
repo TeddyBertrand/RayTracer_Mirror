@@ -103,12 +103,24 @@ public:
      * @return true if a valid hit exists in the interval.
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override {
-        Ray local_ray(_transform_inv * r.origin(),
-                      _transform_inv.transformDirection(r.direction()));
+        // Transform ray to local space
+        Point3D local_origin = _transform_inv * r.origin();
+        Vector3D local_direction = _transform_inv.transformDirection(r.direction());
+        
+        // Create local ray with normalized direction for consistent distance calculations
+        Vector3D local_dir_normalized = local_direction.normalized();
+        double dir_scale = local_direction.length();
+        
+        // Adjust interval for scaled direction
+        Interval local_interval(ray_t.min / dir_scale, ray_t.max / dir_scale);
+        Ray local_ray(local_origin, local_dir_normalized);
 
-        if (!_primitive->hit(local_ray, ray_t, rec)) {
+        if (!_primitive->hit(local_ray, local_interval, rec)) {
             return false;
         }
+        
+        // Scale rec.t back to world space
+        rec.t *= dir_scale;
 
         rec.point = _transform * rec.point;
 
@@ -117,12 +129,6 @@ public:
         rec.front_face = r.direction().dot(rec.normal) < 0;
         if (!rec.front_face) {
             rec.normal = -rec.normal;
-        }
-
-        const Vector3D world_delta = rec.point - r.origin();
-        const double dir_len = r.direction().dot(r.direction());
-        if (dir_len > 0.0) {
-            rec.t = world_delta.dot(r.direction()) / dir_len;
         }
 
         rec.material = _material;

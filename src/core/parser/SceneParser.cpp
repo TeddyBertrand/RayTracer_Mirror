@@ -121,6 +121,36 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
                       << std::endl;
         }
     }
+
+    if (renderSetting.exists("ao_samples")) {
+        try {
+            const int a = static_cast<int>(renderSetting["ao_samples"]);
+            if (a < 0) {
+                std::cerr << "Warning: render.ao_samples must be >= 0, using default " << _aoSamples
+                          << std::endl;
+            } else {
+                _aoSamples = a;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            std::cerr << "Warning: render.ao_samples has invalid type (expected integer)"
+                      << std::endl;
+        }
+    }
+
+    if (renderSetting.exists("ao_max_distance")) {
+        try {
+            double d = static_cast<double>(renderSetting["ao_max_distance"]);
+            if (d <= 0.0) {
+                std::cerr << "Warning: render.ao_max_distance must be > 0, using default "
+                          << _aoMaxDistance << std::endl;
+            } else {
+                _aoMaxDistance = d;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            std::cerr << "Warning: render.ao_max_distance has invalid type (expected float)"
+                      << std::endl;
+        }
+    }
 }
 
 void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
