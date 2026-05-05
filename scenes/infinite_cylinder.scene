@@ -1,0 +1,31 @@
+camera:
+{
+    type = "perspective";
+    width = 1280;
+    height = 720;
+    position = { x = 3.0; y = 1.0; z = 6.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 48.0;
+};
+
+materials: (
+    { id = "checkerboard"; type = "flat_color"; color = "textures/checkerboard.png"; }
+);
+
+shapes: (
+    { type = "infinite_cylinder"; position = { x = 0.0; y = 0.0; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 1.57; }; radius = 0.5; material = "checkerboard"; }
+);
+
+lights: (
+    { type = "point"; position = { x = 3.0; y = 8.0; z = 6.0; }; color = { r = 255.0; g = 252.0; b = 244.0; }; intensity = 1.1 }
+);
+
+sky = {
+    type = "atmospheric";
+    nebulaColor = { r = 0.84; g = 0.88; b = 0.92; };
+};
+
+render = {
+    samples = 8;
+}
