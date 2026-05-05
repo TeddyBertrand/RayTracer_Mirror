@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "components/Entity.hpp"
 #include "math/Interval.hpp"
 #include "math/Ray.hpp"
 #include "primitives/sphere/Sphere.hpp"
@@ -17,7 +18,7 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
 } // namespace
 
 TEST(Sphere, RayHitsFromOutside) {
-    Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
+    Raytracer::Sphere sphere;
     Raytracer::HitRecord rec;
 
     const bool hit = sphere.hit({{0.0, 0.0, -3.0}, {0.0, 0.0, 1.0}}, {0.001, 100.0}, rec);
@@ -30,7 +31,7 @@ TEST(Sphere, RayHitsFromOutside) {
 }
 
 TEST(Sphere, RayMisses) {
-    Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
+    Raytracer::Sphere sphere;
     Raytracer::HitRecord rec;
 
     const bool hit = sphere.hit({{0.0, 0.0, -3.0}, {0.0, 1.0, 0.0}}, {0.001, 100.0}, rec);
@@ -39,7 +40,7 @@ TEST(Sphere, RayMisses) {
 }
 
 TEST(Sphere, RayFromInsideHitsAndFlipsNormal) {
-    Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
+    Raytracer::Sphere sphere;
     Raytracer::HitRecord rec;
 
     const bool hit = sphere.hit({{0.0, 0.0, 0.0}, {0.0, 0.0, 1.0}}, {0.001, 100.0}, rec);
@@ -52,7 +53,7 @@ TEST(Sphere, RayFromInsideHitsAndFlipsNormal) {
 }
 
 TEST(Sphere, RayOutsideInterval) {
-    Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 1.0, nullptr);
+    Raytracer::Sphere sphere;
     Raytracer::HitRecord rec;
 
     // Ray does hit sphere but intersection is outside the interval
@@ -62,22 +63,26 @@ TEST(Sphere, RayOutsideInterval) {
 }
 
 TEST(Sphere, RayPartiallyInInterval) {
-    Raytracer::Sphere sphere({5.0, 0.0, 0.0}, 1.0, nullptr);
+    auto sphere = std::make_shared<Raytracer::Sphere>();
+    Raytracer::Entity entity("ShiftedSphere", sphere);
+    entity.translate(5.0, 0.0, 0.0);
     Raytracer::HitRecord rec;
 
     // Ray hits sphere, but test with narrow interval that includes one intersection
-    const bool hit = sphere.hit({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}}, {2.0, 5.5}, rec);
+    const bool hit = entity.hit({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}}, {2.0, 5.5}, rec);
 
     EXPECT_TRUE(hit);
     EXPECT_NEAR(rec.t, 4.0, 1e-6);
 }
 
 TEST(Sphere, RayHitsAtTwoPoints) {
-    Raytracer::Sphere sphere({0.0, 0.0, 0.0}, 2.0, nullptr);
+    auto sphere = std::make_shared<Raytracer::Sphere>();
+    Raytracer::Entity entity("ScaledSphere", sphere);
+    entity.scale(2.0, 2.0, 2.0);
     Raytracer::HitRecord rec;
 
     // Ray intersection with two points in valid range
-    const bool hit = sphere.hit({{0.0, 0.0, -5.0}, {0.0, 0.0, 1.0}}, {0.001, 100.0}, rec);
+    const bool hit = entity.hit({{0.0, 0.0, -5.0}, {0.0, 0.0, 1.0}}, {0.001, 100.0}, rec);
 
     EXPECT_TRUE(hit);
     EXPECT_NEAR(rec.t, 3.0, 1e-6);
