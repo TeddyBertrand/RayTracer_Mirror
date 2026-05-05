@@ -16,9 +16,7 @@ void getTorusUV(const Vector3D& p, double majorR, double& u, double& v) {
     Vector3D centerOnTube(std::cos(phi) * majorR, 0, std::sin(phi) * majorR);
     Vector3D relP = p - centerOnTube;
 
-    double localX = std::sqrt(relP.x * relP.x + relP.z * relP.z);
     double theta = std::atan2(relP.y, std::sqrt(p.x * p.x + p.z * p.z) - majorR);
-
     v = (theta + M_PI) / (2.0 * M_PI);
 }
 

@@ -2,6 +2,7 @@
 
 #include "math/Color.hpp"
 #include "math/HitRecord.hpp"
+#include "math/Matrix.hpp"
 #include "math/Vector3D.hpp"
 
 namespace Raytracer {
