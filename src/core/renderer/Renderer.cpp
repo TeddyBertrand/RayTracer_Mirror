@@ -2,9 +2,9 @@
 #include "components/IMaterial.hpp"
 #include "math/Color.hpp"
 #include "math/MathUtils.hpp"
+#include "math/Vector3D.hpp"
 
-#include <execution>
-#include <numeric>
+#include <thread>
 
 namespace Raytracer {
 
@@ -18,15 +18,29 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
 
     buffer.assign(width * height, Color(0, 0, 0));
 
-    std::vector<int> rows(height);
-    std::iota(rows.begin(), rows.end(), 0);
+    unsigned int num_threads = std::thread::hardware_concurrency();
+    if (num_threads == 0) num_threads = 4;
 
-    std::for_each(std::execution::par, rows.begin(), rows.end(), [&](int y) {
-        for (int x = 0; x < width; ++x) {
-            buffer[y * width + x] = samplePixel(x, y, width, height, camera, scene);
-        }
-        _completed_rows++;
-    });
+    std::vector<std::jthread> workers;
+
+    int rows_per_thread = height / num_threads;
+
+    for (unsigned int t = 0; t < num_threads; ++t) {
+        int start_y = t * rows_per_thread;
+        int end_y = (t == num_threads - 1) ? height : start_y + rows_per_thread;
+
+        workers.emplace_back([this, start_y, end_y, width, height, &camera, &scene, &buffer]() {
+            for (int y = start_y; y < end_y; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    buffer[y * width + x] = samplePixel(x, y, width, height, camera, scene);
+                }
+                this->_completed_rows++;
+            }
+        });
+    }
+
+    workers.clear();
+    _is_rendering = false;
 }
 
 Color Renderer::samplePixel(
@@ -84,9 +98,8 @@ Color Renderer::renderFullBatch(
 }
 
 Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
-    if (depth <= 0) {
+    if (depth <= 0)
         return Color(0, 0, 0);
-    }
 
     HitRecord rec;
     if (!scene.getWorld().hit(r, Interval(0.001, Interval::universe.max), rec)) {
@@ -96,14 +109,14 @@ Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
         return scene.getSky().getEnvironmentColor(r);
     }
 
-    if (!rec.material) {
+    if (!rec.material)
         return Color(0, 0, 0);
-    }
 
     const IBSDF& bsdf = rec.material->getBSDF();
 
-    Color color_emitted = bsdf.emitted(rec.u, rec.v, rec.point);
+    Color ambient = computeAmbientOcclusion(r, rec, scene, bsdf, _ao_samples);
 
+    Color color_emitted = bsdf.emitted(rec.u, rec.v, rec.point);
     Color direct = computeDirectLighting(r, rec, scene, bsdf);
 
     Ray scattered;
@@ -114,7 +127,7 @@ Color Renderer::computeRayColor(const Ray& r, const Scene& scene, int depth) {
         indirect = attenuation * computeRayColor(scattered, scene, depth - 1);
     }
 
-    return color_emitted + direct + indirect;
+    return color_emitted + direct + indirect + ambient;
 }
 
 Color Renderer::computeDirectLighting(const Ray& r_in,
@@ -141,6 +154,31 @@ Color Renderer::computeDirectLighting(const Ray& r_in,
         total_direct_light += sample.color * f;
     }
     return total_direct_light;
+}
+
+Color Renderer::computeAmbientOcclusion(
+    const Ray& r, const HitRecord& rec, const Scene& scene, const IBSDF& bsdf, int samples) {
+    if (samples <= 0)
+        return Color(0, 0, 0);
+
+    Ray dummy_scattered;
+    Color albedo(1, 1, 1);
+    bsdf.scatter(r, rec, albedo, dummy_scattered);
+
+    double occlusion = 0.0;
+    for (int i = 0; i < samples; ++i) {
+        Vector3D random_dir = Vector3D::randomCosineHemisphere(rec.normal);
+        Ray ao_ray(rec.point + rec.normal * 0.001, random_dir, RayType::AMBIENT_OCCLUSION);
+
+        HitRecord ao_rec;
+        if (!scene.getWorld().hit(ao_ray, Interval(0.001, _ao_max_distance), ao_rec)) {
+            occlusion += 1.0;
+        }
+    }
+
+    const double ao_factor = occlusion / samples;
+    Color sky_color = scene.getSky().getEnvironmentColor(Ray(rec.point, rec.normal));
+    return sky_color * albedo * ao_factor * 0.15;
 }
 
 } // namespace Raytracer
