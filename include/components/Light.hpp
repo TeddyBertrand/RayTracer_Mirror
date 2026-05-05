@@ -7,7 +7,7 @@ namespace Raytracer {
 class Light : public ILight {
 public:
     Light(std::shared_ptr<ILightSource> source,
-          Color color = Color(255, 255, 255),
+          Color color = Color(1.0, 1.0, 1.0),
           double intensity = 1.0)
         : _source(std::move(source)), _color(color), _intensity(intensity) {}
 
