@@ -28,9 +28,6 @@ public:
         return sample;
     }
 
-    void setColor(const Color& c) override { _color = c; }
-    void setIntensity(double i) override { _intensity = i; }
-
 private:
     std::shared_ptr<ILightSource> _source;
     Color _color;
