@@ -12,7 +12,8 @@ enum class RayType {
     CAMERA,    /**< Primary ray from the camera. */
     REFLECT,   /**< Specular ray (sharp reflections/refractions). */
     DIFFUSE,   /**< Indirect ray (diffuse bounce for global illumination). */
-    SHADOW     /**< Ray used for visibility testing towards light sources. */
+    SHADOW,    /**< Ray used for visibility testing towards light sources. */
+    AMBIENT_OCCLUSION     /**< Ray used for ambient occlusion testing. */
 };
 
 /**

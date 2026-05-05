@@ -66,6 +66,8 @@ void Raytracer::run() {
         double threshold = _parser.getRenderThreshold();
         _renderer.setSamples(samples);
         _renderer.setAdaptiveThreshold(threshold);
+        _renderer.setAmbientOcclusionSamples(_parser.getAOSamples());
+        _renderer.setAmbientOcclusionMaxDistance(_parser.getAOMaxDistance());
         auto& camera = _scene.getCamera();
 
         auto renderTask = std::async(std::launch::async,

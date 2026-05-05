@@ -22,6 +22,8 @@ public:
     void setSamples(int samples) { _samples = samples; }
     void setMaxDepth(int depth) { _maxDepth = depth; }
     void setAdaptiveThreshold(double threshold) { _adaptiveThreshold = threshold; }
+    void setAmbientOcclusionSamples(int samples) { _ao_samples = samples; }
+    void setAmbientOcclusionMaxDistance(double d) { _ao_max_distance = d; }
 
     int getCompletedRows() const { return _completed_rows.load(); }
     int getTotalRows() const { return _total_rows; }
@@ -36,6 +38,8 @@ private:
     int _samples;
     int _maxDepth;
     double _adaptiveThreshold = 0.1;
+    int _ao_samples = 0;
+    double _ao_max_distance = 10.0;
 
     std::atomic<int> _completed_rows{0};
     std::atomic<bool> _is_rendering{false};
@@ -48,6 +52,9 @@ private:
                                 const HitRecord& rec,
                                 const Scene& scene,
                                 const IBSDF& bsdf);
+
+    Color computeAmbientOcclusion(
+        const Ray& r, const HitRecord& rec, const Scene& scene, const IBSDF& bsdf, int samples);
 
     Color
     samplePixel(int x, int y, int width, int height, const ICamera& camera, const Scene& scene);

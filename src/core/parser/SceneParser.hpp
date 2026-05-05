@@ -17,6 +17,8 @@ public:
 
     int getRenderSamples() const { return _renderSamples; }
     double getRenderThreshold() const { return _renderThreshold; }
+    int getAOSamples() const { return _aoSamples; }
+    double getAOMaxDistance() const { return _aoMaxDistance; }
 
     /**
      * @param filePath Chemin vers le fichier .cfg à charger
@@ -68,6 +70,8 @@ private:
     std::vector<void*> _pluginHandles;
     int _renderSamples = 16;
     double _renderThreshold = 0.1;
+    int _aoSamples = 0;
+    double _aoMaxDistance = 10.0;
 
     using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
     using SectionTable = std::unordered_map<std::string, SectionParser>;

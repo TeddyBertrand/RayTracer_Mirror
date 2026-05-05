@@ -174,8 +174,56 @@ struct Vector3D {
         }
     }
 
+    /**
+    *@brief Return reflection from a direction.
+    */
     static Vector3D reflect(Vector3D direction, Vector3D hit_normal) {
         return direction - (2 * direction.dot(hit_normal)) * hit_normal;
+    /**
+     * @brief Return a random vector uniformly distributed in the unit sphere.
+     */
+    static Vector3D randomInUnitSphere() {
+        while (true) {
+            Vector3D p(getRandomDouble(-1, 1), getRandomDouble(-1, 1), getRandomDouble(-1, 1));
+            if (p.lengthSquared() >= 1)
+                continue;
+            return p;
+        }
+    }
+
+    /**
+     * @brief Return a random vector uniformly distributed in the hemisphere defined by the normal.
+     */
+    static Vector3D randomInHemisphere(const Vector3D& normal) {
+        Vector3D in_unit_sphere = randomInUnitSphere();
+        if (in_unit_sphere.dot(normal) > 0.0) {
+            return in_unit_sphere;
+        } else {
+            return -in_unit_sphere;
+        }
+    }
+
+    /**
+     * @brief Return a random vector cosine-weighted in the hemisphere defined by the normal.
+     */
+    static Vector3D randomCosineHemisphere(const Vector3D& normal) {
+        double r1 = getRandomDouble(0.0, 1.0);
+        double r2 = getRandomDouble(0.0, 1.0);
+        double phi = 2.0 * M_PI * r1;
+        double x = std::cos(phi) * std::sqrt(r2);
+        double y = std::sin(phi) * std::sqrt(r2);
+        double z = std::sqrt(std::max(0.0, 1.0 - r2));
+
+        Vector3D w = normal.normalized();
+        Vector3D a = (std::fabs(w.x) > 0.9) ? Vector3D(0, 1, 0) : Vector3D(1, 0, 0);
+        Vector3D v = w.cross(a).normalized();
+        Vector3D u = v.cross(w);
+
+        Vector3D res;
+        res.x = u.x * x + v.x * y + w.x * z;
+        res.y = u.y * x + v.y * y + w.y * z;
+        res.z = u.z * x + v.z * y + w.z * z;
+        return res.normalized();
     }
 };
 
