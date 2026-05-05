@@ -38,13 +38,19 @@ include(GoogleTest)
 
 add_executable(raytracer_unit_tests)
 
-add_subdirectory(math)
-add_subdirectory(scene)
-add_subdirectory(primitives)
-add_subdirectory(lights)
-add_subdirectory(materials)
-add_subdirectory(core)
-add_subdirectory(skies)
+function(add_tests_subdirectory_if_present subdir)
+    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${subdir}/CMakeLists.txt")
+        add_subdirectory(${subdir})
+    endif()
+endfunction()
+
+add_tests_subdirectory_if_present(math)
+add_tests_subdirectory_if_present(scene)
+add_tests_subdirectory_if_present(primitives)
+add_tests_subdirectory_if_present(lights)
+add_tests_subdirectory_if_present(materials)
+add_tests_subdirectory_if_present(core)
+add_tests_subdirectory_if_present(skies)
 
 target_include_directories(raytracer_unit_tests PRIVATE
     ${PROJECT_SOURCE_DIR}/include
@@ -54,6 +60,9 @@ target_include_directories(raytracer_unit_tests PRIVATE
 target_link_libraries(raytracer_unit_tests PRIVATE
     raytracer_core
     raytracer_math
+    raytracer_sphere
+    raytracer_cylinder
+    raytracer_infinite_cylinder
     GTest::gtest_main
 )
 
