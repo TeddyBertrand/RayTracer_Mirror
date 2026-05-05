@@ -106,7 +106,7 @@ public:
         // Transform ray to local space
         Point3D local_origin = _transform_inv * r.origin();
         Vector3D local_direction = _transform_inv.transformDirection(r.direction());
-        
+
         // Create local ray with normalized direction for consistent distance calculations
         Vector3D local_dir_normalized = local_direction.normalized();
         double dir_scale = local_direction.length();
@@ -118,7 +118,7 @@ public:
         if (!_primitive->hit(local_ray, local_interval, rec)) {
             return false;
         }
-        
+
         // Scale rec.t back to world space
         rec.t *= dir_scale;
 

@@ -27,12 +27,42 @@ struct Vector3D {
     }
 
     /**
+     * @brief Subtract another vector in place.
+     */
+    Vector3D& operator-=(const Vector3D& v) noexcept {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return *this;
+    }
+
+    /**
      * @brief Scale vector by a scalar in place.
      */
     Vector3D& operator*=(double t) noexcept {
         x *= t;
         y *= t;
         z *= t;
+        return *this;
+    }
+
+    /**
+     * @brief Apply floating-point modulo by a scalar in place.
+     */
+    Vector3D& operator%=(double t) noexcept {
+        x = std::fmod(x, t);
+        y = std::fmod(y, t);
+        z = std::fmod(z, t);
+        return *this;
+    }
+
+    /**
+     * @brief Apply floating-point modulo component-wise in place.
+     */
+    Vector3D& operator%=(const Vector3D& v) noexcept {
+        x = std::fmod(x, v.x);
+        y = std::fmod(y, v.y);
+        z = std::fmod(z, v.z);
         return *this;
     }
 
@@ -72,12 +102,24 @@ struct Vector3D {
 
     [[nodiscard]] constexpr Vector3D operator-() const noexcept { return {-x, -y, -z}; }
 
+    [[nodiscard]] constexpr Vector3D operator-(double scalar) const noexcept {
+        return Vector3D(x - scalar, y - scalar, z - scalar);
+    }
+
     [[nodiscard]] constexpr Vector3D operator*(double t) const noexcept {
         return {x * t, y * t, z * t};
     }
 
     [[nodiscard]] constexpr Vector3D operator/(double t) const noexcept {
         return {x / t, y / t, z / t};
+    }
+
+    [[nodiscard]] Vector3D operator%(double t) const noexcept {
+        return {std::fmod(x, t), std::fmod(y, t), std::fmod(z, t)};
+    }
+
+    [[nodiscard]] Vector3D operator%(const Vector3D& v) const noexcept {
+        return {std::fmod(x, v.x), std::fmod(y, v.y), std::fmod(z, v.z)};
     }
 
     [[nodiscard]] constexpr bool operator==(const Vector3D& v) const noexcept {
@@ -126,6 +168,13 @@ struct Vector3D {
     [[nodiscard]] bool isNearZero() const noexcept {
         const auto s = 1e-8;
         return (std::fabs(x) < s) && (std::fabs(y) < s) && (std::fabs(z) < s);
+    }
+
+    /**
+     * @brief Return a vector with absolute-valued components.
+     */
+    [[nodiscard]] Vector3D abs() const noexcept {
+        return {std::fabs(x), std::fabs(y), std::fabs(z)};
     }
 
     static constexpr Vector3D zero() noexcept { return {0, 0, 0}; }
