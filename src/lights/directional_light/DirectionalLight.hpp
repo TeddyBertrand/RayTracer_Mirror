@@ -6,9 +6,9 @@
 
 namespace Raytracer {
 
-class PointLight : public ILightSource {
+class DirectionalLight : public ILightSource {
 public:
-    PointLight() = default;
+    DirectionalLight() = default;
 
     LightSample getSample(const Point3D& local_hit_point) const override;
 

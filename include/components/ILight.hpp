@@ -2,6 +2,7 @@
 
 #include "math/Color.hpp"
 #include "math/HitRecord.hpp"
+#include "math/Matrix.hpp"
 #include "math/Vector3D.hpp"
 
 namespace Raytracer {
@@ -37,6 +38,12 @@ public:
      * @return LightSample containing direction, distance and emitted color data.
      */
     virtual LightSample computeLight(const Point3D& hit_point) const = 0;
+
+    virtual void setColor([[maybe_unused]] const Color& c) {}
+    virtual void setIntensity([[maybe_unused]] double i) {}
+    virtual void setDirection([[maybe_unused]] const Vector3D& d) {}
+    virtual void setPosition([[maybe_unused]] const Point3D& p) {}
+    virtual void setTransform([[maybe_unused]] const Matrix& m) {}
 };
 
 } // namespace Raytracer
