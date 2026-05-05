@@ -63,6 +63,7 @@ target_link_libraries(raytracer_unit_tests PRIVATE
     raytracer_sphere
     raytracer_cylinder
     raytracer_infinite_cylinder
+    raytracer_tanglecube
     GTest::gtest_main
 )
 
