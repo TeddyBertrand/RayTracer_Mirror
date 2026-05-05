@@ -11,14 +11,12 @@ namespace Raytracer {
 class Cylinder : public virtual IPrimitive {
 public:
     /**
-     * @brief Construct a new Cylinder object with params
+     * @brief Construct a unit cylinder aligned on the Y axis.
      *
-     * @param center Center of the bottom base of the cylinder
-     * @param radius Radius of the cylinder
-     * @param height Height of the cylinder (along Y axis)
-     * @param material Material applied to the cylinder
+     * Base center is at the origin, radius = 1, height = 1.
+     * Use entity transforms to position/scale the cylinder in the scene.
      */
-    Cylinder() : _center({0, 0, 0}), _radius(1), _height(1) {}
+    Cylinder() : _center(0.0, 0.0, 0.0), _radius(1.0), _height(1.0) {}
 
     /**
      * @brief Hit function
@@ -39,9 +37,9 @@ public:
     }
 
 private:
-    Point3D _center; // Center of the bottom base
-    double _radius;  // Radius of the cylinder
-    double _height;  // Height along Y axis
+    Point3D _center; // Center of the bottom base in local space
+    double _radius;  // Local radius
+    double _height;  // Local height along Y axis
 };
 
 }; // namespace Raytracer

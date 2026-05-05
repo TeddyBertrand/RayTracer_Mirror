@@ -1,5 +1,10 @@
 include(FetchContent)
 
+set(SFML_STATIC_LIBRARIES OFF CACHE BOOL "" FORCE)
+
+set(RAYTRACER_BUILD_SHARED_LIBS_BACKUP ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS ON)
+
 find_package(SFML 3 QUIET COMPONENTS Graphics System)
 
 if(NOT SFML_FOUND)
@@ -17,6 +22,8 @@ if(NOT SFML_FOUND)
     FetchContent_MakeAvailable(sfml)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY_BACKUP})
 endif()
+
+set(BUILD_SHARED_LIBS ${RAYTRACER_BUILD_SHARED_LIBS_BACKUP})
 
 add_library(raytracer_materials_common STATIC
     bsdf/lambertian/LambertianBSDF.cpp

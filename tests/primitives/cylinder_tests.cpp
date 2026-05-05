@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "components/Entity.hpp"
 #include "math/Interval.hpp"
 #include "math/Ray.hpp"
 #include "primitives/cylinder/Cylinder.hpp"
@@ -17,7 +18,7 @@ void expectVectorNear(const Raytracer::Vector3D& actual,
 } // namespace
 
 TEST(Cylinder, RayHitsFromOutside) {
-    Raytracer::Cylinder cylinder({0.0, 0.0, 0.0}, 1.0, 2.0, nullptr);
+    Raytracer::Cylinder cylinder;
     Raytracer::HitRecord rec;
 
     // Ray from outside, hitting the cylinder side
@@ -32,7 +33,7 @@ TEST(Cylinder, RayHitsFromOutside) {
 }
 
 TEST(Cylinder, RayMissesAbove) {
-    Raytracer::Cylinder cylinder({0.0, 0.0, 0.0}, 1.0, 2.0, nullptr);
+    Raytracer::Cylinder cylinder;
     Raytracer::HitRecord rec;
 
     // Ray above the cylinder (outside height bounds)
@@ -42,7 +43,7 @@ TEST(Cylinder, RayMissesAbove) {
 }
 
 TEST(Cylinder, RayMissesRadially) {
-    Raytracer::Cylinder cylinder({0.0, 0.0, 0.0}, 1.0, 2.0, nullptr);
+    Raytracer::Cylinder cylinder;
     Raytracer::HitRecord rec;
 
     // Ray that passes beyond the cylinder radius
@@ -52,7 +53,7 @@ TEST(Cylinder, RayMissesRadially) {
 }
 
 TEST(Cylinder, RayFromInsideHitsAndFlipsNormal) {
-    Raytracer::Cylinder cylinder({0.0, 0.0, 0.0}, 1.0, 2.0, nullptr);
+    Raytracer::Cylinder cylinder;
     Raytracer::HitRecord rec;
 
     // Ray from inside the cylinder
@@ -67,7 +68,7 @@ TEST(Cylinder, RayFromInsideHitsAndFlipsNormal) {
 }
 
 TEST(Cylinder, RayHitsBothSides) {
-    Raytracer::Cylinder cylinder({0.0, 0.0, 0.0}, 1.0, 2.0, nullptr);
+    Raytracer::Cylinder cylinder;
     Raytracer::HitRecord rec;
 
     // Ray passing through cylinder - should hit the near side first
@@ -81,11 +82,67 @@ TEST(Cylinder, RayHitsBothSides) {
 }
 
 TEST(Cylinder, RayOutsideHeightBoundsButWithinRadius) {
-    Raytracer::Cylinder cylinder({0.0, 0.0, 0.0}, 1.0, 2.0, nullptr);
+    Raytracer::Cylinder cylinder;
     Raytracer::HitRecord rec;
 
     // Ray at correct radius but below the cylinder
     const bool hit = cylinder.hit({{0.0, -1.0, 0.0}, {0.0, 0.0, 1.0}}, {0.001, 100.0}, rec);
 
     EXPECT_FALSE(hit);
+}
+
+TEST(Cylinder, RayHitsBottomCap) {
+    Raytracer::Cylinder cylinder;
+    Raytracer::HitRecord rec;
+
+    const bool hit = cylinder.hit({{0.0, -1.0, 0.0}, {0.0, 1.0, 0.0}}, {0.001, 100.0}, rec);
+
+    EXPECT_TRUE(hit);
+    EXPECT_NEAR(rec.t, 1.0, 1e-6);
+    expectVectorNear(rec.point, {0.0, 0.0, 0.0});
+    expectVectorNear(rec.normal, {0.0, -1.0, 0.0});
+    EXPECT_TRUE(rec.front_face);
+}
+
+TEST(Cylinder, RayHitsTopCap) {
+    Raytracer::Cylinder cylinder;
+    Raytracer::HitRecord rec;
+
+    const bool hit = cylinder.hit({{0.0, 2.0, 0.0}, {0.0, -1.0, 0.0}}, {0.001, 100.0}, rec);
+
+    EXPECT_TRUE(hit);
+    EXPECT_NEAR(rec.t, 1.0, 1e-6);
+    expectVectorNear(rec.point, {0.0, 1.0, 0.0});
+    expectVectorNear(rec.normal, {0.0, 1.0, 0.0});
+    EXPECT_TRUE(rec.front_face);
+}
+
+TEST(Cylinder, RayFromInsideHitsTopCapAndFlipsNormal) {
+    Raytracer::Cylinder cylinder;
+    Raytracer::HitRecord rec;
+
+    const bool hit = cylinder.hit({{0.0, 0.5, 0.0}, {0.0, 1.0, 0.0}}, {0.001, 100.0}, rec);
+
+    EXPECT_TRUE(hit);
+    EXPECT_NEAR(rec.t, 0.5, 1e-6);
+    expectVectorNear(rec.point, {0.0, 1.0, 0.0});
+    expectVectorNear(rec.normal, {0.0, -1.0, 0.0});
+    EXPECT_FALSE(rec.front_face);
+}
+
+TEST(Cylinder, TransformedUnitCylinderStillHitsViaEntity) {
+    auto cylinder = std::make_shared<Raytracer::Cylinder>();
+    auto entity = std::make_shared<Raytracer::Entity>("UnitCylinder", cylinder);
+
+    entity->scale(2.0, 2.0, 2.0);
+    entity->translate(0.0, 1.0, 0.0);
+
+    Raytracer::HitRecord rec;
+    const bool hit = entity->hit({{0.0, 4.0, 0.0}, {0.0, -1.0, 0.0}}, {0.001, 100.0}, rec);
+
+    EXPECT_TRUE(hit);
+    EXPECT_NEAR(rec.t, 1.0, 1e-6);
+    expectVectorNear(rec.point, {0.0, 3.0, 0.0});
+    expectVectorNear(rec.normal, {0.0, 1.0, 0.0});
+    EXPECT_TRUE(rec.front_face);
 }
