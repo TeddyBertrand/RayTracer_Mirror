@@ -1,12 +1,12 @@
 #pragma once
 
 #include "components/ITexture.hpp"
-#include <cmath>
-#include <vector>
-#include <array>
 #include <algorithm>
+#include <array>
+#include <cmath>
 #include <numeric>
 #include <random>
+#include <vector>
 
 namespace Raytracer {
 
