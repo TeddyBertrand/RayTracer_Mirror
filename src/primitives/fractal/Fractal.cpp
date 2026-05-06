@@ -39,6 +39,7 @@ bool Fractal::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
             rec.point = current_p;
             rec.normal = computeNormal(current_p);
             rec.material = _material;
+            rec.fractal_info = res.iterationIndex;
             return true;
         }
 

@@ -30,6 +30,8 @@ struct HitRecord {
     /** Material bound to the intersected primitive. */
     std::shared_ptr<IMaterial> material;
 
+    double fractal_info = 0.0;
+
     /**
      * @brief Compute and orient the normal consistently with the incoming ray.
      *

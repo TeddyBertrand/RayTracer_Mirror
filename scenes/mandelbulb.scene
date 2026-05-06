@@ -25,7 +25,7 @@ shapes: (
 );
 
 lights: (
-    { type = "directional"; position = { x = 0.0; y = 10.0; z = 40.0; }; rotation = {x = 45.0, y = 90.0; z = 0.0}; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 60.0; },
+    { type = "directional"; position = { x = 0.0; y = 10.0; z = 40.0; }; rotation = {x = 45.0, y = 90.0; z = 0.0}; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 120.0; },
     #{ type = "point"; position = { x = -60.0; y = 40.0; z = 40.0; }; color = { r = 255.0; g = 220.0; b = 200.0; }; intensity = 6.0; }
 );
 
