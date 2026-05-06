@@ -179,6 +179,8 @@ struct Vector3D {
     */
     static Vector3D reflect(Vector3D direction, Vector3D hit_normal) {
         return direction - (2 * direction.dot(hit_normal)) * hit_normal;
+    }
+
     /**
      * @brief Return a random vector uniformly distributed in the unit sphere.
      */
