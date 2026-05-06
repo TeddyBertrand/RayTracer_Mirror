@@ -42,7 +42,7 @@ public:
     Color emitted([[maybe_unused]] double u,
                   [[maybe_unused]] double v,
                   [[maybe_unused]] const Point3D& p) const override {
-        return _emission_texture->value(u, v);
+        return _emission_texture->value(u, v, p);
     }
 
 private:

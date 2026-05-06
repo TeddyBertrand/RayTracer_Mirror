@@ -25,7 +25,7 @@ public:
     /**
      * @brief Get color at UV coordinates.
      */
-    [[nodiscard]] Color value(double u, double v) const noexcept override {
+    [[nodiscard]] Color value(double u, double v, [[maybe_unused]] const Vector3D& p) const noexcept override {
         auto size = _image.getSize();
         if (size.x == 0 || size.y == 0)
             return Color(1, 0, 1);

@@ -20,7 +20,7 @@ public:
 
 private:
     double _randomness;
-    std::unique_ptr<IBSDF> _bsdf; // Pre-built once at construction
+    std::unique_ptr<IBSDF> _bsdf;
 };
 
 } // namespace Raytracer
