@@ -6,6 +6,11 @@
 
 namespace Raytracer {
 
+struct Vector3D;
+[[nodiscard]] constexpr inline Vector3D operator+(const Vector3D& u, const Vector3D& v) noexcept;
+[[nodiscard]] constexpr inline Vector3D operator-(const Vector3D& u, const Vector3D& v) noexcept;
+[[nodiscard]] constexpr inline Vector3D operator*(double t, const Vector3D& v) noexcept;
+
 /**
  * @brief 3D vector type used for positions, directions and normals.
  */
@@ -169,6 +174,11 @@ struct Vector3D {
         }
     }
 
+    /**
+    *@brief Return reflection from a direction.
+    */
+    static Vector3D reflect(Vector3D direction, Vector3D hit_normal) {
+        return direction - (2 * direction.dot(hit_normal)) * hit_normal;
     /**
      * @brief Return a random vector uniformly distributed in the unit sphere.
      */

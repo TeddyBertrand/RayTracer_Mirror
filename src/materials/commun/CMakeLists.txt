@@ -28,6 +28,7 @@ set(BUILD_SHARED_LIBS ${RAYTRACER_BUILD_SHARED_LIBS_BACKUP})
 add_library(raytracer_materials_common STATIC
     bsdf/lambertian/LambertianBSDF.cpp
     bsdf/emissive/EmissiveBSDF.cpp
+    bsdf/metal/MetalBSDF.cpp
 )
 
 set_target_properties(raytracer_materials_common PROPERTIES
