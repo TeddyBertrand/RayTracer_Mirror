@@ -1,5 +1,6 @@
 add_library(raytracer_fractal SHARED
 	strategy/menger_sponge/MengerSpongeStrategy.cpp
+	strategy/mandelbulb/MandelbulbStrategy.cpp
 
 	Fractal.cpp
 	FractalStrategyFactory.cpp

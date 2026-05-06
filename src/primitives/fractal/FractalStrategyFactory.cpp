@@ -1,6 +1,7 @@
 #include "FractalStrategyFactory.hpp"
 #include <functional>
 
+#include "strategy/mandelbulb/MandelbulbStrategy.hpp"
 #include "strategy/menger_sponge/MengerSpongeStrategy.hpp"
 
 namespace Raytracer {
@@ -12,7 +13,9 @@ std::unique_ptr<IFractalStrategy> FractalStrategyFactory::create(std::string typ
 
     static const std::unordered_map<std::string, StrategyCreator> strategyMap = {
         {"menger_sponge",
-         [](const ISetting& settings) { return std::make_unique<MengerSpongeStrategy>(); }},
+         []([[maybe_unused]] const ISetting& settings) { return std::make_unique<MengerSpongeStrategy>(); }},
+        {"mandelbulb",
+         []([[maybe_unused]] const ISetting& settings) { return std::make_unique<MandelbulbStrategy>(); }},
     };
 
     auto it = strategyMap.find(type);

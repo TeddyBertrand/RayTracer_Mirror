@@ -1,0 +1,40 @@
+camera:
+{
+    type = "perspective";
+    width = 1280;
+    height = 720;
+    position = { x = 0.0; y = 10.0; z = 40.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 45.0;
+};
+
+materials: (
+    { id = "mat_fractal"; type = "flat_color"; color = { r = 1.0; g = 0.0; b = 1.0; }; randomness = 0.0; }
+);
+
+shapes: (
+    { type = "fractal";
+      fractal_type = "mandelbulb";
+      max_iterations = 10;
+      position = { x = 0.0; y = 10.0; z = 0.0; };
+      rotation = { x = 0.0; y = 45.0; z = 0.0; };
+      scale = { x = 10.0; y = 10.0; z = 10.0; };
+      material = "mat_fractal";
+    }
+);
+
+lights: (
+    { type = "directional"; position = { x = 0.0; y = 10.0; z = 40.0; }; rotation = {x = 45.0, y = 90.0; z = 0.0}; color = { r = 255.0; g = 255.0; b = 255.0; }; intensity = 60.0; },
+    #{ type = "point"; position = { x = -60.0; y = 40.0; z = 40.0; }; color = { r = 255.0; g = 220.0; b = 200.0; }; intensity = 6.0; }
+);
+
+sky = {
+    type = "empty";
+    nebulaColor = { r = 0.02; g = 0.02; b = 0.05; };
+};
+
+render = {
+    samples = 16;
+    adaptive_threshold = 0.05;
+};
