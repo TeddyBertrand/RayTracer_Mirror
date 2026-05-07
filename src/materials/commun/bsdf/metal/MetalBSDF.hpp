@@ -35,9 +35,9 @@ public:
      * @param hit 
      * @return Color 
      */
-    Color evaluate(const Vector3D& light_dir,
-                   const Vector3D& view_dir,
-                   const HitRecord& hit) const override {
+    Color evaluate([[maybe_unused]]const Vector3D& light_dir,
+                   [[maybe_unused]] const Vector3D& view_dir,
+                   [[maybe_unused]] const HitRecord& hit) const override {
         return Color(0, 0, 0); 
     }
 

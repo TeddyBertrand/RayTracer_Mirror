@@ -16,6 +16,13 @@ public:
         _transform_inv = m.inverse();
     }
 
+    void applyExtraTransform(const Matrix& m) {
+        _transform = m * _transform;
+        _transform_inv = _transform.inverse();
+    }
+
+    void applyTransform(const Matrix& m) { applyExtraTransform(m); }
+
     LightSample computeLight(const Point3D& world_hit_point) const override {
         Point3D local_hit = _transform_inv * world_hit_point;
 

@@ -1,0 +1,96 @@
+camera:
+{
+    type = "perspective";
+    width = 1920;
+    height = 1080;
+    position = { x = 0.0; y = 4.0; z = 15.0; }; # Reculée et montée pour voir l'allée
+    look_at = { x = 0.0; y = 1.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 60.0;
+};
+
+materials: (
+    { id = "glass"; type = "flat_color"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 1.5; },
+    { id = "stone_floor"; type = "flat_color"; color = { r = 0.15; g = 0.15; b = 0.18; }; },
+    { id = "white_wall"; type = "flat_color"; color = { r = 0.8; g = 0.8; b = 0.8; }; }
+);
+
+shapes: (
+    { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "stone_floor"; },
+
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_L1";
+        position = { x = -4.0; y = 0.0; z = 6.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_L2";
+        position = { x = -4.0; y = 0.0; z = 0.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_L3";
+        position = { x = -4.0; y = 0.0; z = -6.0; }; scale = 0.8;
+    },
+        { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_L1";
+        position = { x = -4.0; y = 0.0; z = -12.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_L2";
+        position = { x = -4.0; y = 0.0; z = -18.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_L3";
+        position = { x = -4.0; y = 0.0; z = -24.0; }; scale = 0.8;
+    },
+
+    # --- ALLÉE DE LANTERNES DROITE ---
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_R1";
+        position = { x = 4.0; y = 0.0; z = 6.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_R2";
+        position = { x = 4.0; y = 0.0; z = 0.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_R3";
+        position = { x = 4.0; y = 0.0; z = -6.0; }; scale = 0.8;
+    },
+        { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_R1";
+        position = { x = 4.0; y = 0.0; z = -12.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_R2";
+        position = { x = 4.0; y = 0.0; z = -18.0; }; scale = 0.8;
+    },
+    { 
+        type = "import"; path = "scenes/lantern.scene"; name = "lat_R3";
+        position = { x = 4.0; y = 0.0; z = -24.0; }; scale = 0.8;
+    },
+    { 
+        type = "sphere"; 
+        position = { x = 0.0; y = 1.0; z = -25.0; }; 
+        radius = 2.0; 
+        material = "glass"; 
+    }
+);
+
+lights: (
+    {
+        type = "point";
+        position = { x = 0.0; y = 1.0; z = 10.0; };
+        color = { r = 255.0; g = 140.0; b = 40.0; };
+        intensity = 3.0; 
+    }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.05; g = 0.0; b = 0.15; };
+};
+
+render = {
+    samples = 1;
+    adaptive_threshold = 0.02;
+}
