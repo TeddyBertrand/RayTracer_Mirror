@@ -52,6 +52,6 @@ lights = (
         type = "point";
         position = { x = 0.0; y = 0.1; z = 0.0; };
         color = { r = 255.0; g = 140.0; b = 40.0; };
-        intensity = 3.0; 
+        intensity = 1.0; 
     }
 )

@@ -91,6 +91,6 @@ sky = {
 };
 
 render = {
-    samples = 64; # Monte à 100+ pour un résultat propre sans bruit sur le verre
+    samples = 1;
     adaptive_threshold = 0.02;
 }
