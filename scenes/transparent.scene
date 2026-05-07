@@ -3,54 +3,47 @@ camera:
     type = "perspective";
     width = 1280;
     height = 720;
-    position = { x = 0.0; y = 2.5; z = 8.0; };
+    position = { x = 0.0; y = 1.0; z = 6.0; }; # Plus proche pour mieux voir
     look_at = { x = 0.0; y = 0.5; z = 0.0; };
     up = { x = 0.0; y = 1.0; z = 0.0; };
-    fieldOfView = 45.0;
+    fieldOfView = 40.0;
 };
 
 materials: (
-    { id = "floor_white"; type = "flat_color"; color = { r = 200.0; g = 200.0; b = 200.0; }; },
-    { id = "glass"; type = "transparent"; color = { r = 1.0; g = 1.0; b = 1.0; }; ref = 0.5; },
-    { id = "water"; type = "transparent"; color = { r = 0.8; g = 0.9; b = 1.0; }; ref = 0.33; },
-    { id = "red"; type = "flat_color"; color = { r = 255.0; g = 60.0; b = 60.0; }; }
+    { id = "floor_grey"; type = "flat_color"; color = { r = 100.0; g = 100.0; b = 100.0; }; },
+    
+    { id = "glass"; type = "transparent"; color = { r = 255.0; g = 255.0; b = 255.0; }; ref = 1.1; },
+    
+    { id = "red"; type = "flat_color"; color = { r = 255.0; g = 0.0; b = 0.0; }; },
+    { id = "green"; type = "flat_color"; color = { r = 0.0; g = 255.0; b = 0.0; }; }
 );
 
 shapes: (
-    { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "floor_white"; },
+    { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "floor_grey"; },
 
-    # Glass sphere in the center to test refraction
     { type = "sphere"; position = { x = 0.0; y = 0.5; z = 0.0; }; radius = 1.2; material = "glass"; },
 
-    # Smaller water-tinted sphere slightly to the left
-    { type = "sphere"; position = { x = -2.5; y = 0.6; z = -1.0; }; radius = 0.9; material = "water"; },
+    { type = "sphere"; position = { x = 0.8; y = 0.2; z = -2.0; }; radius = 0.8; material = "red"; },
 
-    # Opaque colored sphere behind to see distortion through the glass
-    { type = "sphere"; position = { x = 1.8; y = 0.4; z = -1.5; }; radius = 0.6; material = "red"; }
+    { type = "sphere"; position = { x = -2.0; y = 0.0; z = -1.0; }; radius = 0.5; material = "green"; }
 );
 
 sky = {
     type = "atmospheric";
-    groundColor = { r = 180.0; g = 200.0; b = 255.0; };
-    zenithColor = { r = 255.0; g = 255.0; b = 255.0; };
+    groundColor = { r = 20.0; g = 20.0; b = 30.0; }; 
+    zenithColor = { r = 40.0; g = 50.0; b = 80.0; };
 };
 
 lights: (
     {
-        type = "directional";
-        rotation = { x = 40.0; y = 25.0; z = 0.0 };
-        color = { r = 255.0; g = 255.0; b = 255.0; };
-        intensity = 1.4;
-    },
-    {
         type = "point";
-        position = { x = -6.0; y = 6.0; z = 6.0; };
-        color = { r = 255.0; g = 240.0; b = 220.0; };
-        intensity = 2.0;
+        position = { x = 5.0; y = 5.0; z = 5.0; };
+        color = { r = 255.0; g = 255.0; b = 255.0; };
+        intensity = 2.5;
     }
 );
 
 render = {
-    samples = 128;
-    adaptive_threshold = 0.01;
+    samples = 128; 
+    max_depth = 50;
 };
