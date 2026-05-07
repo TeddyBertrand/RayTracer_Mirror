@@ -59,11 +59,8 @@ public:
 
     Color getColor(const std::string& path) const override {
         const libconfig::Setting& v = _setting.lookup(path);
-        double r = static_cast<double>(v["r"]);
-        double g = static_cast<double>(v["g"]);
-        double b = static_cast<double>(v["b"]);
-
-        return Color(r / 255.0, g / 255.0, b / 255.0);
+        return Color(
+            static_cast<double>(v["r"]), static_cast<double>(v["g"]), static_cast<double>(v["b"]));
     }
     Color getColor(const std::string& path, const Color& defaultValue) const override {
         return exists(path) ? getColor(path) : defaultValue;
