@@ -281,6 +281,21 @@ public:
 
         return inv;
     }
+
+    /**
+     * @brief Check if the matrix is the identity matrix (with a small epsilon).
+     */
+    [[nodiscard]] bool isIdentity() const noexcept {
+        for (int i = 0; i < 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                double target = (i == j) ? 1.0 : 0.0;
+                if (std::abs(m[i][j] - target) > 1e-9) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 };
 
 } // namespace Raytracer

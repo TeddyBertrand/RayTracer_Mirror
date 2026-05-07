@@ -110,7 +110,7 @@ public:
         // Create local ray with normalized direction for consistent distance calculations
         Vector3D local_dir_normalized = local_direction.normalized();
         double dir_scale = local_direction.length();
-        
+
         // Adjust interval for scaled direction
         Interval local_interval(ray_t.min / dir_scale, ray_t.max / dir_scale);
         Ray local_ray(local_origin, local_dir_normalized);
@@ -131,7 +131,9 @@ public:
             rec.normal = -rec.normal;
         }
 
-        rec.material = _material;
+        if (_material) {
+            rec.material = _material;
+        }
         return true;
     }
 
@@ -159,6 +161,8 @@ public:
         _transform = m;
         _transform_inv = m.inverse();
     }
+
+    [[nodiscard]] const Matrix& getTransform() const noexcept { return _transform; }
 
     AABB getBoundingBox() const override {
         if (!_primitive) {

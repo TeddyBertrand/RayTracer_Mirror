@@ -3,14 +3,17 @@
 #include "factory/SceneFactories.hpp"
 #include "math/Color.hpp"
 #include "math/Vector3D.hpp"
+#include "math/Matrix.hpp"
 #include "parser/LibConfigSettings.hpp"
 #include "parser/PrimitiveSettings.hpp"
+#include "components/SceneManager.hpp"
 #include <iostream>
 #include <libconfig.h++>
 #include <unordered_map>
 #include <vector>
 
 namespace Raytracer {
+
 class SceneParser {
 public:
     explicit SceneParser(SceneFactories& factories) : _factories(factories) {}
@@ -20,67 +23,49 @@ public:
     int getAOSamples() const { return _aoSamples; }
     double getAOMaxDistance() const { return _aoMaxDistance; }
 
-    /**
-     * @param filePath Chemin vers le fichier .cfg à charger
-     * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
-     */
-    void loadScene(const std::string& filePath, Scene& outScene);
+    void loadScene(const std::string& filePath, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup = nullptr);
 
-public:
     class SceneParserException : public std::exception {
     public:
-        SceneParserException(const std::string& msg) : _msg(msg) {}
-        const char* what() const noexcept override { return _msg.c_str(); }
-
+        explicit SceneParserException(const std::string& msg) : _msg(msg) {}
+        [[nodiscard]] const char* what() const noexcept override { return _msg.c_str(); }
     private:
         std::string _msg;
     };
 
-    class RenderSettingsException : public SceneParserException {
-    public:
-        explicit RenderSettingsException(const std::string& msg) : SceneParserException(msg) {}
-    };
-
 private:
-    /**
-     * @param camSetting La section camera du fichier
-     * @param outScene la référence
-     */
-    void parseCamera(const libconfig::Setting& camSetting, Scene& outScene);
-    /**
-     * @param shapesSetting La liste (list) des formes du fichier
-     * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
-     */
-    void parseShapes(const libconfig::Setting& shapesSetting, Scene& outScene);
+    // Signature unifiée pour le dispatch table
+    void parseCamera(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
+    void parseShapes(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
+    void parseMaterials(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
+    void parseLights(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
+    void parseSky(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
+    void parseRender(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
 
-    /**
-     * @param matsSetting La liste des matériaux du fichier
-     * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
-     */
-    void parseMaterials(const libconfig::Setting& matsSetting, Scene& outScene);
+    std::shared_ptr<IPrimitive> handleImport(const libconfig::Setting& setting, Scene& outScene);
+    std::shared_ptr<IPrimitive> handleStandardPrimitive(const libconfig::Setting& setting, Scene& outScene);
+    
+    Matrix parseMatrix(const libconfig::Setting& setting);
 
-    /**
-     * @param lightsSetting La liste des lights du fichiers
-     * @param outScene la référence de la scène actuelle pour pouvoir ajouter les objets
-     */
-    void parseLights(const libconfig::Setting& lightsSetting, Scene& outScene);
-    void parseSky(const libconfig::Setting& skySetting, Scene& outScene);
-    void parseRender(const libconfig::Setting& renderSetting, Scene& outScene);
     SceneFactories& _factories;
-    std::vector<void*> _pluginHandles;
+    SceneManager _manager;
+
     int _renderSamples = 16;
     double _renderThreshold = 0.1;
     int _aoSamples = 0;
     double _aoMaxDistance = 10.0;
 
-    using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
+    using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&, std::shared_ptr<PrimitiveGroup>);
     using SectionTable = std::unordered_map<std::string, SectionParser>;
 
     static inline const SectionTable _sectionDispatch = {
         {"sky", &SceneParser::parseSky},
         {"camera", &SceneParser::parseCamera},
         {"materials", &SceneParser::parseMaterials},
+        {"render", &SceneParser::parseRender},
         {"shapes", &SceneParser::parseShapes},
-        {"lights", &SceneParser::parseLights}};
+        {"lights", &SceneParser::parseLights}
+    };
 };
+
 } // namespace Raytracer

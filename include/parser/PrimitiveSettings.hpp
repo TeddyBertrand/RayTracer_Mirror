@@ -91,7 +91,7 @@ public:
 
 private:
     const ISetting& _base;
-    const std::unordered_map<std::string, std::shared_ptr<IMaterial>>& _materials;
+    std::unordered_map<std::string, std::shared_ptr<IMaterial>> _materials;
 };
 
 } // namespace Raytracer

@@ -1,0 +1,57 @@
+materials = (
+    { 
+        id = "wrought_iron"; 
+        type = "flat_color"; 
+        color = { r = 0.1; g = 0.1; b = 0.12; };
+    },
+    { 
+        id = "fire_core"; 
+        type = "flat_color"; 
+        color = { r = 1.0; g = 0.8; b = 0.4; };
+    }
+);
+
+shapes = (
+    # Socle
+    { 
+        type = "box"; 
+        position = { x = 0.0; y = -1.0; z = 0.0; }; 
+        scale = { x = 1.4; y = 0.15; z = 1.4; }; 
+        material = "wrought_iron"; 
+    },
+    
+    { 
+        type = "box"; 
+        position = { x = 0.0; y = 1.0; z = 0.0; }; 
+        scale = { x = 1.6; y = 0.15; z = 1.6; }; 
+        material = "wrought_iron"; 
+    },
+
+    {
+        type = "sphere";
+        position = { x = 0.0; y = 1.1; z = 0.0; };
+        radius = 0.4;
+        material = "wrought_iron";
+    },
+
+    { type = "cylinder"; position = { x = 0.6; y = -1.0; z = 0.6; }; height = 2.0; radius = 0.08; material = "wrought_iron"; },
+    { type = "cylinder"; position = { x = -0.6; y = -1.0; z = 0.6; }; height = 2.0; radius = 0.08; material = "wrought_iron"; },
+    { type = "cylinder"; position = { x = 0.6; y = -1.0; z = -0.6; }; height = 2.0; radius = 0.08; material = "wrought_iron"; },
+    { type = "cylinder"; position = { x = -0.6; y = -1.0; z = -0.6; }; height = 2.0; radius = 0.08; material = "wrought_iron"; },
+
+    {
+        type = "sphere";
+        position = { x = 0.0; y = -0.4; z = 0.0; };
+        radius = 0.15;
+        material = "fire_core";
+    }
+);
+
+lights = (
+    {
+        type = "point";
+        position = { x = 0.0; y = 0.1; z = 0.0; };
+        color = { r = 255.0; g = 140.0; b = 40.0; };
+        intensity = 3.0; 
+    }
+)

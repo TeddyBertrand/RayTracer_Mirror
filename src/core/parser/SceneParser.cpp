@@ -1,4 +1,7 @@
 #include "SceneParser.hpp"
+#include "builder/EntityBuilder.hpp"
+#include "components/Entity.hpp"
+#include "math/MathUtils.hpp"
 #include "parser/dlloader/DLLoaderPlugin.hpp"
 #include "skies/empty_sky/EmptySky.hpp"
 #include <filesystem>
@@ -7,83 +10,104 @@
 
 namespace Raytracer {
 
-void SceneParser::parseCamera(const libconfig::Setting& camSetting, Scene& outScene) {
-    std::string type = camSetting["type"];
+void SceneParser::loadScene(const std::string& filePath,
+                            Scene& outScene,
+                            std::shared_ptr<PrimitiveGroup> currentGroup) {
+    libconfig::Config cfg;
+    (void)currentGroup; // Non utilisé dans cette approche simplifiée
 
-    LibconfigSetting cameraConfig(camSetting);
-    auto camera = _factories.camera.create(type, cameraConfig);
+    try {
+        _manager.trackFile(filePath);
+        cfg.readFile(filePath.c_str());
+        const libconfig::Setting& root = cfg.getRoot();
 
-    if (camera) {
-        outScene.setCamera(std::move(camera));
+        if (root.exists("materials")) {
+            parseMaterials(root["materials"], outScene, nullptr);
+        }
+
+        for (int i = 0; i < root.getLength(); ++i) {
+            const libconfig::Setting& section = root[i];
+            std::string name = section.getName();
+            if (name == "materials")
+                continue;
+
+            auto it = _sectionDispatch.find(name);
+            if (it != _sectionDispatch.end()) {
+                (this->*(it->second))(section, outScene, nullptr);
+            }
+        }
+
+        _manager.untrackFile(filePath);
+    } catch (const std::exception& e) {
+        _manager.untrackFile(filePath);
+        throw SceneParserException(std::string("Error loading ") + filePath + ": " + e.what());
     }
 }
 
-void SceneParser::parseMaterials(const libconfig::Setting& matsSetting, Scene& outScene) {
-    for (int i = 0; i < matsSetting.getLength(); ++i) {
-        const libconfig::Setting& mat = matsSetting[i];
+void SceneParser::parseShapes(const libconfig::Setting& setting,
+                              Scene& outScene,
+                              std::shared_ptr<PrimitiveGroup> currentGroup) {
+    (void)currentGroup;
+    for (int i = 0; i < setting.getLength(); ++i) {
+        const libconfig::Setting& shapeSetting = setting[i];
 
-        std::string type = mat["type"];
-
-        std::string id = mat["id"];
-
-        LibconfigSetting matConfig(mat);
-
-        auto material = _factories.material.create(type, matConfig);
-
-        if (material) {
-            outScene.addMaterial(id, material);
-        }
-    }
-}
-
-void SceneParser::parseShapes(const libconfig::Setting& shapesSetting, Scene& outScene) {
-    for (int i = 0; i < shapesSetting.getLength(); ++i) {
-        LibconfigSetting baseConfig(shapesSetting[i]);
-
-        PrimitiveSetting shapeConfig(baseConfig, outScene.getMaterials());
-
-        if (shapeConfig.exists("material") && !shapeConfig.getMaterial()) {
-            std::cerr << "Forme ignoree: materiau introuvable ("
-                      << shapeConfig.getString("material") << ")" << std::endl;
-            continue;
-        }
-
-        std::string type = shapesSetting[i]["type"];
-        auto primitive = _factories.primitive.create(type, shapeConfig);
-
-        if (primitive) {
-            outScene.addPrimitive(std::move(primitive));
-        }
-    }
-}
-
-void SceneParser::parseLights(const libconfig::Setting& lightsSetting, Scene& outScene) {
-    for (int i = 0; i < lightsSetting.getLength(); ++i) {
-        const libconfig::Setting& light = lightsSetting[i];
-        std::string type = light["type"];
-
-        LibconfigSetting lightConfig(light);
-        auto lightPtr = _factories.light.create(type, lightConfig);
-
-        if (lightPtr) {
-            outScene.addLight(std::move(lightPtr));
+        if (shapeSetting.exists("path")) {
+            handleImport(shapeSetting, outScene);
         } else {
-            std::cerr << "Lumiere ignoree (type inconnu): " << type << std::endl;
+            auto primitive = handleStandardPrimitive(shapeSetting, outScene);
+            if (primitive) {
+                outScene.addPrimitive(std::move(primitive));
+            }
         }
     }
 }
 
-void SceneParser::parseSky(const libconfig::Setting& skySetting, Scene& outScene) {
-    std::string type = skySetting["type"];
-    LibconfigSetting skyConfig(skySetting);
+std::shared_ptr<IPrimitive> SceneParser::handleImport(const libconfig::Setting& setting,
+                                                      Scene& outScene) {
+    std::string path = setting["path"];
+    std::string name = setting.exists("name") ? (const char*)setting["name"] : "sub";
 
-    auto sky = _factories.sky.create(type, skyConfig);
-    if (sky) {
-        outScene.setSky(std::move(sky));
-    } else {
-        outScene.setSky(std::make_unique<EmptySky>());
+    _manager.pushNamespace(name);
+    _manager.pushTransformation(parseMatrix(setting));
+
+    // On charge récursivement. Tout sera ajouté directement à outScene
+    loadScene(path, outScene, nullptr);
+
+    _manager.popTransformation();
+    _manager.popNamespace();
+
+    return nullptr; // Les objets ont déjà été ajoutés à outScene
+}
+
+std::shared_ptr<IPrimitive> SceneParser::handleStandardPrimitive(const libconfig::Setting& setting,
+                                                                 Scene& outScene) {
+    LibconfigSetting baseConfig(setting);
+    PrimitiveSetting shapeConfig(baseConfig,
+                                 _manager.getContextualMaterials(outScene.getMaterials()));
+
+    auto primitivePtr = _factories.primitive.create(setting["type"], shapeConfig);
+    if (!primitivePtr)
+        return nullptr;
+
+    // On applique la transformation cumulative du manager
+    auto entity = std::dynamic_pointer_cast<Entity>(primitivePtr);
+    if (entity) {
+        entity->setTransform(_manager.getCurrentTransformation() * entity->getTransform());
     }
-    return;
+
+    return primitivePtr;
+}
+
+void SceneParser::parseCamera(const libconfig::Setting& setting,
+                              Scene& outScene,
+                              std::shared_ptr<PrimitiveGroup> currentGroup) {
+    (void)currentGroup;
+    LibconfigSetting cameraConfig(setting);
+    if (!cameraConfig.exists("type"))
+        return;
+    auto camera = _factories.camera.create(cameraConfig.getString("type"), cameraConfig);
+    if (camera)
+        outScene.setCamera(std::move(camera));
 }
 
 void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& outScene) {
@@ -153,52 +177,93 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
     }
 }
 
-void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
-    libconfig::Config cfg;
+void SceneParser::parseLights(const libconfig::Setting& setting,
+                              Scene& outScene,
+                              std::shared_ptr<PrimitiveGroup> currentGroup) {
+    (void)currentGroup;
+    for (int i = 0; i < setting.getLength(); ++i) {
+        const libconfig::Setting& lightSetting = setting[i];
+        LibconfigSetting lightConfig(lightSetting);
+        if (!lightConfig.exists("type"))
+            continue;
 
-    try {
-        cfg.readFile(filePath.c_str());
-        const libconfig::Setting& root = cfg.getRoot();
-
-        if (root.exists("materials")) {
-            const libconfig::Setting& materials = root["materials"];
-            auto it = _sectionDispatch.find("materials");
-            if (it != _sectionDispatch.end()) {
-                (this->*(it->second))(materials, outScene);
+        auto lightPtr = _factories.light.create(lightConfig.getString("type"), lightConfig);
+        if (lightPtr) {
+            Matrix worldMatrix = _manager.getCurrentTransformation();
+            if (!worldMatrix.isIdentity()) {
+                lightPtr->applyTransform(worldMatrix);
             }
+            outScene.addLight(std::move(lightPtr));
         }
-
-        if (root.exists("render")) {
-            const libconfig::Setting& render = root["render"];
-            try {
-                parseRender(render, outScene);
-            } catch (const RenderSettingsException& e) {
-                std::cerr << "Warning: " << e.what() << ". Using default samples ("
-                          << _renderSamples << ")." << std::endl;
-            }
-        }
-
-        for (int i = 0; i < root.getLength(); ++i) {
-            const libconfig::Setting& section = root[i];
-            std::string sectionName = section.getName();
-
-            if (sectionName == "materials")
-                continue;
-
-            auto it = _sectionDispatch.find(sectionName);
-            if (it != _sectionDispatch.end()) {
-                (this->*(it->second))(section, outScene);
-            }
-        }
-
-    } catch (const libconfig::FileIOException& e) {
-        throw SceneParserException("Unable to read config file: " + filePath);
-    } catch (const libconfig::ParseException& e) {
-        throw SceneParserException(std::string("Parse error in config file: ") + e.what());
-    } catch (const libconfig::SettingException& e) {
-        throw SceneParserException("Error parsing config file: " + std::string(e.what()));
-    } catch (const std::exception& e) {
-        throw SceneParserException(std::string("Unknown error while parsing config: ") + e.what());
     }
 }
+
+void SceneParser::parseMaterials(const libconfig::Setting& setting,
+                                 Scene& outScene,
+                                 std::shared_ptr<PrimitiveGroup> currentGroup) {
+    (void)currentGroup;
+    for (int i = 0; i < setting.getLength(); ++i) {
+        const libconfig::Setting& mat = setting[i];
+        if (!mat.exists("type") || !mat.exists("id"))
+            continue;
+
+        LibconfigSetting matConfig(mat);
+        auto material = _factories.material.create(mat["type"], matConfig);
+        if (material) {
+            _manager.registerMaterial(mat["id"], material);
+            outScene.addMaterial(_manager.getFullNamespace() + (const char*)mat["id"],
+                                 std::move(material));
+        }
+    }
+}
+
+void SceneParser::parseSky(const libconfig::Setting& setting,
+                           Scene& outScene,
+                           std::shared_ptr<PrimitiveGroup> currentGroup) {
+    (void)currentGroup;
+    LibconfigSetting skyConfig(setting);
+    if (!skyConfig.exists("type"))
+        return;
+    auto sky = _factories.sky.create(skyConfig.getString("type"), skyConfig);
+    if (sky)
+        outScene.setSky(std::move(sky));
+    else
+        outScene.setSky(std::make_unique<EmptySky>());
+}
+
+void SceneParser::parseRender(const libconfig::Setting& setting,
+                              Scene& outScene,
+                              std::shared_ptr<PrimitiveGroup> currentGroup) {
+    (void)currentGroup;
+    LibconfigSetting renderConfig(setting);
+    _renderSamples = renderConfig.getInt("samples", _renderSamples);
+    _renderThreshold = renderConfig.getFloat("threshold", _renderThreshold);
+}
+
+Matrix SceneParser::parseMatrix(const libconfig::Setting& setting) {
+    LibconfigSetting config(setting);
+    Vector3D pos = config.getVector("position", Vector3D(0, 0, 0));
+    Vector3D rot = config.getVector("rotation", Vector3D(0, 0, 0));
+    Vector3D scaleVec(1.0, 1.0, 1.0);
+
+    if (setting.exists("scale")) {
+        if (setting["scale"].isGroup()) {
+            LibconfigSetting s_config(setting["scale"]);
+            scaleVec.x = s_config.getFloat("x", 1.0);
+            scaleVec.y = s_config.getFloat("y", 1.0);
+            scaleVec.z = s_config.getFloat("z", 1.0);
+        } else {
+            double s = config.getFloat("scale", 1.0);
+            scaleVec = Vector3D(s, s, s);
+        }
+    }
+
+    Matrix m = Matrix::translate(pos.x, pos.y, pos.z);
+    m = m * Matrix::rotateX(Math::degreesToRadians(rot.x));
+    m = m * Matrix::rotateY(Math::degreesToRadians(rot.y));
+    m = m * Matrix::rotateZ(Math::degreesToRadians(rot.z));
+    m = m * Matrix::scale(scaleVec.x, scaleVec.y, scaleVec.z);
+    return m;
+}
+
 } // namespace Raytracer
