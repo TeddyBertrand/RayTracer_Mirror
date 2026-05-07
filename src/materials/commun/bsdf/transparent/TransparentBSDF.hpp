@@ -10,7 +10,7 @@ class TransparentBSDF : public ABSDF {
 public:
     explicit TransparentBSDF(std::shared_ptr<ITexture> tex, double ref = 0.0)
         : _albedo_texture(tex),
-          _ref(ref < 0.0 ? 0.0 : (ref > 1.0 ? 1.0 : ref)) {}
+          _ref(ref < 0.0 ? 0.0 : ref) {}
 
     /**
      * @brief Sample bounce 

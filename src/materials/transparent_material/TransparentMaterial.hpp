@@ -12,14 +12,14 @@ namespace Raytracer {
 
 class TransparentMaterial : public IMaterial {
 public:
-    TransparentMaterial(std::shared_ptr<ITexture> tex, double fuzz = 0.0)
-        : _fuzz(fuzz < 0.0 ? 0.0 : (fuzz > 1.0 ? 1.0 : fuzz)),
-          _bsdf(std::make_unique<TransparentBSDF>(tex, _fuzz)) {}
+    TransparentMaterial(std::shared_ptr<ITexture> tex, double ref = 0.0)
+        : _ref(ref < 0.0 ? 0.0 : ref),
+          _bsdf(std::make_unique<TransparentBSDF>(tex, _ref)) {}
 
     const IBSDF& getBSDF() const override { return *_bsdf; }
 
 private:
-    double _fuzz;
+    double _ref;
     std::unique_ptr<IBSDF> _bsdf; // Pre-built once at construction
 };
 
