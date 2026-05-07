@@ -35,12 +35,12 @@ public:
 
 private:
     // Signature unifiée pour le dispatch table
-    void parseCamera(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
-    void parseShapes(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
-    void parseMaterials(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
-    void parseLights(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
-    void parseSky(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
-    void parseRender(const libconfig::Setting& setting, Scene& outScene, std::shared_ptr<PrimitiveGroup> currentGroup);
+    void parseCamera(const libconfig::Setting& setting, Scene& outScene);
+    void parseShapes(const libconfig::Setting& setting, Scene& outScene);
+    void parseMaterials(const libconfig::Setting& setting, Scene& outScene);
+    void parseLights(const libconfig::Setting& setting, Scene& outScene);
+    void parseSky(const libconfig::Setting& setting, Scene& outScene);
+    void parseRender(const libconfig::Setting& setting, Scene& outScene);
 
     std::shared_ptr<IPrimitive> handleImport(const libconfig::Setting& setting, Scene& outScene);
     std::shared_ptr<IPrimitive> handleStandardPrimitive(const libconfig::Setting& setting, Scene& outScene);
@@ -55,13 +55,12 @@ private:
     int _aoSamples = 0;
     double _aoMaxDistance = 10.0;
 
-    using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&, std::shared_ptr<PrimitiveGroup>);
+    using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
     using SectionTable = std::unordered_map<std::string, SectionParser>;
 
     static inline const SectionTable _sectionDispatch = {
         {"sky", &SceneParser::parseSky},
         {"camera", &SceneParser::parseCamera},
-        {"materials", &SceneParser::parseMaterials},
         {"render", &SceneParser::parseRender},
         {"shapes", &SceneParser::parseShapes},
         {"lights", &SceneParser::parseLights}

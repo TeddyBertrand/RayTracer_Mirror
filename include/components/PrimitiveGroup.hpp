@@ -23,7 +23,7 @@ public:
     void add(std::shared_ptr<IPrimitive> primitive) {
         if (primitive) {
             _children.push_back(std::move(primitive));
-            _bvh_root = nullptr; // Mark as dirty
+            _bvh_root = nullptr;
         }
     }
 
@@ -35,7 +35,6 @@ public:
             return false;
         }
 
-        // Lazy build the BVH if needed
         if (!_bvh_root) {
             const_cast<PrimitiveGroup*>(this)->buildBVH();
         }

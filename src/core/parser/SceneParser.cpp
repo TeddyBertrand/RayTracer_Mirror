@@ -10,11 +10,8 @@
 
 namespace Raytracer {
 
-void SceneParser::loadScene(const std::string& filePath,
-                            Scene& outScene,
-                            std::shared_ptr<PrimitiveGroup> currentGroup) {
+void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
     libconfig::Config cfg;
-    (void)currentGroup; // Non utilisé dans cette approche simplifiée
 
     try {
         _manager.trackFile(filePath);
@@ -22,18 +19,16 @@ void SceneParser::loadScene(const std::string& filePath,
         const libconfig::Setting& root = cfg.getRoot();
 
         if (root.exists("materials")) {
-            parseMaterials(root["materials"], outScene, nullptr);
+            parseMaterials(root["materials"], outScene);
         }
 
         for (int i = 0; i < root.getLength(); ++i) {
             const libconfig::Setting& section = root[i];
             std::string name = section.getName();
-            if (name == "materials")
-                continue;
 
             auto it = _sectionDispatch.find(name);
             if (it != _sectionDispatch.end()) {
-                (this->*(it->second))(section, outScene, nullptr);
+                (this->*(it->second))(section, outScene);
             }
         }
 
@@ -44,10 +39,7 @@ void SceneParser::loadScene(const std::string& filePath,
     }
 }
 
-void SceneParser::parseShapes(const libconfig::Setting& setting,
-                              Scene& outScene,
-                              std::shared_ptr<PrimitiveGroup> currentGroup) {
-    (void)currentGroup;
+void SceneParser::parseShapes(const libconfig::Setting& setting, Scene& outScene) {
     for (int i = 0; i < setting.getLength(); ++i) {
         const libconfig::Setting& shapeSetting = setting[i];
 
@@ -70,13 +62,12 @@ std::shared_ptr<IPrimitive> SceneParser::handleImport(const libconfig::Setting& 
     _manager.pushNamespace(name);
     _manager.pushTransformation(parseMatrix(setting));
 
-    // On charge récursivement. Tout sera ajouté directement à outScene
     loadScene(path, outScene, nullptr);
 
     _manager.popTransformation();
     _manager.popNamespace();
 
-    return nullptr; // Les objets ont déjà été ajoutés à outScene
+    return nullptr;
 }
 
 std::shared_ptr<IPrimitive> SceneParser::handleStandardPrimitive(const libconfig::Setting& setting,
@@ -98,10 +89,7 @@ std::shared_ptr<IPrimitive> SceneParser::handleStandardPrimitive(const libconfig
     return primitivePtr;
 }
 
-void SceneParser::parseCamera(const libconfig::Setting& setting,
-                              Scene& outScene,
-                              std::shared_ptr<PrimitiveGroup> currentGroup) {
-    (void)currentGroup;
+void SceneParser::parseCamera(const libconfig::Setting& setting, Scene& outScene) {
     LibconfigSetting cameraConfig(setting);
     if (!cameraConfig.exists("type"))
         return;
@@ -177,10 +165,7 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
     }
 }
 
-void SceneParser::parseLights(const libconfig::Setting& setting,
-                              Scene& outScene,
-                              std::shared_ptr<PrimitiveGroup> currentGroup) {
-    (void)currentGroup;
+void SceneParser::parseLights(const libconfig::Setting& setting, Scene& outScene) {
     for (int i = 0; i < setting.getLength(); ++i) {
         const libconfig::Setting& lightSetting = setting[i];
         LibconfigSetting lightConfig(lightSetting);
@@ -198,10 +183,7 @@ void SceneParser::parseLights(const libconfig::Setting& setting,
     }
 }
 
-void SceneParser::parseMaterials(const libconfig::Setting& setting,
-                                 Scene& outScene,
-                                 std::shared_ptr<PrimitiveGroup> currentGroup) {
-    (void)currentGroup;
+void SceneParser::parseMaterials(const libconfig::Setting& setting, Scene& outScene) {
     for (int i = 0; i < setting.getLength(); ++i) {
         const libconfig::Setting& mat = setting[i];
         if (!mat.exists("type") || !mat.exists("id"))
@@ -217,10 +199,7 @@ void SceneParser::parseMaterials(const libconfig::Setting& setting,
     }
 }
 
-void SceneParser::parseSky(const libconfig::Setting& setting,
-                           Scene& outScene,
-                           std::shared_ptr<PrimitiveGroup> currentGroup) {
-    (void)currentGroup;
+void SceneParser::parseSky(const libconfig::Setting& setting, Scene& outScene) {
     LibconfigSetting skyConfig(setting);
     if (!skyConfig.exists("type"))
         return;
@@ -231,10 +210,7 @@ void SceneParser::parseSky(const libconfig::Setting& setting,
         outScene.setSky(std::make_unique<EmptySky>());
 }
 
-void SceneParser::parseRender(const libconfig::Setting& setting,
-                              Scene& outScene,
-                              std::shared_ptr<PrimitiveGroup> currentGroup) {
-    (void)currentGroup;
+void SceneParser::parseRender(const libconfig::Setting& setting, Scene& outScene) {
     LibconfigSetting renderConfig(setting);
     _renderSamples = renderConfig.getInt("samples", _renderSamples);
     _renderThreshold = renderConfig.getFloat("threshold", _renderThreshold);
