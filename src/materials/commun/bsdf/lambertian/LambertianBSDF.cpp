@@ -7,7 +7,7 @@ bool LambertianBSDF::scatter([[maybe_unused]] const Ray& r_in,
                              Color& attenuation,
                              Ray& scattered) const {
     if (_randomness <= 0.0) {
-        attenuation = _albedo_texture->value(hit.u, hit.v);
+        attenuation = _albedo_texture->value(hit.u, hit.v, hit.point);
         return false;
     }
 
@@ -20,7 +20,7 @@ bool LambertianBSDF::scatter([[maybe_unused]] const Ray& r_in,
         scatter_direction = hit.normal;
 
     scattered = Ray(hit.point, scatter_direction.normalized(), RayType::DIFFUSE);
-    attenuation = _albedo_texture->value(hit.u, hit.v);
+    attenuation = _albedo_texture->value(hit.u, hit.v, hit.point);
     return true;
 }
 
@@ -28,7 +28,7 @@ Color LambertianBSDF::evaluate(const Vector3D& light_dir,
                                [[maybe_unused]] const Vector3D& view_dir,
                                const HitRecord& hit) const {
     double cos_theta = std::max(0.0, hit.normal.dot(light_dir));
-    Color albedo = _albedo_texture->value(hit.u, hit.v);
+    Color albedo = _albedo_texture->value(hit.u, hit.v, hit.point);
     return (albedo / M_PI) * cos_theta;
 }
 

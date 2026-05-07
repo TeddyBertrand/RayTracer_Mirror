@@ -2,54 +2,88 @@
 
 #include "components/ITexture.hpp"
 #include "materials/commun/texture/ImageTexture.hpp"
+#include "materials/commun/texture/PerlinTexture.hpp"
 #include "materials/commun/texture/SolidColor.hpp"
 #include "parser/ISettings.hpp"
 #include <exception>
+#include <functional>
 #include <memory>
-#include <stdexcept>
-#include <string>
+#include <unordered_map>
 
 namespace Raytracer {
 
 /**
- * @brief Wrapper texture that can be either a solid color or an image.
- * The constructor overload determines which implementation is used.
+ * @brief Factory wrapper to create different types of textures.
+ * Allows easy extensibility for new texture types.
  */
-class Texture : public ITexture {
+class Texture {
 public:
-    explicit Texture(const Color& c) : _impl(std::make_unique<SolidColor>(c)) {}
+    using TexturePtr = std::shared_ptr<ITexture>;
+    using TextureFactory = std::function<TexturePtr(const ISetting&, const std::string&)>;
+    using ProceduralTextureFactory = std::function<TexturePtr(const std::shared_ptr<ISetting>&)>;
 
-    explicit Texture(const std::string& filename)
-        : _impl(std::make_unique<ImageTexture>(filename)) {}
-
-    static std::shared_ptr<ITexture> fromSetting(const ISetting& settings, const std::string& key) {
+    static TexturePtr fromSetting(const ISetting& settings, const std::string& key) {
         if (!settings.exists(key)) {
             throw std::runtime_error("Missing texture setting '" + key + "'.");
         }
 
-        try {
-            return std::make_shared<Texture>(settings.getColor(key));
-        } catch (const std::exception&) {
-        }
+        if (auto texture = tryCreateColor(settings, key))
+            return texture;
+        if (auto texture = tryCreateImage(settings, key))
+            return texture;
+        if (auto texture = tryCreateProcedural(settings, key))
+            return texture;
 
-        try {
-            const std::string filename = settings.getString(key);
-
-            if (filename.empty()) {
-                throw std::runtime_error("Texture path for '" + key + "' cannot be empty.");
-            }
-            return std::make_shared<Texture>(filename);
-        } catch (const std::exception&) {
-        }
-
-        throw std::runtime_error("Texture setting '" + key +
-                                 "' must be either a color ({r,g,b}) or a string path.");
+        throw std::runtime_error("Unknown texture format for key: " + key);
     }
 
-    Color value(double u, double v) const noexcept override { return _impl->value(u, v); }
-
 private:
-    std::unique_ptr<ITexture> _impl;
+    static const std::unordered_map<std::string, ProceduralTextureFactory>&
+    getProceduralFactories() {
+        static const std::unordered_map<std::string, ProceduralTextureFactory> factories = {
+            {"perlin",
+             [](const std::shared_ptr<ISetting>& group) {
+                 double scale = group->exists("scale") ? group->getFloat("scale") : 1.0;
+                 Color a = group->getColor("color_a");
+                 Color b = group->getColor("color_b");
+                 return std::make_shared<PerlinTexture>(scale, a, b);
+             }},
+        };
+        return factories;
+    }
+
+    static TexturePtr tryCreateColor(const ISetting& settings, const std::string& key) {
+        try {
+            return std::make_shared<SolidColor>(settings.getColor(key));
+        } catch (...) {
+            return nullptr;
+        }
+    }
+
+    static TexturePtr tryCreateImage(const ISetting& settings, const std::string& key) {
+        try {
+            return std::make_shared<ImageTexture>(settings.getString(key));
+        } catch (...) {
+            return nullptr;
+        }
+    }
+
+    static TexturePtr tryCreateProcedural(const ISetting& settings, const std::string& key) {
+        try {
+            auto group = settings.getGroup(key);
+            std::string type = group->getString("type");
+
+            const auto& factories = getProceduralFactories();
+            auto it = factories.find(type);
+
+            if (it == factories.end())
+                return nullptr;
+
+            return it->second(group);
+        } catch (...) {
+            return nullptr;
+        }
+    }
 };
 
 } // namespace Raytracer

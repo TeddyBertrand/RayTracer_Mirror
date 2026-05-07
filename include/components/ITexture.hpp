@@ -1,6 +1,7 @@
 #pragma once
 
 #include "math/Color.hpp"
+#include "math/Vector3D.hpp"
 
 namespace Raytracer {
 
@@ -18,7 +19,7 @@ public:
      * @param v Vertical coordinate [0, 1].
      * @return The color at the specified mapping.
      */
-    [[nodiscard]] virtual Color value(double u, double v) const noexcept = 0;
+    [[nodiscard]] virtual Color value(double u, double v, const Vector3D& p) const noexcept = 0;
 };
 
 } // namespace Raytracer
