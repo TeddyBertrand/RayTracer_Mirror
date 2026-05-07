@@ -70,9 +70,9 @@ private:
     }
 
     double hash(const Vector3D& v) const {
-        int X = (int)std::floor(v.x) & 255;
-        int Y = (int)std::floor(v.y) & 255;
-        int Z = (int)std::floor(v.z) & 255;
+        int X = static_cast<int>(std::floor(v.x)) & 255;
+        int Y = static_cast<int>(std::floor(v.y)) & 255;
+        int Z = static_cast<int>(std::floor(v.z)) & 255;
 
         int h = _permutation[_permutation[_permutation[X] + Y] + Z];
 
