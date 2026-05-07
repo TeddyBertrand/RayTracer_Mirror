@@ -8,9 +8,9 @@ namespace Raytracer {
 
 class TransparentBSDF : public ABSDF {
 public:
-    explicit TransparentBSDF(std::shared_ptr<ITexture> tex, double fuzz = 0.0)
+    explicit TransparentBSDF(std::shared_ptr<ITexture> tex, double ref = 0.0)
         : _albedo_texture(tex),
-          _fuzz(fuzz < 0.0 ? 0.0 : (fuzz > 1.0 ? 1.0 : fuzz)) {}
+          _ref(ref < 0.0 ? 0.0 : (ref > 1.0 ? 1.0 : ref)) {}
 
     /**
      * @brief Sample bounce 
@@ -37,13 +37,10 @@ public:
      */
     Color evaluate(const Vector3D& light_dir,
                    const Vector3D& view_dir,
-                   const HitRecord& hit) const override {
-        return Color(0, 0, 0); 
-    }
-
+                   const HitRecord& hit) const override;
 private:
     std::shared_ptr<ITexture> _albedo_texture;
-    double _fuzz;
+    double _ref;
 };
 
 };
