@@ -78,8 +78,8 @@ public:
     /**
      * @brief Reflect vector `v` around surface normal `n`.
      */
-    static inline Vector3D reflect(const Vector3D& v, const Vector3D& n) {
-        return v - n * (2.0 * v.dot(n));
+    static inline Vector3D reflect(Vector3D direction, Vector3D hit_normal) {
+        return direction - (2 * direction.dot(hit_normal)) * hit_normal;
     }
 
     /**
