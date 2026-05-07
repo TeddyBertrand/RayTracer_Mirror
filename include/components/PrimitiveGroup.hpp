@@ -36,7 +36,7 @@ public:
         }
 
         if (!_bvh_root) {
-            const_cast<PrimitiveGroup*>(this)->buildBVH();
+            buildBVH();
         }
 
         return _bvh_root->hit(r, ray_t, rec);
@@ -50,7 +50,7 @@ public:
             return AABB();
         }
         if (!_bvh_root) {
-            const_cast<PrimitiveGroup*>(this)->buildBVH();
+            buildBVH();
         }
         return _bvh_root->getBoundingBox();
     }
@@ -58,7 +58,7 @@ public:
     /**
      * @brief Manually builds the BVH.
      */
-    void buildBVH() {
+    void buildBVH() const {
         if (_children.empty()) {
             return;
         }
@@ -79,7 +79,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<IPrimitive>> _children;
-    std::shared_ptr<IPrimitive> _bvh_root;
+    mutable std::shared_ptr<IPrimitive> _bvh_root;
 };
 
 } // namespace Raytracer

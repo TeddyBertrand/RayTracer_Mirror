@@ -16,10 +16,8 @@ materials: (
 );
 
 shapes: (
-    # SOL ET FOND
     { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "stone_floor"; },
 
-    # --- ALLÉE DE LANTERNES GAUCHE (Z de 6 à -6) ---
     { 
         type = "import"; path = "scenes/lantern.scene"; name = "lat_L1";
         position = { x = -4.0; y = 0.0; z = 6.0; }; scale = 0.8;
@@ -70,8 +68,6 @@ shapes: (
         type = "import"; path = "scenes/lantern.scene"; name = "lat_R3";
         position = { x = 4.0; y = 0.0; z = -24.0; }; scale = 0.8;
     },
-
-    # L'OBJET CENTRAL (Grosse sphère de verre qui va refléter toutes les lanternes)
     { 
         type = "sphere"; 
         position = { x = 0.0; y = 1.0; z = -25.0; }; 
@@ -80,8 +76,14 @@ shapes: (
     }
 );
 
-# Pas de lumières globales : on laisse les flammes des lanternes faire tout le travail !
-lights: ();
+lights: (
+    {
+        type = "point";
+        position = { x = 0.0; y = 1.0; z = 10.0; };
+        color = { r = 255.0; g = 140.0; b = 40.0; };
+        intensity = 3.0; 
+    }
+);
 
 sky = {
     type = "galaxy";

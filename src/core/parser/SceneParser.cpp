@@ -62,7 +62,7 @@ std::shared_ptr<IPrimitive> SceneParser::handleImport(const libconfig::Setting& 
     _manager.pushNamespace(name);
     _manager.pushTransformation(parseMatrix(setting));
 
-    loadScene(path, outScene, nullptr);
+    loadScene(path, outScene);
 
     _manager.popTransformation();
     _manager.popNamespace();
@@ -208,12 +208,6 @@ void SceneParser::parseSky(const libconfig::Setting& setting, Scene& outScene) {
         outScene.setSky(std::move(sky));
     else
         outScene.setSky(std::make_unique<EmptySky>());
-}
-
-void SceneParser::parseRender(const libconfig::Setting& setting, Scene& outScene) {
-    LibconfigSetting renderConfig(setting);
-    _renderSamples = renderConfig.getInt("samples", _renderSamples);
-    _renderThreshold = renderConfig.getFloat("threshold", _renderThreshold);
 }
 
 Matrix SceneParser::parseMatrix(const libconfig::Setting& setting) {

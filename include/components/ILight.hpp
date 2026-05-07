@@ -32,6 +32,13 @@ public:
     virtual ~ILight() = default;
 
     /**
+     * @brief Apply a transformation matrix to the light's position and direction.
+     *
+     * @param m The transformation matrix (Translation, Rotation, Scale) to apply.
+     */
+    virtual void applyTransform(const Matrix& m) = 0;
+
+    /**
      * @brief Evaluate this light from a given point in space.
      *
      * @param hit_point Shading position in world space.

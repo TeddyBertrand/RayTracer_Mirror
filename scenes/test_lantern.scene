@@ -1,0 +1,43 @@
+camera = {
+    type = "perspective";
+    width = 1280;
+    height = 720;
+    position = { x = 4.0; y = 3.0; z = 27.0; };
+    look_at = { x = 0.0; y = 0.5; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 45.0;
+};
+
+materials = (
+    { id = "stone_floor"; type = "flat_color"; color = { r = 0.3; g = 0.3; b = 0.3; }; }
+);
+
+shapes = (
+    { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "stone_floor"; },
+    
+    { 
+        type = "import"; 
+        path = "scenes/lantern.scene"; 
+        name = "lanterne";
+        position = { x = 0.0; y = 3.0; z = 0.0; };
+        scale = 1.0;
+    }
+);
+
+lights = (
+    {
+        type = "point";
+        position = { x = 10.0; y = 10.0; z = 10.0; };
+        color = { r = 255.0; g = 255.0; b = 255.0; };
+        intensity = 0.8;
+    }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.1; g = 0.1; b = 0.2; };
+};
+
+render = {
+    samples = 32;
+};
