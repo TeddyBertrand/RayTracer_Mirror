@@ -19,9 +19,9 @@ public:
     LightSample computeLight(const Point3D& world_hit_point) const override;
 
 private:
-    Vector3D _direction;
     Color _color;
     double _intensity;
+    Vector3D _direction;
 };
 
 } // namespace Raytracer
