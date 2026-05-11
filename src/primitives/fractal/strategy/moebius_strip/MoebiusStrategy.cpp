@@ -5,14 +5,14 @@
 namespace Raytracer {
 
 FractalResult MoebiusStrategy::getInfo(const Vector3D& p, [[maybe_unused]] int maxIter) const {
-    const double R = 1.0;  // Rayon du cercle principal
-    const double w = 0.4;  // Demi-largeur du ruban
-    const double t = 0.05; // Demi-épaisseur
+    const double R = 1.0;
+    const double w = 0.4;
+    const double t = 0.05;
 
     double phi = std::atan2(p.z, p.x);
 
     double dist_h = std::sqrt(p.x * p.x + p.z * p.z) - R;
-    double dist_v = p.y; // Hauteur locale
+    double dist_v = p.y;
 
     double angle = phi * 0.5;
     double cosA = std::cos(angle);
