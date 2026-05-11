@@ -13,8 +13,9 @@ bool MetalBSDF::scatter(const Ray& r_in,
 
     scattered = Ray(hit.point, scatter_direction.normalized(), RayType::REFLECT);
 
-    attenuation = _albedo_texture->value(hit.u, hit.v, hit.point);
+    Color texColor = _albedo_texture->value(hit.u, hit.v, hit.point);
 
+    attenuation = Color(texColor.r / 255.0, texColor.g / 255.0, texColor.b / 255.0);
     return (scattered.direction().dot(hit.normal) > 0);
 }
 
