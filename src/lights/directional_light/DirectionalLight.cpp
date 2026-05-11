@@ -25,8 +25,8 @@ extern "C" ILight* createPlugin(const ISetting& settings) {
 
     Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
 
-    double pitch = rot.x * M_PI / 180.0;
-    double yaw = rot.y * M_PI / 180.0;
+    double pitch = Math::degreesToRadians(rot.x);
+    double yaw = Math::degreesToRadians(rot.y);
 
     double dx = std::sin(yaw) * std::cos(pitch);
     double dy = -std::cos(yaw) * std::cos(pitch);
