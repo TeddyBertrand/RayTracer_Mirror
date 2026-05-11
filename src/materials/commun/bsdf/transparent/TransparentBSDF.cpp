@@ -4,11 +4,11 @@
 namespace Raytracer {
 
 bool TransparentBSDF::scatter(const Ray& r_in,
-                        const HitRecord& hit,
-                        Color& attenuation,
-                        Ray& scattered) const {
+                              const HitRecord& hit,
+                              Color& attenuation,
+                              Ray& scattered) const {
 
-    attenuation = _albedo_texture->value(hit.u, hit.v);
+    attenuation = _albedo_texture->value(hit.u, hit.v, hit.point);
 
     double ratio = hit.front_face ? (1.0 / _ref) : _ref;
 
@@ -30,10 +30,10 @@ bool TransparentBSDF::scatter(const Ray& r_in,
 }
 
 Color TransparentBSDF::evaluate(const Vector3D& light_dir,
-                               [[maybe_unused]] const Vector3D& view_dir,
-                               const HitRecord& hit) const {
+                                [[maybe_unused]] const Vector3D& view_dir,
+                                const HitRecord& hit) const {
     double cos_theta = std::max(0.0, hit.normal.dot(light_dir));
-    return (_albedo_texture->value(hit.u, hit.v) / M_PI) * cos_theta;
+    return (_albedo_texture->value(hit.u, hit.v, hit.point) / M_PI) * cos_theta;
 }
 
-}
+} // namespace Raytracer
