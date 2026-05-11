@@ -1,0 +1,123 @@
+camera:
+{
+    type = "perspective";
+    width = 1920;
+    height = 1080;
+    position = { x = 0.0; y = 2.0; z = 12.0; };
+    look_at = { x = 0.0; y = 0.5; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 60.0;
+};
+
+materials: (
+    { id = "gold";       type = "flat_color"; color = { r = 204.0; g = 153.0; b = 51.0; };  randomness = 2.0; },
+    { id = "glass";      type = "flat_color"; color = { r = 255.0; g = 255.0; b = 255.0; }; ref = 1.5; randomness = 2.0; },
+    { id = "obsidian";   type = "flat_color"; color = { r = 13.0;  g = 13.0;  b = 13.0; };  randomness = 2.0; },
+    { id = "ruby";       type = "flat_color"; color = { r = 230.0; g = 26.0;  b = 26.0; };  randomness = 2.0; },
+    { id = "ice";        type = "flat_color"; color = { r = 230.0; g = 230.0; b = 255.0; }; ref = 1.31; randomness = 2.0; },
+    { id = "white_wall"; type = "flat_color"; color = { r = 230.0; g = 230.0; b = 230.0; }; randomness = 2.0; }
+);
+
+shapes: (
+    { type = "plane"; position = { x = 0.0; y = 0.0; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 0.0; }; material = "obsidian"; },
+    
+    { type = "plane"; position = { x = 0.0; y = 0.0; z = -20.0; }; rotation = { x = 90.0; y = 0.0; z = 0.0; }; material = "white_wall"; },
+
+    { type = "sphere"; position = { x = -2.5; y = 0.75; z = 6.0; }; radius = 0.75; material = "glass"; },
+    { type = "sphere"; position = { x = -2.5; y = 0.75; z = 3.0; }; radius = 0.75; material = "ice"; },
+    { type = "sphere"; position = { x = -2.5; y = 0.75; z = 0.0; }; radius = 0.75; material = "glass"; },
+    { type = "sphere"; position = { x = -2.5; y = 0.75; z = -3.0; }; radius = 0.75; material = "ice"; },
+    { type = "sphere"; position = { x = -2.5; y = 0.75; z = -6.0; }; radius = 0.75; material = "glass"; },
+
+    { type = "sphere"; position = { x = 2.5; y = 0.75; z = 6.0; }; radius = 0.75; material = "gold"; },
+    { type = "sphere"; position = { x = 2.5; y = 0.75; z = 3.0; }; radius = 0.75; material = "ruby"; },
+    { type = "sphere"; position = { x = 2.5; y = 0.75; z = 0.0; }; radius = 0.75; material = "gold"; },
+    { type = "sphere"; position = { x = 2.5; y = 0.75; z = -3.0; }; radius = 0.75; material = "ruby"; },
+    { type = "sphere"; position = { x = 2.5; y = 0.75; z = -6.0; }; radius = 0.75; material = "gold"; },
+
+    { type = "sphere"; position = { x = 0.0; y = 3.0; z = -2.0; }; radius = 2.0; material = "glass"; }
+);
+
+lights: (
+    # --- RANGÉE GAUCHE (x = -2.5) ---
+    {
+        type = "spot"; position = { x = -2.5; y = 10.0; z = 6.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 255.0; g = 50.0; b = 50.0; }; # Rouge
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = -2.5; y = 10.0; z = 3.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 50.0; g = 255.0; b = 50.0; }; # Vert
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = -2.5; y = 10.0; z = 0.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 50.0; g = 50.0; b = 255.0; }; # Bleu
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = -2.5; y = 10.0; z = -3.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 255.0; g = 255.0; b = 50.0; }; # Jaune
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = -2.5; y = 10.0; z = -6.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 255.0; g = 50.0; b = 255.0; }; # Rose/Magenta
+        intensity = 2.0; cutoff = 12.0;
+    },
+
+    # --- RANGÉE DROITE (x = 2.5) ---
+    {
+        type = "spot"; position = { x = 2.5; y = 10.0; z = 6.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 50.0; g = 255.0; b = 255.0; }; # Cyan
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = 2.5; y = 10.0; z = 3.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 255.0; g = 150.0; b = 50.0; }; # Orange
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = 2.5; y = 10.0; z = 0.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 150.0; g = 50.0; b = 255.0; }; # Violet
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = 2.5; y = 10.0; z = -3.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 100.0; g = 255.0; b = 100.0; }; # Vert clair
+        intensity = 2.0; cutoff = 12.0;
+    },
+    {
+        type = "spot"; position = { x = 2.5; y = 10.0; z = -6.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 255.0; g = 255.0; b = 255.0; }; # Blanc
+        intensity = 2.0; cutoff = 12.0;
+    },
+
+    {
+        type = "spot"; position = { x = 0.0; y = 13.0; z = -2.0; };
+        direction = { x = 0.0; y = -1.0; z = 0.0; };
+        color = { r = 200.0; g = 200.0; b = 255.0; }; # Bleu très clair
+        intensity = 3.0; # Plus forte intensité car la sphère est grosse
+        cutoff = 28.0; # Cutoff plus large pour couvrir le radius de 2.0
+    }
+);
+
+sky = {
+    type = "galaxy";
+    nebulaColor = { r = 0.1; g = 0.0; b = 0.3; }; # Un violet profond
+};
+
+render = {
+    samples = 100;
+    adaptive_threshold = 0.05;
+}
