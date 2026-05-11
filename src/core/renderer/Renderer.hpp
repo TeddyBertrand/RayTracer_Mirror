@@ -24,6 +24,7 @@ public:
     void setAdaptiveThreshold(double threshold) { _adaptiveThreshold = threshold; }
     void setAmbientOcclusionSamples(int samples) { _ao_samples = samples; }
     void setAmbientOcclusionMaxDistance(double d) { _ao_max_distance = d; }
+    void setShadowSamples(int samples) { _shadow_samples = samples; }
 
     int getCompletedRows() const { return _completed_rows.load(); }
     int getTotalRows() const { return _total_rows; }
@@ -40,6 +41,7 @@ private:
     double _adaptiveThreshold = 0.1;
     int _ao_samples = 0;
     double _ao_max_distance = 10.0;
+    int _shadow_samples = 4;
 
     std::atomic<int> _completed_rows{0};
     std::atomic<bool> _is_rendering{false};
