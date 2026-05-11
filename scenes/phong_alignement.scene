@@ -1,0 +1,44 @@
+camera:
+{
+    type = "perspective";
+    width = 1280;
+    height = 720;
+    position = { x = 0.0; y = 2.5; z = 12.0; };
+    look_at = { x = 0.0; y = 0.5; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 40.0;
+};
+
+materials: (
+    { id = "phong_diffuse"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.15; },
+    { id = "phong_soft"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.25; },
+    { id = "phong_gloss"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.6; },
+    { id = "phong_sharp"; type = "phong"; color = { r = 200.0; g = 50.0; b = 50.0; }; spec = 0.95; },
+    { id = "ground"; type = "flat_color"; color = { r = 35.0; g = 35.0; b = 35.0; }; }
+);
+
+lights: (
+    { type = "directional"; rotation = { x = 40.0; y = 30.0; z = 0.0 }; color = { r = 255.0; g = 245.0; b = 220.0 }; intensity = 0.9; },
+    { type = "point"; position = { x = -6.0; y = 6.0; z = 6.0 }; color = { r = 255.0; g = 220.0; b = 200.0 }; intensity = 0.45; },
+    { type = "point"; position = { x = 6.0; y = 4.0; z = 2.0 }; color = { r = 200.0; g = 220.0; b = 255.0 }; intensity = 0.35; }
+);
+
+shapes: (
+    { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "ground"; },
+
+    // Row of Phong spheres (left -> right: diffuse -> sharp)
+    { type = "sphere"; position = { x = -6.0; y = 0.7; z = 0.0; }; radius = 0.7; material = "phong_diffuse"; },
+    { type = "sphere"; position = { x = -2.0; y = 0.8; z = 0.0; }; radius = 0.8; material = "phong_soft"; },
+    { type = "sphere"; position = { x = 2.0; y = 0.9; z = 0.0; }; radius = 0.9; material = "phong_gloss"; },
+    { type = "sphere"; position = { x = 6.0; y = 1.0; z = 0.0; }; radius = 1.0; material = "phong_sharp"; }
+);
+
+sky = {
+    type = "simple";
+    color = { r = 100.0; g = 140.0; b = 200.0; };
+};
+
+render = {
+    samples = 256;
+    ao_samples = 0;
+};
