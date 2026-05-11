@@ -2,17 +2,16 @@ materials = (
     { 
         id = "wrought_iron"; 
         type = "flat_color"; 
-        color = { r = 0.1; g = 0.1; b = 0.12; };
+        color = { r = 25.0; g = 25.0; b = 31.0; };
     },
     { 
         id = "fire_core"; 
         type = "flat_color"; 
-        color = { r = 1.0; g = 0.8; b = 0.4; };
+        color = { r = 255.0; g = 204.0; b = 102.0; };
     }
 );
 
 shapes = (
-    # Socle
     { 
         type = "box"; 
         position = { x = 0.0; y = -1.0; z = 0.0; }; 
@@ -52,6 +51,6 @@ lights = (
         type = "point";
         position = { x = 0.0; y = 0.1; z = 0.0; };
         color = { r = 255.0; g = 140.0; b = 40.0; };
-        intensity = 1.0; 
+        intensity = 2.0; 
     }
 )
