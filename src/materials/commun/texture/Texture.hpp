@@ -1,6 +1,7 @@
 #pragma once
 
 #include "components/ITexture.hpp"
+#include "materials/commun/texture/CheckerTexture.hpp"
 #include "materials/commun/texture/ImageTexture.hpp"
 #include "materials/commun/texture/PerlinTexture.hpp"
 #include "materials/commun/texture/SolidColor.hpp"
@@ -48,7 +49,15 @@ private:
                  Color b = group->getColor("color_b");
                  return std::make_shared<PerlinTexture>(scale, a, b);
              }},
+            {"checker",
+             [](const std::shared_ptr<ISetting>& group) {
+                 double scale = group->exists("scale") ? group->getFloat("scale") : 1.0;
+                 Color a = group->getColor("color_a");
+                 Color b = group->getColor("color_b");
+                 return std::make_shared<CheckerTexture>(scale, a, b);
+             }},
         };
+
         return factories;
     }
 
