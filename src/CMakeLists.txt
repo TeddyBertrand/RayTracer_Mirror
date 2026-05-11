@@ -5,6 +5,7 @@ add_subdirectory(primitives)
 add_subdirectory(cameras)
 add_subdirectory(skies)
 add_subdirectory(math)
+add_subdirectory(renderers)
 
 add_executable(raytracer main.cpp)
 target_link_libraries(raytracer PRIVATE raytracer_core)
