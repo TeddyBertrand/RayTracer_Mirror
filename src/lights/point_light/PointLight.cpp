@@ -1,7 +1,6 @@
 #include "PointLight.hpp"
 #include "factory/LightFactory.hpp"
 #include "parser/ISettings.hpp"
-#include <algorithm> // Pour std::max si besoin, bien que plus nécessaire ici
 
 namespace Raytracer {
 
