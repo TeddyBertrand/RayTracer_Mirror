@@ -29,6 +29,7 @@ add_library(raytracer_materials_common STATIC
     bsdf/lambertian/LambertianBSDF.cpp
     bsdf/emissive/EmissiveBSDF.cpp
     bsdf/metal/MetalBSDF.cpp
+    bsdf/transparent/TransparentBSDF.cpp
 )
 
 set_target_properties(raytracer_materials_common PROPERTIES
