@@ -1,30 +1,40 @@
 #include "DirectionalLight.hpp"
-#include "builder/LightBuilder.hpp"
+#include "math/MathUtils.hpp"
 #include "parser/ISettings.hpp"
+#include <cmath>
 #include <limits>
 
 namespace Raytracer {
 
 extern "C" const char* getName() { return "directional"; }
 
-LightSample DirectionalLight::getSample(const Point3D& /*local_hit_point*/) const {
+LightSample DirectionalLight::computeLight([[maybe_unused]] const Point3D& world_hit_point) const {
     LightSample sample;
 
-    sample.direction = Vector3D(0, 1, 0);
-    sample.color = Color(1.0, 1.0, 1.0);
-    sample.distance = std::numeric_limits<double>::max();
+    sample.direction = -_direction;
+    sample.color = _color * _intensity;
+    sample.distance = 1e6; // Distance "infinie"
     sample.isActive = true;
 
     return sample;
 }
 
 extern "C" ILight* createPlugin(const ISetting& settings) {
-    auto source = std::make_shared<DirectionalLight>();
+    Color rawColor = settings.getColor("color");
+    double intensity = settings.getFloat("intensity", 1.0);
 
-    return LightBuilder(source)
-        .parseCommon(settings)
-        .parseTransform(settings)
-        .build();
+    Vector3D rot = settings.getVector("rotation", Vector3D(0, 0, 0));
+
+    double pitch = Math::degreesToRadians(rot.x);
+    double yaw = Math::degreesToRadians(rot.y);
+
+    double dx = std::sin(yaw) * std::cos(pitch);
+    double dy = -std::cos(yaw) * std::cos(pitch);
+    double dz = std::sin(pitch);
+
+    Vector3D dir(dx, dy, dz);
+
+    return new DirectionalLight(rawColor, intensity, dir.normalized());
 }
 
 } // namespace Raytracer
