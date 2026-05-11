@@ -19,7 +19,8 @@ void Renderer::render(const ICamera& camera, const Scene& scene, FrameBuffer& bu
     buffer.assign(width * height, Color(0, 0, 0));
 
     unsigned int num_threads = std::thread::hardware_concurrency();
-    if (num_threads == 0) num_threads = 4;
+    if (num_threads == 0)
+        num_threads = 4;
 
     std::vector<std::jthread> workers;
 
@@ -142,16 +143,27 @@ Color Renderer::computeDirectLighting(const Ray& r_in,
         if (!sample.isActive)
             continue;
 
-        Ray shadow_ray(rec.point + rec.normal * 0.001, sample.direction, RayType::SHADOW);
+        double visibility = 0.0;
+        for (int i = 0; i < _shadow_samples; ++i) {
+            Vector3D perturbed_dir = sample.direction;
+            if (_shadow_samples > 1) {
+                Vector3D random_offset = Vector3D::getRandomUnitVector() * 0.05;
+                perturbed_dir = (sample.direction + random_offset).normalized();
+            }
 
-        HitRecord shadow_rec;
-        if (scene.getWorld().hit(shadow_ray, Interval(0.001, sample.distance), shadow_rec)) {
-            continue;
+            Ray shadow_ray(rec.point + rec.normal * 0.001, perturbed_dir, RayType::SHADOW);
+
+            HitRecord shadow_rec;
+            if (!scene.getWorld().hit(shadow_ray, Interval(0.001, sample.distance), shadow_rec)) {
+                visibility += 1.0;
+            }
         }
+        visibility /= _shadow_samples;
 
-        Color f = bsdf.evaluate(sample.direction, view_dir, rec);
-
-        total_direct_light += sample.color * f;
+        if (visibility > 0.0) {
+            Color f = bsdf.evaluate(sample.direction, view_dir, rec);
+            total_direct_light += sample.color * f * visibility;
+        }
     }
     return total_direct_light;
 }
