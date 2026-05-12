@@ -10,10 +10,10 @@ camera:
 };
 
 materials: (
-    { id = "phong_mat0"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.09; normal = "assets/brick.jpg"},
+    { id = "phong_mat0"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.09; normal = "assets/brick.jpg"; normal_strength = 0.5; },
     { id = "phong_mat1"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.15; },
     { id = "phong_mat2"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.03; },
-    { id = "phong_mat3"; type = "phong"; color = { r = 200.0; g = 50.0; b = 50.0; }; spec = 0.2; normal = "assets/brick.jpg" },
+    { id = "phong_mat3"; type = "phong"; color = { r = 200.0; g = 50.0; b = 50.0; }; spec = 0.2; normal = "assets/brick.jpg"; normal_strength = 1.5; },
     { id = "debug_white"; type = "flat_color"; color = { r = 255.0; g = 255.0; b = 255.0; }; },
     { id = "ground"; type = "flat_color"; color = { r = 255.0; g = 30.0; b = 30.0; }; }
 );
