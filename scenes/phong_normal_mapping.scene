@@ -1,0 +1,47 @@
+camera:
+{
+    type = "perspective";
+    width = 1280;
+    height = 720;
+    position = { x = 0.0; y = 3.0; z = 12.0; };
+    look_at = { x = 0.0; y = 0.5; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 50.0;
+};
+
+materials: (
+    { id = "phong_mat0"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.09; normal = "assets/brick.jpg"},
+    { id = "phong_mat1"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.15; },
+    { id = "phong_mat2"; type = "phong"; color = { r = 200.0; g = 200.0; b = 200.0; }; spec = 0.03; },
+    { id = "phong_mat3"; type = "phong"; color = { r = 200.0; g = 50.0; b = 50.0; }; spec = 0.2; normal = "assets/brick.jpg" },
+    { id = "debug_white"; type = "flat_color"; color = { r = 255.0; g = 255.0; b = 255.0; }; },
+    { id = "ground"; type = "flat_color"; color = { r = 255.0; g = 30.0; b = 30.0; }; }
+);
+
+lights: (
+    {
+        type = "point";
+        position = { x = -4.0; y = 6.0; z = 6.0 };
+        color = { r = 255.0; g = 220.0; b = 200.0; };
+        intensity = 0.9;
+    }
+);
+
+shapes: (
+    { type = "plane"; position = { x = 0.0; y = -1.0; z = 0.0; }; material = "ground"; },
+    { type = "sphere"; position = { x = -4.0; y = 0.5; z = 0.0; }; radius = 1.0; material = "phong_mat0"; },
+    { type = "sphere"; position = { x = -1.5; y = 0.5; z = 0.0; }; radius = 1.0; material = "phong_mat1"; },
+    { type = "sphere"; position = { x = 1.5; y = 0.5; z = 0.0; }; radius = 1.0; material = "phong_mat2"; },
+    { type = "sphere"; position = { x = 4.0; y = 0.5; z = 0.0; }; radius = 1.0; material = "phong_mat3"; },
+    { type = "sphere"; position = { x = 0.0; y = 0.5; z = -4.0; }; radius = 1.0; material = "debug_white"; }
+);
+
+
+sky = {
+    type = "empty";
+};
+
+render = {
+    samples = 512;
+    ao_samples = 0;
+};
