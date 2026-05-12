@@ -26,4 +26,15 @@ IMaterial* createPlugin(const ISetting& settings) {
 }
 }
 
+PhongMaterial::PhongMaterial(std::shared_ptr<ITexture> tex,
+                double spec,
+                std::shared_ptr<IBSDF> custom_bsdf)
+    : _spec(spec < 0.0 ? 0.0 : (spec > 1.0 ? 1.0 : spec)) {
+    if (custom_bsdf) {
+        _bsdf = custom_bsdf;
+    } else {
+        _bsdf = std::make_shared<PhongBSDF>(tex, _spec);
+    }
+}
+
 } // namespace Raytracer

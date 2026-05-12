@@ -14,14 +14,7 @@ class PhongMaterial : public IMaterial {
 public:
     PhongMaterial(std::shared_ptr<ITexture> tex,
                   double spec = 0.0,
-                  std::shared_ptr<IBSDF> custom_bsdf = nullptr)
-        : _spec(spec < 0.0 ? 0.0 : (spec > 1.0 ? 1.0 : spec)) {
-        if (custom_bsdf) {
-            _bsdf = custom_bsdf;
-        } else {
-            _bsdf = std::make_shared<PhongBSDF>(tex, _spec);
-        }
-    }
+                  std::shared_ptr<IBSDF> custom_bsdf = nullptr);
 
     const IBSDF& getBSDF() const override { return *_bsdf; }
 
