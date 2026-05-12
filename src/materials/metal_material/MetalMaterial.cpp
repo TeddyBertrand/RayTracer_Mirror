@@ -26,4 +26,14 @@ IMaterial* createPlugin(const ISetting& settings) {
 }
 }
 
+MetalMaterial::MetalMaterial(std::shared_ptr<ITexture> tex,
+                double fuzz, std::shared_ptr<IBSDF> custom_bsdf)
+    : _fuzz(fuzz < 0.0 ? 0.0 : (fuzz > 1.0 ? 1.0 : fuzz)) {
+    if (custom_bsdf) {
+        _bsdf = custom_bsdf;
+    } else {
+        _bsdf = std::make_shared<MetalBSDF>(tex, _fuzz);
+    }
+}
+
 } // namespace Raytracer
