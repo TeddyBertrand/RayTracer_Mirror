@@ -11,14 +11,12 @@
 namespace Raytracer {
 
 void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
-    Scope _s("loadScene(" + filePath + ")");
     libconfig::Config cfg;
 
     try {
         _manager.trackFile(filePath);
         cfg.readFile(filePath.c_str());
         const libconfig::Setting& root = cfg.getRoot();
-        DBG("Fichier lu — " << root.getLength() << " section(s) au root");
 
         if (root.exists("materials")) {
             DBG("Section 'materials' détectée, parsing...");
@@ -28,13 +26,10 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
         for (int i = 0; i < root.getLength(); ++i) {
             const libconfig::Setting& section = root[i];
             std::string name = section.getName();
-            DBG("Dispatch section[" << i << "] = \"" << name << "\"");
 
             auto it = _sectionDispatch.find(name);
             if (it != _sectionDispatch.end()) {
                 (this->*(it->second))(section, outScene);
-            } else {
-                DBG("  (aucun handler pour \"" << name << "\", ignoré)");
             }
         }
 
@@ -180,7 +175,6 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
                 _renderSamples = 100000;
             } else {
                 _renderSamples = s;
-                DBG("samples=" << s);
             }
         }
     } catch (const libconfig::SettingTypeException&) {
@@ -195,8 +189,6 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
             if (_renderThreshold < 0.0 || _renderThreshold > 1.0) {
                 std::cerr << "Warning: render.adaptive_threshold hors [0,1], défaut 0.1\n";
                 _renderThreshold = 0.1;
-            } else {
-                DBG("adaptive_threshold=" << _renderThreshold);
             }
         } catch (const libconfig::SettingTypeException&) {
             std::cerr << "Warning: render.adaptive_threshold type invalide\n";
@@ -210,7 +202,6 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
                 std::cerr << "Warning: render.ao_samples doit être >= 0\n";
             } else {
                 _aoSamples = a;
-                DBG("ao_samples=" << a);
             }
         } catch (const libconfig::SettingTypeException&) {
             std::cerr << "Warning: render.ao_samples type invalide\n";
@@ -224,7 +215,6 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
                 std::cerr << "Warning: render.ao_max_distance doit être > 0\n";
             } else {
                 _aoMaxDistance = d;
-                DBG("ao_max_distance=" << d);
             }
         } catch (const libconfig::SettingTypeException&) {
             std::cerr << "Warning: render.ao_max_distance type invalide\n";
