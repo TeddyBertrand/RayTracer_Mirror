@@ -64,3 +64,19 @@ render = {
     samples = 64;
     ao_samples = 16;
 };
+
+preview:
+{
+    type = "fast";
+    samples = 1;
+    max_depth = 2;
+};
+
+graphics:
+{
+    type = "sfml";
+    width = 800;
+    height = 600;
+    title = "RayTracer - Live Display";
+    scale = 1;
+};
