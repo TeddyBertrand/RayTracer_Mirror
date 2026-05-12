@@ -10,12 +10,13 @@ namespace Raytracer {
 
 class LightMaterial : public IMaterial {
 public:
-    LightMaterial(std::shared_ptr<ITexture> tex) : _bsdf(std::make_unique<EmissiveBSDF>(tex)) {}
+    LightMaterial(std::shared_ptr<ITexture> tex,
+        std::shared_ptr<IBSDF> custom_bsdf = nullptr);
 
     const IBSDF& getBSDF() const override { return *_bsdf; }
 
 private:
-    std::unique_ptr<IBSDF> _bsdf; // Pre-built once at construction
+    std::shared_ptr<IBSDF> _bsdf; // Pre-built once at construction
 };
 
 } // namespace Raytracer
