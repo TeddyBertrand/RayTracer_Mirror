@@ -31,7 +31,6 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
                 (this->*(it->second))(section, outScene);
             }
         }
-
         _manager.untrackFile(filePath);
 
     } catch (const libconfig::SettingNotFoundException& e) {
@@ -50,17 +49,12 @@ void SceneParser::parseShapes(const libconfig::Setting& setting, Scene& outScene
 void SceneParser::parseShapesInternal(const libconfig::Setting& setting,
                                       Scene& outScene,
                                       PrimitiveGroup* targetGroup) {
-
     for (int i = 0; i < setting.getLength(); ++i) {
         const libconfig::Setting& shapeSetting = setting[i];
 
-        LibconfigSetting baseConfig(shapeSetting);
-
         if (shapeSetting.exists("path")) {
             handleImport(shapeSetting, outScene);
-
         } else if (shapeSetting.exists("type")) {
-            std::string typeName = baseConfig.getString("type");
             auto primitive = handleStandardPrimitive(shapeSetting, outScene);
             if (primitive) {
                 if (targetGroup) {
@@ -75,40 +69,29 @@ void SceneParser::parseShapesInternal(const libconfig::Setting& setting,
 
 std::shared_ptr<IPrimitive> SceneParser::handleStandardPrimitive(const libconfig::Setting& setting,
                                                                  Scene& outScene) {
-
-    if (!setting.exists("type")) {
+    if (!setting.exists("type"))
         return nullptr;
-    }
 
     LibconfigSetting baseConfig(setting);
 
-    if (setting.exists("material")) {
-        std::string matId = baseConfig.getString("material");
-        const auto& ctxMats = _manager.getContextualMaterials(outScene.getMaterials());
+    PrimitiveSetting shapeConfig(baseConfig,
+                                 _manager.getContextualMaterials(outScene.getMaterials()));
 
-        PrimitiveSetting shapeConfig(baseConfig,
-                                     _manager.getContextualMaterials(outScene.getMaterials()));
+    auto primitivePtr = _factories.primitive.create(setting["type"], shapeConfig);
 
-        std::shared_ptr<IPrimitive> primitivePtr;
+    if (!primitivePtr)
+        return nullptr;
 
-        if (!primitivePtr) {
-            return nullptr;
-        }
-
-        auto entity = std::dynamic_pointer_cast<Entity>(primitivePtr);
-        if (entity) {
-            entity->setTransform(_manager.getCurrentTransformation() * entity->getTransform());
-        }
-
-        if (setting.exists("childs")) {
-            bool isGrp = setting["childs"].isGroup();
-            if (isGrp) {
-                return handleChildren(setting["childs"], primitivePtr, entity, outScene);
-            }
-        }
-
-        return primitivePtr;
+    auto entity = std::dynamic_pointer_cast<Entity>(primitivePtr);
+    if (entity) {
+        entity->setTransform(_manager.getCurrentTransformation() * entity->getTransform());
     }
+
+    if (setting.exists("childs") && setting["childs"].isGroup()) {
+        return handleChildren(setting["childs"], primitivePtr, entity, outScene);
+    }
+
+    return primitivePtr;
 }
 
 std::shared_ptr<IPrimitive> SceneParser::handleImport(const libconfig::Setting& setting,
@@ -129,110 +112,95 @@ std::shared_ptr<IPrimitive> SceneParser::handleChildren(const libconfig::Setting
                                                         std::shared_ptr<Entity> parentEntity,
                                                         Scene& outScene) {
     auto group = std::make_shared<PrimitiveGroup>();
-
-    if (parentPrimitive) {
+    if (parentPrimitive)
         group->add(parentPrimitive);
-    }
 
-    if (parentEntity) {
+    if (parentEntity)
         _manager.pushTransformation(parentEntity->getLocalTransform());
-    }
 
     if (setting.exists("shapes")) {
         parseShapesInternal(setting["shapes"], outScene, group.get());
     }
-    if (parentEntity) {
+
+    if (parentEntity)
         _manager.popTransformation();
-    }
     return group;
 }
 
 void SceneParser::parseCamera(const libconfig::Setting& setting, Scene& outScene) {
     LibconfigSetting cameraConfig(setting);
-    if (!cameraConfig.exists("type")) {
+    if (!cameraConfig.exists("type"))
         return;
-    }
-    std::string camType = cameraConfig.getString("type");
 
-    std::shared_ptr<ICamera> camera;
-    if (camera)
+    auto camera = _factories.camera.create(cameraConfig.getString("type"), cameraConfig);
+
+    if (camera) {
         outScene.setCamera(std::move(camera));
+    }
 }
 
-void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& outScene) {
-    (void)outScene;
+void SceneParser::parseRender(const libconfig::Setting& renderSetting,
+                              [[maybe_unused]] Scene& outScene) {
     LibconfigSetting renderConfig(renderSetting);
 
     const std::string rendererType = renderConfig.getString("type", "default");
+    _renderer = _factories.renderer.create(rendererType, renderConfig);
 
-    try {
-        if (renderSetting.exists("samples")) {
-            const int s = static_cast<int>(renderSetting["samples"]);
+    if (renderSetting.exists("samples")) {
+        try {
+            int s = static_cast<int>(renderSetting["samples"]);
             if (s < 1) {
-                throw RenderSettingsException("render.samples must be >= 1 (received " +
-                                              std::to_string(s) + ")");
-            } else if (s > 100000) {
-                std::cerr << "Warning: render.samples too large, clamping to 100000 << std::endl;";
-                _renderSamples = 100000;
-            } else {
-                _renderSamples = s;
+                throw RenderSettingsException("render.samples must be >= 1");
             }
+            _renderSamples = (s > 100000) ? 100000 : s;
+            if (s > 100000) {
+                std::cerr << "Warning: render.samples too large, clamped to 100000" << std::endl;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            throw RenderSettingsException("render.samples must be an integer");
         }
-    } catch (const libconfig::SettingTypeException&) {
-        throw RenderSettingsException("render.samples has an invalid type (expected integer)");
-    } catch (const libconfig::SettingNotFoundException&) {
-        throw RenderSettingsException("render.samples is missing");
     }
 
     if (renderSetting.exists("adaptive_threshold")) {
         try {
-            _renderThreshold = static_cast<double>(renderSetting["adaptive_threshold"]);
-            if (_renderThreshold < 0.0 || _renderThreshold > 1.0) {
-                std::cerr << "Warning: render.adaptive_threshold hors [0,1], défaut 0.1"
-                          << std::endl;
-                _renderThreshold = 0.1;
+            double threshold = static_cast<double>(renderSetting["adaptive_threshold"]);
+            if (threshold >= 0.0 && threshold <= 1.0) {
+                _renderThreshold = threshold;
+            } else {
+                std::cerr << "Warning: adaptive_threshold hors [0,1], défaut 0.1" << std::endl;
             }
         } catch (const libconfig::SettingTypeException&) {
-            std::cerr << "Warning: render.adaptive_threshold type invalide" << std::endl;
-            ;
+            std::cerr << "Warning: adaptive_threshold type invalide" << std::endl;
         }
     }
 
     if (renderSetting.exists("ao_samples")) {
         try {
-            const int a = static_cast<int>(renderSetting["ao_samples"]);
-            if (a < 0) {
-                std::cerr << "Warning: render.ao_samples doit être >= 0" << std::endl;
-                ;
-            } else {
-                _aoSamples = a;
-            }
-        } catch (const libconfig::SettingTypeException&) {
-            std::cerr << "Warning: render.ao_samples type invalide" << std::endl;
+            int aoS = static_cast<int>(renderSetting["ao_samples"]);
+            _aoSamples = (aoS >= 0) ? aoS : 0;
+        } catch (...) {
+            std::cerr << "Warning: ao_samples invalide" << std::endl;
         }
     }
 
     if (renderSetting.exists("ao_max_distance")) {
         try {
-            double d = static_cast<double>(renderSetting["ao_max_distance"]);
-            if (d <= 0.0) {
-                std::cerr << "Warning: render.ao_max_distance doit être > 0" << std::endl;
-            } else {
-                _aoMaxDistance = d;
-            }
-        } catch (const libconfig::SettingTypeException&) {
-            std::cerr << "Warning: render.ao_max_distance type invalide" << std::endl;
+            double dist = static_cast<double>(renderSetting["ao_max_distance"]);
+            if (dist > 0.0)
+                _aoMaxDistance = dist;
+        } catch (...) {
+            std::cerr << "Warning: ao_max_distance invalide" << std::endl;
         }
     }
 }
 
 void SceneParser::parseLights(const libconfig::Setting& setting, Scene& outScene) {
-
     for (int i = 0; i < setting.getLength(); ++i) {
-        const libconfig::Setting& lightSetting = setting[i];
-        LibconfigSetting lightConfig(lightSetting);
+        LibconfigSetting lightConfig(setting[i]);
+        if (!lightConfig.exists("type"))
+            continue;
 
-        std::shared_ptr<ILight> lightPtr;
+        auto lightPtr = _factories.light.create(lightConfig.getString("type"), lightConfig);
 
         if (lightPtr) {
             Matrix worldMatrix = _manager.getCurrentTransformation();
@@ -245,20 +213,18 @@ void SceneParser::parseLights(const libconfig::Setting& setting, Scene& outScene
 }
 
 void SceneParser::parseMaterials(const libconfig::Setting& setting, Scene& outScene) {
-
     for (int i = 0; i < setting.getLength(); ++i) {
         const libconfig::Setting& mat = setting[i];
-        if (!mat.exists("type") || !mat.exists("id")) {
+        if (!mat.exists("type") || !mat.exists("id"))
             continue;
-        }
-        std::string matType = (const char*)mat["type"];
-        std::string matId = (const char*)mat["id"];
-        std::string fullKey = _manager.getFullNamespace() + matId;
 
+        std::string matId = (const char*)mat["id"];
         LibconfigSetting matConfig(mat);
-        std::shared_ptr<IMaterial> material;
+
+        auto material = _factories.material.create(mat["type"], matConfig);
 
         if (material) {
+            std::string fullKey = _manager.getFullNamespace() + matId;
             _manager.registerMaterial(matId, material);
             outScene.addMaterial(fullKey, std::move(material));
         }
@@ -267,23 +233,20 @@ void SceneParser::parseMaterials(const libconfig::Setting& setting, Scene& outSc
 
 void SceneParser::parseSky(const libconfig::Setting& setting, Scene& outScene) {
     LibconfigSetting skyConfig(setting);
-    if (!skyConfig.exists("type")) {
+    if (!skyConfig.exists("type"))
         return;
-    }
 
-    std::shared_ptr<ISky> sky;
+    auto sky = _factories.sky.create(skyConfig.getString("type"), skyConfig);
 
     if (sky)
         outScene.setSky(std::move(sky));
     else
-        outScene.setSky(std::make_unique<EmptySky>());
+        outScene.setSky(std::make_shared<EmptySky>());
 }
 
 Matrix SceneParser::parseMatrix(const libconfig::Setting& setting) {
     LibconfigSetting config(setting);
-
     Vector3D pos = config.getVector("position", Vector3D(0, 0, 0));
-
     Vector3D rot = config.getVector("rotation", Vector3D(0, 0, 0));
 
     Vector3D scaleVec(1.0, 1.0, 1.0);
