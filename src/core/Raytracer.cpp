@@ -13,6 +13,18 @@ namespace Raytracer {
 
 Raytracer* Raytracer::_instance = nullptr;
 
+struct Raytracer::RenderContext {
+    const ICamera& camera;
+    FrameBuffer previewBuffer;
+    FrameBuffer finalBuffer;
+    std::vector<std::uint8_t> previewRows;
+    std::vector<std::uint8_t> finalRows;
+    FrameBuffer previewSnapshot;
+    bool previewReady = false;
+    bool hasDisplay = false;
+    size_t pixelCount = 0;
+};
+
 void handleSignal([[maybe_unused]] int signum) {
     if (Raytracer::getInstance()) {
         Raytracer::getInstance()->stop();
@@ -69,166 +81,38 @@ void Raytracer::run() {
             return;
         }
 
-        auto& camera = _scene.getCamera();
-        const size_t pixelCount = static_cast<size_t>(camera.getWidth()) * camera.getHeight();
-        FrameBuffer previewBuffer(pixelCount, Color(0, 0, 0));
-        FrameBuffer finalBuffer(pixelCount, Color(0, 0, 0));
-        std::vector<std::uint8_t> previewRows(camera.getHeight(), 0);
-        std::vector<std::uint8_t> finalRows(camera.getHeight(), 0);
+        const auto& camera = _scene.getCamera();
+        size_t pixelCount = static_cast<size_t>(camera.getWidth()) * camera.getHeight();
 
-        bool hasDisplay = false;
+        RenderContext ctx{
+            .camera = camera,
+            .pixelCount = pixelCount,
+        };
+
+        ctx.previewBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
+        ctx.finalBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
+        ctx.previewRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
+        ctx.finalRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
+
         if (_graphic) {
             _graphic->setImageSize(camera.getWidth(), camera.getHeight());
-            hasDisplay = _graphic->init();
-            if (!hasDisplay) {
+            ctx.hasDisplay = _graphic->init();
+            if (!ctx.hasDisplay) {
                 std::cerr << "Warning: Failed to initialize graphics display" << std::endl;
             }
         }
 
-        FrameBuffer previewSnapshot;
-        bool previewReady = false;
+        renderPreview(ctx);
 
-        auto presentFrame = [&](const FrameBuffer& previewSource,
-                                const FrameBuffer& finalSource,
-                                const std::vector<std::uint8_t>& finalMask,
-                                bool usePreviewBase) {
-            if (!hasDisplay) {
-                return;
-            }
+        renderFinal(ctx);
 
-            FrameBuffer composed(pixelCount, Color(0, 0, 0));
-
-            if (!usePreviewBase || !_previewRenderer || !previewReady) {
-                std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
-                composed = finalSource;
-            } else {
-                composed = previewSnapshot;
-                std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
-                for (size_t y = 0;
-                     y < finalMask.size() && y < static_cast<size_t>(camera.getHeight());
-                     ++y) {
-                    if (!finalMask[y]) {
-                        continue;
-                    }
-                    const size_t rowOffset = y * static_cast<size_t>(camera.getWidth());
-                    for (int x = 0; x < camera.getWidth(); ++x) {
-                        composed[rowOffset + static_cast<size_t>(x)] =
-                            finalSource[rowOffset + static_cast<size_t>(x)];
-                    }
-                }
-            }
-
-            for (size_t i = 0; i < composed.size() && i < pixelCount; ++i) {
-                const Color& c = composed[i];
-                const int x = static_cast<int>(i % camera.getWidth());
-                const int y = static_cast<int>(i / camera.getWidth());
-
-                const unsigned int r = static_cast<unsigned int>(Color::toByte(c.r));
-                const unsigned int g = static_cast<unsigned int>(Color::toByte(c.g));
-                const unsigned int b = static_cast<unsigned int>(Color::toByte(c.b));
-                const unsigned int a = 255;
-
-                unsigned int packedColor = (r << 24) | (g << 16) | (b << 8) | a;
-                _graphic->updatePixel(x, y, packedColor);
-            }
-            _graphic->refresh();
-        };
-
-        std::future<void> previewTask;
-        if (_previewRenderer) {
-            const auto previewStart = std::chrono::steady_clock::now();
-            previewTask = std::async(std::launch::async, [&]() {
-                _previewRenderer->render(_scene, previewBuffer, &previewRows);
-            });
-
-            while (previewTask.wait_for(std::chrono::milliseconds(16)) !=
-                   std::future_status::ready) {
-                if (hasDisplay) {
-                    if (!_graphic->isOpen()) {
-                        _previewRenderer->stop();
-                        _renderer->stop();
-                        break;
-                    }
-                    presentFrame(previewBuffer, finalBuffer, finalRows, false);
-                }
-                if (_previewRenderer->shouldStop()) {
-                    break;
-                }
-            }
-
-            try {
-                previewTask.wait();
-            } catch (...) {
-            }
-
-            previewSnapshot = previewBuffer;
-            previewReady = true;
-
-            if (hasDisplay && _graphic->isOpen()) {
-                presentFrame(previewBuffer, finalBuffer, finalRows, false);
-
-                const auto minPreviewDuration = std::chrono::milliseconds(500);
-                while (std::chrono::steady_clock::now() - previewStart < minPreviewDuration &&
-                       _graphic->isOpen()) {
-                    _graphic->refresh();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(16));
-                }
-            }
-        }
-
-        auto renderTask = std::async(std::launch::async,
-                                     [&]() { _renderer->render(_scene, finalBuffer, &finalRows); });
-
-        _loadingBar.start();
-        while (renderTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
-            _loadingBar.update(*_renderer);
-
-            if (hasDisplay) {
-                if (!_graphic->isOpen()) {
-                    _renderer->stop();
-                    if (_previewRenderer) {
-                        _previewRenderer->stop();
-                    }
-                    break;
-                }
-
-                presentFrame(previewBuffer, finalBuffer, finalRows, previewReady);
-            }
-
-            if (_renderer->shouldStop()) {
-                break;
-            }
-        }
-
-        try {
-            renderTask.wait();
-        } catch (...) {
-        }
-        if (previewTask.valid()) {
-            try {
-                previewTask.wait();
-            } catch (...) {
-            }
-        }
-        _loadingBar.finish(*_renderer);
-
-        if (hasDisplay && _graphic->isOpen()) {
-            presentFrame(previewBuffer, finalBuffer, finalRows, previewReady);
-        }
-
-        if (hasDisplay && _graphic->isOpen()) {
-            while (_graphic->isOpen()) {
-                _graphic->refresh();
-                std::this_thread::sleep_for(std::chrono::milliseconds(16));
-            }
-            _renderer->stop();
-            if (_previewRenderer) {
-                _previewRenderer->stop();
-            }
+        if (ctx.hasDisplay && _graphic && _graphic->isOpen()) {
+            showFinalFrame(ctx);
+            waitForDisplayClose();
         }
 
         Image img(camera.getWidth(), camera.getHeight());
-        img.drawFromBuffer(finalBuffer);
+        img.drawFromBuffer(ctx.finalBuffer);
 
     } catch (const Scene::SceneException& e) {
         std::cerr << "Scene error while running render: " << e.what() << std::endl;
@@ -236,6 +120,143 @@ void Raytracer::run() {
     } catch (const std::exception& e) {
         std::cerr << "Unexpected runtime error: " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;
+    }
+}
+
+void Raytracer::renderPreview(RenderContext& ctx) {
+    if (!_previewRenderer)
+        return;
+
+    const auto previewStart = std::chrono::steady_clock::now();
+    auto previewTask = std::async(std::launch::async, [&]() {
+        _previewRenderer->render(_scene, ctx.previewBuffer, &ctx.previewRows);
+    });
+
+    while (previewTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
+        if (ctx.hasDisplay && _graphic && !_graphic->isOpen()) {
+            _previewRenderer->stop();
+            _renderer->stop();
+            break;
+        }
+        updateDisplay(ctx);
+        if (_previewRenderer->shouldStop())
+            break;
+    }
+
+    try {
+        previewTask.wait();
+    } catch (...) {
+    }
+
+    ctx.previewSnapshot = ctx.previewBuffer;
+    ctx.previewReady = true;
+
+    if (ctx.hasDisplay && _graphic && _graphic->isOpen()) {
+        updateDisplay(ctx);
+        const auto minPreviewDuration = std::chrono::milliseconds(500);
+        while (std::chrono::steady_clock::now() - previewStart < minPreviewDuration &&
+               _graphic->isOpen()) {
+            _graphic->refresh();
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
+        }
+    }
+}
+
+void Raytracer::renderFinal(RenderContext& ctx) {
+    auto renderTask = std::async(
+        std::launch::async, [&]() { _renderer->render(_scene, ctx.finalBuffer, &ctx.finalRows); });
+
+    _loadingBar.start();
+    while (renderTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
+        _loadingBar.update(*_renderer);
+
+        if (ctx.hasDisplay) {
+            if (_graphic && !_graphic->isOpen()) {
+                _renderer->stop();
+                if (_previewRenderer) {
+                    _previewRenderer->stop();
+                }
+                break;
+            }
+            updateDisplay(ctx);
+        }
+
+        if (_renderer->shouldStop())
+            break;
+    }
+
+    try {
+        renderTask.wait();
+    } catch (...) {
+    }
+    _loadingBar.finish(*_renderer);
+}
+
+void Raytracer::updateDisplay(RenderContext& ctx) {
+    if (!ctx.hasDisplay || !_graphic)
+        return;
+
+    FrameBuffer composed(ctx.pixelCount, Color(0, 0, 0));
+
+    if (!ctx.previewReady || !_previewRenderer) {
+        std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
+        composed = ctx.finalBuffer;
+    } else {
+        composed = ctx.previewSnapshot;
+        std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
+        for (size_t y = 0;
+             y < ctx.finalRows.size() && y < static_cast<size_t>(ctx.camera.getHeight());
+             ++y) {
+            if (!ctx.finalRows[y])
+                continue;
+            const size_t rowOffset = y * static_cast<size_t>(ctx.camera.getWidth());
+            for (int x = 0; x < ctx.camera.getWidth(); ++x) {
+                composed[rowOffset + static_cast<size_t>(x)] =
+                    ctx.finalBuffer[rowOffset + static_cast<size_t>(x)];
+            }
+        }
+    }
+
+    for (size_t i = 0; i < composed.size() && i < ctx.pixelCount; ++i) {
+        const Color& c = composed[i];
+        const int x = static_cast<int>(i % ctx.camera.getWidth());
+        const int y = static_cast<int>(i / ctx.camera.getWidth());
+
+        const unsigned int r = static_cast<unsigned int>(Color::toByte(c.r));
+        const unsigned int g = static_cast<unsigned int>(Color::toByte(c.g));
+        const unsigned int b = static_cast<unsigned int>(Color::toByte(c.b));
+        const unsigned int a = 255;
+
+        unsigned int packedColor = (r << 24) | (g << 16) | (b << 8) | a;
+        _graphic->updatePixel(x, y, packedColor);
+    }
+    _graphic->refresh();
+}
+
+void Raytracer::showFinalFrame(RenderContext& ctx) {
+    if (!ctx.hasDisplay || !_graphic)
+        return;
+
+    updateDisplay(ctx);
+}
+
+void Raytracer::waitForDisplayClose() {
+    if (!_graphic || !_graphic->isOpen())
+        return;
+
+    while (_graphic->isOpen()) {
+        _graphic->refresh();
+        std::this_thread::sleep_for(std::chrono::milliseconds(16));
+    }
+    cleanupRenderers();
+}
+
+void Raytracer::cleanupRenderers() {
+    if (_renderer) {
+        _renderer->stop();
+    }
+    if (_previewRenderer) {
+        _previewRenderer->stop();
     }
 }
 

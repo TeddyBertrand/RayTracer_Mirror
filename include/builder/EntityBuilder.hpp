@@ -216,8 +216,8 @@ public:
         transform = transform * Matrix::rotateZ(_rotation.z);
 
         transform =
-            transform
-            * Matrix::shear(_shearXY.x, _shearXY.y, _shearXY.z, _shearYZ.x, _shearYZ.y, _shearYZ.z);
+            transform *
+            Matrix::shear(_shearXY.x, _shearXY.y, _shearXY.z, _shearYZ.x, _shearYZ.y, _shearYZ.z);
 
         transform = transform * Matrix::scale(_scale.x, _scale.y, _scale.z);
 

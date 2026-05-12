@@ -53,5 +53,13 @@ private:
     Scene _scene;
     LoadingBar _loadingBar;
     std::string _configPath;
+
+    struct RenderContext;
+    void renderPreview(RenderContext& ctx);
+    void renderFinal(RenderContext& ctx);
+    void updateDisplay(RenderContext& ctx);
+    void showFinalFrame(RenderContext& ctx);
+    void waitForDisplayClose();
+    void cleanupRenderers();
 };
 } // namespace Raytracer
