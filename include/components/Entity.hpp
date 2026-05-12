@@ -128,7 +128,6 @@ public:
         std::string pad(indent, ' ');
         std::cout << pad << "\033[1;36m[Entity]\033[0m" << std::endl;
 
-        // On demande à la primitive (Box, Sphere, etc.) de se dumper elle-même
         if (_primitive) {
             _primitive->dump(indent + 3);
         }
