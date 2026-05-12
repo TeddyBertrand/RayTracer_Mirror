@@ -98,9 +98,9 @@ void Raytracer::run() {
 
             FrameBuffer composed(pixelCount, Color(0, 0, 0));
 
-            if (!usePreviewBase) {
+            if (!usePreviewBase || !_previewRenderer || !previewReady) {
                 std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
-                composed = previewSource;
+                composed = finalSource;
             } else {
                 composed = previewSnapshot;
                 std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
