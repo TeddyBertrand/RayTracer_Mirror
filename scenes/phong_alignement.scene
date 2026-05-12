@@ -34,7 +34,7 @@ shapes: (
 );
 
 sky = {
-    type = "simple";
+    type = "galaxy";
     color = { r = 100.0; g = 140.0; b = 200.0; };
 };
 
