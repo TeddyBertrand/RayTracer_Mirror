@@ -29,12 +29,19 @@ bool Fractal::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     double t = ray_t.min;
     const double precision = 0.001;
     const int max_steps = 256;
+    const double local_dir_length = r.direction().length();
+
+    if (local_dir_length <= 0.0) {
+        return false;
+    }
+
+    const double step_scale = 1.0 / local_dir_length;
 
     for (int i = 0; i < max_steps; ++i) {
         Vector3D current_p = r.at(t);
 
         FractalResult res = _strategy->getInfo(current_p, _max_iterations);
-        if (res.distance < precision) {
+        if (res.distance * step_scale < precision) {
             rec.t = t;
             rec.point = current_p;
             rec.normal = computeNormal(current_p);
@@ -43,7 +50,7 @@ bool Fractal::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
             return true;
         }
 
-        t += res.distance;
+        t += res.distance * step_scale;
 
         if (t > ray_t.max)
             break;

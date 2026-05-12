@@ -128,7 +128,7 @@ public:
         }
 
         if (settings.exists("rotation")) {
-            _rotation = settings.getVector("rotation");
+            parseRotation(settings);
         }
 
         if (settings.exists("scale")) {
