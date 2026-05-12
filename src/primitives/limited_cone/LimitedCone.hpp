@@ -51,6 +51,10 @@ public:
         return AABB(Vector3D(-_radius, 0, -_radius), Vector3D(_radius, _height, _radius));
     }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[LimitedCone]\033[0m" << std::endl;
+    }
+
 private:
     /**
      * @brief Calculates intersection with the lateral surface of the cone.

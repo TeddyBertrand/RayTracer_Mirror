@@ -124,6 +124,16 @@ public:
         return true;
     }
 
+    void dump(int indent) const override {
+        std::string pad(indent, ' ');
+        std::cout << pad << "\033[1;36m[Entity]\033[0m" << std::endl;
+
+        // On demande à la primitive (Box, Sphere, etc.) de se dumper elle-même
+        if (_primitive) {
+            _primitive->dump(indent + 3);
+        }
+    }
+
     /**
      * @brief Get the entity name.
      */
@@ -145,9 +155,13 @@ public:
     void setMaterial(std::shared_ptr<IMaterial> material) noexcept { _material = material; }
 
     void setTransform(const Matrix& m) {
+        _localTransform = m; // On garde une copie de la locale
         _transform = m;
         _transform_inv = m.inverse();
     }
+
+    // Ajoute ce getter
+    [[nodiscard]] const Matrix& getLocalTransform() const noexcept { return _localTransform; }
 
     [[nodiscard]] const Matrix& getTransform() const noexcept { return _transform; }
 
@@ -201,6 +215,7 @@ private:
     std::shared_ptr<IMaterial> _material;
     Matrix _transform;
     Matrix _transform_inv;
+    Matrix _localTransform;
 };
 
 } // namespace Raytracer

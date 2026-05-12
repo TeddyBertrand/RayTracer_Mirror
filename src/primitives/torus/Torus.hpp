@@ -39,6 +39,10 @@ public:
                     Vector3D(r_total, _minorRadius, r_total));
     }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Torus]\033[0m" << std::endl;
+    }
+
 private:
     Math::QuarticCoeffs computeCoefficients(const Ray& r) const;
     bool

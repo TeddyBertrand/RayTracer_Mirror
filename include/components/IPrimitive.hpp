@@ -34,6 +34,7 @@ public:
      */
     virtual AABB getBoundingBox() const = 0;
 
+    virtual void dump(int indent = 0) const = 0;
 };
 
 } // namespace Raytracer

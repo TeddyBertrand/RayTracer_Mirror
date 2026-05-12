@@ -19,6 +19,10 @@ public:
 
     AABB getBoundingBox() const override { return AABB::infinite(); }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Cylinder]\033[0m" << std::endl;
+    }
+
 private:
     Point3D _center; // center line goes through xz at _center.xz
     double _radius;

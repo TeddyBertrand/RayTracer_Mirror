@@ -40,7 +40,11 @@ public:
      */
     Vector3D getNormalAt(const Vector3D& p) const;
 
-    AABB getBoundingBox() const override { return AABB::infinite(); }
+    AABB getBoundingBox() const override { return AABB(_min, _max); }
+
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Box]\033[0m" << std::endl;
+    }
 
 private:
     Vector3D _min;

@@ -1,4 +1,5 @@
 #pragma once
+#include "components/Entity.hpp"
 #include "components/IRenderer.hpp"
 #include "components/SceneManager.hpp"
 #include "core/scene/Scene.hpp"
@@ -51,10 +52,17 @@ private:
     void parseSky(const libconfig::Setting& setting, Scene& outScene);
     void parseRender(const libconfig::Setting& setting, Scene& outScene);
 
+    void parseShapesInternal(const libconfig::Setting& setting,
+                             Scene& outScene,
+                             PrimitiveGroup* targetGroup);
+
     std::shared_ptr<IPrimitive> handleImport(const libconfig::Setting& setting, Scene& outScene);
     std::shared_ptr<IPrimitive> handleStandardPrimitive(const libconfig::Setting& setting,
                                                         Scene& outScene);
-
+    std::shared_ptr<IPrimitive> handleChildren(const libconfig::Setting& setting,
+                                               std::shared_ptr<IPrimitive> parentPrimitive,
+                                               std::shared_ptr<Entity> parentEntity,
+                                               Raytracer::Scene& outScene);
     Matrix parseMatrix(const libconfig::Setting& setting);
 
     SceneFactories& _factories;

@@ -17,6 +17,10 @@ public:
 
     AABB getBoundingBox() const override { return _bbox; }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[BVHNode]\033[0m" << std::endl;
+    }
+
 private:
     std::shared_ptr<IPrimitive> _left;
     std::shared_ptr<IPrimitive> _right;

@@ -17,6 +17,10 @@ public:
 
     void setExtraData(const Vector3D n[3], const double u_coords[3], const double v_coords[3]);
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Triangle]\033[0m" << std::endl;
+    }
+
 private:
     static constexpr float bounding_box_epsilon = 0.001f;
 
