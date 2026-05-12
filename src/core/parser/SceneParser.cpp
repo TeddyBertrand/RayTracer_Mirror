@@ -100,19 +100,23 @@ void SceneParser::parseCamera(const libconfig::Setting& setting, Scene& outScene
 
 void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& outScene) {
     (void)outScene;
-    if (!renderSetting.exists("samples"))
-        return;
+    LibconfigSetting renderConfig(renderSetting);
+
+    const std::string rendererType = renderConfig.getString("type", "default");
+    _renderer = _factories.renderer.create(rendererType, renderConfig);
 
     try {
-        const int s = static_cast<int>(renderSetting["samples"]);
-        if (s < 1) {
-            throw RenderSettingsException("render.samples must be >= 1 (received " +
-                                          std::to_string(s) + ")");
-        } else if (s > 100000) {
-            std::cerr << "Warning: render.samples too large, clamping to 100000" << std::endl;
-            _renderSamples = 100000;
-        } else {
-            _renderSamples = s;
+        if (renderSetting.exists("samples")) {
+            const int s = static_cast<int>(renderSetting["samples"]);
+            if (s < 1) {
+                throw RenderSettingsException("render.samples must be >= 1 (received " +
+                                              std::to_string(s) + ")");
+            } else if (s > 100000) {
+                std::cerr << "Warning: render.samples too large, clamping to 100000" << std::endl;
+                _renderSamples = 100000;
+            } else {
+                _renderSamples = s;
+            }
         }
     } catch (const libconfig::SettingTypeException&) {
         throw RenderSettingsException("render.samples has an invalid type (expected integer)");

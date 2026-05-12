@@ -1,4 +1,5 @@
 #pragma once
+#include "components/IRenderer.hpp"
 #include "components/SceneManager.hpp"
 #include "core/scene/Scene.hpp"
 #include "factory/SceneFactories.hpp"
@@ -9,6 +10,7 @@
 #include "parser/PrimitiveSettings.hpp"
 #include <iostream>
 #include <libconfig.h++>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -22,6 +24,7 @@ public:
     double getRenderThreshold() const { return _renderThreshold; }
     int getAOSamples() const { return _aoSamples; }
     double getAOMaxDistance() const { return _aoMaxDistance; }
+    std::shared_ptr<IRenderer> getRenderer() const { return _renderer; }
 
     void loadScene(const std::string& filePath, Scene& outScene);
 
@@ -61,6 +64,7 @@ private:
     double _renderThreshold = 0.1;
     int _aoSamples = 0;
     double _aoMaxDistance = 10.0;
+    std::shared_ptr<IRenderer> _renderer;
 
     using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
     using SectionTable = std::unordered_map<std::string, SectionParser>;

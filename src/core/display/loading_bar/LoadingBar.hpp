@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/renderer/Renderer.hpp"
+#include "components/IRenderer.hpp"
 #include <chrono>
 
 namespace Raytracer {
@@ -10,8 +10,8 @@ public:
     void start() { _start_time = std::chrono::steady_clock::now(); }
 
     void printRenderInfo(int width, int height, int samples);
-    void update(const Renderer& renderer);
-    void finish(const Renderer& renderer);
+    void update(const IRenderer& renderer);
+    void finish(const IRenderer& renderer);
 
 private:
     std::chrono::steady_clock::time_point _start_time;

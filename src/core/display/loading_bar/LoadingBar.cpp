@@ -15,7 +15,7 @@ void LoadingBar::printRenderInfo(int width, int height, int samples) {
     std::cout << "\033[1;36m" << std::string(60, '-') << "\033[0m" << std::endl;
 }
 
-void LoadingBar::update(const Renderer& renderer) {
+void LoadingBar::update(const IRenderer& renderer) {
     int current = renderer.getCompletedRows();
     int total = renderer.getTotalRows();
 
@@ -42,7 +42,7 @@ void LoadingBar::update(const Renderer& renderer) {
               << "\033[1;34m⏱ " << formatTime(ms_left) << " left\033[0m" << std::flush;
 }
 
-void LoadingBar::finish(const Renderer& renderer) {
+void LoadingBar::finish(const IRenderer& renderer) {
     int total = renderer.getTotalRows();
     auto now = std::chrono::steady_clock::now();
     auto elapsed_ms =

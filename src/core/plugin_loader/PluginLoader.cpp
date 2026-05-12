@@ -1,4 +1,5 @@
 #include "PluginLoader.hpp"
+#include "components/IRenderer.hpp"
 #include "parser/ISettings.hpp"
 
 namespace Raytracer {
@@ -68,6 +69,11 @@ void PluginLoader::handlePrimitive(const std::string& path) {
 
 void PluginLoader::handleSky(const std::string& path) {
     registerPlugins<ISky* (*)(const ISetting&), SkyFactory>(_loader, _factories.sky, path);
+}
+
+void PluginLoader::handleRenderer(const std::string& path) {
+    registerPlugins<IRenderer* (*)(const ISetting&), RendererFactory>(
+        _loader, _factories.renderer, path);
 }
 
 } // namespace Raytracer

@@ -3,6 +3,7 @@
 #include "LightFactory.hpp"
 #include "MaterialFactory.hpp"
 #include "PrimitiveFactory.hpp"
+#include "RendererFactory.hpp"
 #include "SkyFactory.hpp"
 
 namespace Raytracer {
@@ -17,5 +18,6 @@ struct SceneFactories {
     MaterialFactory material;
     PrimitiveFactory primitive;
     SkyFactory sky;
+    RendererFactory renderer;
 };
 } // namespace Raytracer
