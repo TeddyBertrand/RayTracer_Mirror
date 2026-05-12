@@ -34,8 +34,7 @@ shapes: (
 );
 
 sky = {
-    type = "galaxy";
-    color = { r = 100.0; g = 140.0; b = 200.0; };
+    type = "empty";
 };
 
 render = {
