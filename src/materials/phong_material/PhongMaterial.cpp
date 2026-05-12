@@ -18,7 +18,8 @@ IMaterial* createPlugin(const ISetting& settings) {
     if (settings.exists("normal")) {
         auto phong_bsdf = std::make_shared<PhongBSDF>(tex, spec);
         std::shared_ptr<ITexture> normal_texture = Texture::fromSetting(settings, "normal");
-        bsdf = std::make_shared<NormalMappingBSDF>(phong_bsdf, normal_texture);
+        double normal_strength = settings.getFloat("normal_strength", 1.0);
+        bsdf = std::make_shared<NormalMappingBSDF>(phong_bsdf, normal_texture, normal_strength);
     }
 
     return new PhongMaterial(tex, spec, bsdf);
