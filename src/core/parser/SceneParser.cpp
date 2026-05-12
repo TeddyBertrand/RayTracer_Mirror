@@ -96,8 +96,10 @@ std::shared_ptr<IPrimitive> SceneParser::handleStandardPrimitive(const libconfig
 
 std::shared_ptr<IPrimitive> SceneParser::handleImport(const libconfig::Setting& setting,
                                                       Scene& outScene) {
-    std::string path = setting["path"];
-    std::string name = setting.exists("name") ? (const char*)setting["name"] : "sub";
+    LibconfigSetting baseConfig(setting);
+
+    std::string path = baseConfig.getString("path");
+    std::string name = baseConfig.getString("name", "sub");
 
     _manager.pushNamespace(name);
     _manager.pushTransformation(parseMatrix(setting));
@@ -218,10 +220,12 @@ void SceneParser::parseMaterials(const libconfig::Setting& setting, Scene& outSc
         if (!mat.exists("type") || !mat.exists("id"))
             continue;
 
-        std::string matId = (const char*)mat["id"];
         LibconfigSetting matConfig(mat);
 
-        auto material = _factories.material.create(mat["type"], matConfig);
+        std::string matId = matConfig.getString("id");
+        std::string matType = matConfig.getString("type");
+
+        auto material = _factories.material.create(matType, matConfig);
 
         if (material) {
             std::string fullKey = _manager.getFullNamespace() + matId;
