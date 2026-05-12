@@ -29,6 +29,7 @@ add_library(raytracer_materials_common STATIC
     bsdf/lambertian/LambertianBSDF.cpp
     bsdf/emissive/EmissiveBSDF.cpp
     bsdf/metal/MetalBSDF.cpp
+    bsdf/phong/PhongBSDF.cpp
     bsdf/transparent/TransparentBSDF.cpp
 )
 

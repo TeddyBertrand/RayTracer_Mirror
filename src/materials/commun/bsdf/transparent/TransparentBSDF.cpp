@@ -25,7 +25,7 @@ bool TransparentBSDF::scatter(const Ray& r_in,
         direction = Math::refract(unit_direction, hit.normal, ratio);
     }
 
-    scattered = Ray(hit.point, direction);
+    scattered = Ray(hit.point, direction, RayType::REFLECT);
     return true;
 }
 
