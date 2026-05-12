@@ -155,12 +155,11 @@ public:
     void setMaterial(std::shared_ptr<IMaterial> material) noexcept { _material = material; }
 
     void setTransform(const Matrix& m) {
-        _localTransform = m; // On garde une copie de la locale
+        _localTransform = m;
         _transform = m;
         _transform_inv = m.inverse();
     }
 
-    // Ajoute ce getter
     [[nodiscard]] const Matrix& getLocalTransform() const noexcept { return _localTransform; }
 
     [[nodiscard]] const Matrix& getTransform() const noexcept { return _transform; }
