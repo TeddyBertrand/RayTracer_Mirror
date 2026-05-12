@@ -1,5 +1,6 @@
 #pragma once
 #include "CameraFactory.hpp"
+#include "GraphicFactory.hpp"
 #include "LightFactory.hpp"
 #include "MaterialFactory.hpp"
 #include "PrimitiveFactory.hpp"
@@ -19,5 +20,6 @@ struct SceneFactories {
     PrimitiveFactory primitive;
     SkyFactory sky;
     RendererFactory renderer;
+    GraphicFactory graphic;
 };
 } // namespace Raytracer

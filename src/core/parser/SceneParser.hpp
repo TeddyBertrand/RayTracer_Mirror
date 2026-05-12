@@ -1,4 +1,5 @@
 #pragma once
+#include "components/IGraphic.hpp"
 #include "components/IRenderer.hpp"
 #include "components/SceneManager.hpp"
 #include "core/scene/Scene.hpp"
@@ -25,6 +26,8 @@ public:
     int getAOSamples() const { return _aoSamples; }
     double getAOMaxDistance() const { return _aoMaxDistance; }
     std::shared_ptr<IRenderer> getRenderer() const { return _renderer; }
+    std::shared_ptr<IRenderer> getPreviewRenderer() const { return _previewRenderer; }
+    std::shared_ptr<IGraphic> getGraphic() const { return _graphic; }
 
     void loadScene(const std::string& filePath, Scene& outScene);
 
@@ -50,6 +53,8 @@ private:
     void parseLights(const libconfig::Setting& setting, Scene& outScene);
     void parseSky(const libconfig::Setting& setting, Scene& outScene);
     void parseRender(const libconfig::Setting& setting, Scene& outScene);
+    void parsePreview(const libconfig::Setting& setting, Scene& outScene);
+    void parseGraphic(const libconfig::Setting& setting, Scene& outScene);
 
     std::shared_ptr<IPrimitive> handleImport(const libconfig::Setting& setting, Scene& outScene);
     std::shared_ptr<IPrimitive> handleStandardPrimitive(const libconfig::Setting& setting,
@@ -65,6 +70,8 @@ private:
     int _aoSamples = 0;
     double _aoMaxDistance = 10.0;
     std::shared_ptr<IRenderer> _renderer;
+    std::shared_ptr<IRenderer> _previewRenderer;
+    std::shared_ptr<IGraphic> _graphic;
 
     using SectionParser = void (SceneParser::*)(const libconfig::Setting&, Scene&);
     using SectionTable = std::unordered_map<std::string, SectionParser>;
@@ -72,6 +79,8 @@ private:
     static inline const SectionTable _sectionDispatch = {{"sky", &SceneParser::parseSky},
                                                          {"camera", &SceneParser::parseCamera},
                                                          {"render", &SceneParser::parseRender},
+                                                         {"preview", &SceneParser::parsePreview},
+                                                         {"graphics", &SceneParser::parseGraphic},
                                                          {"shapes", &SceneParser::parseShapes},
                                                          {"lights", &SceneParser::parseLights}};
 };

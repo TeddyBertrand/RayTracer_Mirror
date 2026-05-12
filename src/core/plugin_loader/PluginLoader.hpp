@@ -24,6 +24,7 @@ private:
     static constexpr const char* _primitiveDirectory = "primitives";
     static constexpr const char* _skyDirectory = "skies";
     static constexpr const char* _rendererDirectory = "renderers";
+    static constexpr const char* _graphicsDirectory = "graphics";
 
     void handleCamera(const std::string& path);
     void handleLight(const std::string& path);
@@ -31,6 +32,7 @@ private:
     void handlePrimitive(const std::string& path);
     void handleSky(const std::string& path);
     void handleRenderer(const std::string& path);
+    void handleGraphic(const std::string& path);
 
     using PluginHandler = void (PluginLoader::*)(const std::string& directorypath);
     using DispatchTable = std::unordered_map<std::string, PluginHandler>;
@@ -41,7 +43,8 @@ private:
         {_materialDirectory, &PluginLoader::handleMaterial},
         {_primitiveDirectory, &PluginLoader::handlePrimitive},
         {_skyDirectory, &PluginLoader::handleSky},
-        {_rendererDirectory, &PluginLoader::handleRenderer}};
+        {_rendererDirectory, &PluginLoader::handleRenderer},
+        {_graphicsDirectory, &PluginLoader::handleGraphic}};
 
     DLLoader _loader;
     SceneFactories& _factories;
