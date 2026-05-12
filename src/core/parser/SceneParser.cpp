@@ -172,7 +172,7 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
                 throw RenderSettingsException("render.samples must be >= 1 (received " +
                                               std::to_string(s) + ")");
             } else if (s > 100000) {
-                std::cerr << "Warning: render.samples too large, clamping to 100000" << std::endl;
+                std::cerr << "Warning: render.samples too large, clamping to 100000 << std::endl;";
                 _renderSamples = 100000;
             } else {
                 _renderSamples = s;
@@ -182,6 +182,47 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting, Scene& ou
         throw RenderSettingsException("render.samples has an invalid type (expected integer)");
     } catch (const libconfig::SettingNotFoundException&) {
         throw RenderSettingsException("render.samples is missing");
+    }
+
+    if (renderSetting.exists("adaptive_threshold")) {
+        try {
+            _renderThreshold = static_cast<double>(renderSetting["adaptive_threshold"]);
+            if (_renderThreshold < 0.0 || _renderThreshold > 1.0) {
+                std::cerr << "Warning: render.adaptive_threshold hors [0,1], défaut 0.1"
+                          << std::endl;
+                _renderThreshold = 0.1;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            std::cerr << "Warning: render.adaptive_threshold type invalide" << std::endl;
+            ;
+        }
+    }
+
+    if (renderSetting.exists("ao_samples")) {
+        try {
+            const int a = static_cast<int>(renderSetting["ao_samples"]);
+            if (a < 0) {
+                std::cerr << "Warning: render.ao_samples doit être >= 0" << std::endl;
+                ;
+            } else {
+                _aoSamples = a;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            std::cerr << "Warning: render.ao_samples type invalide" << std::endl;
+        }
+    }
+
+    if (renderSetting.exists("ao_max_distance")) {
+        try {
+            double d = static_cast<double>(renderSetting["ao_max_distance"]);
+            if (d <= 0.0) {
+                std::cerr << "Warning: render.ao_max_distance doit être > 0" << std::endl;
+            } else {
+                _aoMaxDistance = d;
+            }
+        } catch (const libconfig::SettingTypeException&) {
+            std::cerr << "Warning: render.ao_max_distance type invalide" << std::endl;
+        }
     }
 }
 
