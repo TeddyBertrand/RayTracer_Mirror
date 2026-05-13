@@ -61,10 +61,6 @@ private:
                              Scene& outScene,
                              PrimitiveGroup* targetGroup);
 
-    void parseShapesInternal(const libconfig::Setting& setting,
-                             Scene& outScene,
-                             PrimitiveGroup* targetGroup);
-
     std::shared_ptr<IPrimitive> handleImport(const libconfig::Setting& setting, Scene& outScene);
     std::shared_ptr<IPrimitive> handleStandardPrimitive(const libconfig::Setting& setting,
                                                         Scene& outScene);
