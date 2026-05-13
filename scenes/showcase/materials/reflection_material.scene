@@ -17,17 +17,34 @@ materials: (
         color_a = { r = 255.0; g = 255.0; b = 255.0; };
         color_b = { r = 0.0; g = 0.0; b = 0.0; };
     }; randomness = 1.8; },
-    { id = "glass"; type = "transparent"; color = { r = 255.0; g = 255.0; b = 255.0; }; ref = 1.1; },
+    { id = "bright_blue"; type = "flat_color"; color = { r = 0.0; g = 100.0; b = 255.0; }; },
+    { id = "bright_green"; type = "flat_color"; color = { r = 0.0; g = 255.0; b = 0.0; }; },
+    { id = "chrome"; type = "metal"; color = { r = 255.0; g = 255.0; b = 255.0; }; fuzz = 0.0; },
+
 );
 
 shapes: (
     { type = "plane"; position = { x = 0.0; y = -1.5; z = 0.0; }; material = "checker"; },
     { 
         type = "sphere"; 
-        position = { x = 0.0; y = 1.5; z = 0.0; }; 
+        position = { x = 2.0; y = 1.0; z = -5.0; }; 
         rotation = { x = 0.0; y = 45.0; z = 0.0; };
         radius = 2.0
-        material = "glass"; 
+        material = "chrome"; 
+    },
+    { 
+        type = "sphere"; 
+        position = { x = -3.0; y = 1.5; z = 0.0; }; 
+        rotation = { x = 0.0; y = 45.0; z = 0.0; };
+        radius = 2.0
+        material = "bright_blue"; 
+    },
+    { 
+        type = "sphere"; 
+        position = { x = 0.0; y = 1.5; z = 14.0; }; 
+        rotation = { x = 0.0; y = 45.0; z = 0.0; };
+        radius = 2.0
+        material = "bright_green"; 
     },
 );
 
