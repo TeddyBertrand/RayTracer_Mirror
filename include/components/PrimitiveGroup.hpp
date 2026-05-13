@@ -70,6 +70,16 @@ public:
         }
     }
 
+    void dump(int indent) const {
+        std::string pad(indent, ' ');
+        std::cout << pad << "\033[1;32m[PrimitiveGroup]\033[0m" << std::endl;
+        std::cout << pad << "  |-- Children (" << _children.size() << "):" << std::endl;
+
+        for (const auto& child : _children) {
+            child->dump(indent + 6);
+        }
+    }
+
     /**
      * @brief Returns the list of children.
      */

@@ -6,20 +6,20 @@
 #include "components/IMaterial.hpp"
 #include "components/ITexture.hpp"
 
-#include "materials/commun/bsdf/lambertian/LambertianBSDF.hpp"
+#include "materials/commun/bsdf/phong/PhongBSDF.hpp"
 
 namespace Raytracer {
 
-class FlatMaterial : public IMaterial {
+class PhongMaterial : public IMaterial {
 public:
-    FlatMaterial(std::shared_ptr<ITexture> tex,
-                 double randomness = 1.0,
-                 std::shared_ptr<IBSDF> custom_bsdf = nullptr);
+    PhongMaterial(std::shared_ptr<ITexture> tex,
+                  double spec = 0.0,
+                  std::shared_ptr<IBSDF> custom_bsdf = nullptr);
 
     const IBSDF& getBSDF() const override { return *_bsdf; }
 
 private:
-    double _randomness;
+    double _spec;
     std::shared_ptr<IBSDF> _bsdf;
 };
 

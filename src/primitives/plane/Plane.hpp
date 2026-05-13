@@ -34,6 +34,10 @@ public:
 
     AABB getBoundingBox() const override { return AABB::infinite(); }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Plane]\033[0m" << std::endl;
+    }
+
 private:
     Vector3D _position;
     Vector3D _normal;

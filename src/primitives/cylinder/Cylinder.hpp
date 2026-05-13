@@ -36,6 +36,10 @@ public:
         return AABB{_center - radiusVec, _center + radiusVec + heightVec};
     }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Cylinder]\033[0m" << std::endl;
+    }
+
 private:
     Point3D _center; // Center of the bottom base in local space
     double _radius;  // Local radius

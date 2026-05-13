@@ -16,6 +16,10 @@ public:
 
     AABB getBoundingBox() const override { return _strategy->getLocalBounds(); }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Fractal]\033[0m" << std::endl;
+    }
+
 private:
     Vector3D computeNormal(const Vector3D& p) const;
 

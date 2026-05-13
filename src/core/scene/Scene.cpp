@@ -5,26 +5,32 @@
 namespace Raytracer {
 
 void Scene::dump() {
-    std::cout << "\n" << std::string(60, '=') << std::endl;
-    std::cout << "                RAYTRACER RUNTIME DIAGNOSTIC" << std::endl;
-    std::cout << std::string(60, '=') << std::endl;
+    const std::string separator(60, '=');
+    const std::string blue = "\033[1;34m";
+    const std::string green = "\033[1;32m";
+    const std::string yellow = "\033[1;33m";
+    const std::string red = "\033[1;31m";
+    const std::string reset = "\033[0m";
 
-    // 1. Matériaux : On vérifie les IDs
-    std::cout << "\n[Step 1] MATERIALS MAP" << std::endl;
+    std::cout << "\n" << blue << separator << reset << std::endl;
+    std::cout << "                RAYTRACER RUNTIME DIAGNOSTIC" << std::endl;
+    std::cout << blue << separator << reset << std::endl;
+
+    std::cout << "\n" << yellow << "[Step 1] MATERIALS MAP" << reset << std::endl;
     if (_materials.empty()) {
-        std::cout << "   /!\\ WARNING: No materials in the map. Shapes will be black." << std::endl;
+        std::cout << "   " << red << "/!\\ WARNING: No materials in the map." << reset << std::endl;
     } else {
         for (auto const& [name, mat] : _materials) {
-            std::cout << "   - [" << name << "] -> " << (mat ? "Ready" : "NULL") << std::endl;
+            std::cout << "   - [" << std::left << std::setw(15) << name << "] -> "
+                      << (mat ? green + "Ready" : red + "NULL") << reset << std::endl;
         }
     }
 
-    // 2. Caméra : On utilise getRay(0.5, 0.5) pour simuler le "regard"
-    std::cout << "\n[Step 2] CAMERA & RAYCASTING" << std::endl;
+    std::cout << "\n" << yellow << "[Step 2] CAMERA & RAYCASTING" << reset << std::endl;
     if (_camera) {
         Ray testRay = _camera->getRay(0.5, 0.5);
-        Point3D orig = testRay.origin();
-        Vector3D dir = testRay.direction();
+        auto orig = testRay.origin();
+        auto dir = testRay.direction();
 
         std::cout << "   - Resolution : " << _camera->getWidth() << "x" << _camera->getHeight()
                   << std::endl;
@@ -33,33 +39,31 @@ void Scene::dump() {
         std::cout << "   - Direction  : (" << dir.x << ", " << dir.y << ", " << dir.z << ")"
                   << std::endl;
 
-        if (dir.x == 0 && dir.y == 0 && dir.z == 0) {
-            std::cout << "   [!] ALERT: Camera direction is NULL (0,0,0)!" << std::endl;
-        }
+        if (dir.x == 0 && dir.y == 0 && dir.z == 0)
+            std::cout << "   " << red << "[!] ALERT: Camera direction is NULL (0,0,0)!" << reset
+                      << std::endl;
     } else {
-        std::cout << "   [!] ERROR: No camera detected." << std::endl;
+        std::cout << "   " << red << "[!] ERROR: No camera detected." << reset << std::endl;
     }
 
-    // 3. Lumières : Test de radiance à l'origine
-    std::cout << "\n[Step 3] LIGHTING EVALUATION" << std::endl;
+    std::cout << "\n" << yellow << "[Step 3] LIGHTING EVALUATION" << reset << std::endl;
     if (_lights.empty()) {
-        std::cout << "   [!] WARNING: No light sources found." << std::endl;
+        std::cout << "   " << red << "[!] WARNING: No light sources found." << reset << std::endl;
     } else {
         for (size_t i = 0; i < _lights.size(); ++i) {
-            // On demande à la lumière : "Que vois-tu au centre du monde (0,0,0) ?"
             auto sample = _lights[i]->computeLight(Point3D(0, 0, 0));
-            std::cout << "   - Light #" << i << " : Dist=" << sample.distance << ", Color=("
-                      << sample.color.r << "," << sample.color.g << "," << sample.color.b << ")"
-                      << " [" << (sample.isActive ? "ON" : "OFF") << "]" << std::endl;
+            std::cout << "   - Light #" << i << " : Dist=" << std::fixed << std::setprecision(2)
+                      << sample.distance << ", Color=(" << sample.color.r << "," << sample.color.g
+                      << "," << sample.color.b << ")"
+                      << " [" << (sample.isActive ? green + "ON" : red + "OFF") << reset << "]"
+                      << std::endl;
         }
     }
 
-    // 4. Objets : On compte les primitives via l'interface
-    std::cout << "\n[Step 4] WORLD OBJECTS" << std::endl;
-    // On part du principe que si getWorld() répond, la liste est là
-    std::cout << "   - World Geometry is active." << std::endl;
+    std::cout << "\n" << yellow << "[Step 4] WORLD HIERARCHY" << reset << std::endl;
+    _world.dump(3);
 
-    std::cout << "\n" << std::string(60, '=') << "\n" << std::endl;
+    std::cout << "\n" << blue << separator << reset << "\n" << std::endl;
 }
 
 } // namespace Raytracer

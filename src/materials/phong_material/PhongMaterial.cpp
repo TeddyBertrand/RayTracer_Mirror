@@ -1,5 +1,5 @@
 
-#include "MetalMaterial.hpp"
+#include "PhongMaterial.hpp"
 #include "materials/commun/bsdf/normal_mapping/NormalMappingBSDF.hpp"
 #include "materials/commun/texture/Texture.hpp"
 #include "parser/ISettings.hpp"
@@ -8,31 +8,32 @@ namespace Raytracer {
 
 extern "C" {
 
-const char* getName() { return "metal"; }
+const char* getName() { return "phong"; }
 
 IMaterial* createPlugin(const ISetting& settings) {
-    double fuzz = settings.getFloat("fuzz", 0.0);
+    double spec = settings.getFloat("spec", 0.0);
     std::shared_ptr<ITexture> tex = Texture::fromSetting(settings, "color");
 
     std::shared_ptr<IBSDF> bsdf;
     if (settings.exists("normal")) {
-        auto phong_bsdf = std::make_shared<MetalBSDF>(tex, fuzz);
+        auto phong_bsdf = std::make_shared<PhongBSDF>(tex, spec);
         std::shared_ptr<ITexture> normal_texture = Texture::fromSetting(settings, "normal");
         double normal_strength = settings.getFloat("normal_strength", 1.0);
         bsdf = std::make_shared<NormalMappingBSDF>(phong_bsdf, normal_texture, normal_strength);
     }
 
-    return new MetalMaterial(tex, fuzz, bsdf);
+    return new PhongMaterial(tex, spec, bsdf);
 }
 }
 
-MetalMaterial::MetalMaterial(std::shared_ptr<ITexture> tex,
-                double fuzz, std::shared_ptr<IBSDF> custom_bsdf)
-    : _fuzz(fuzz < 0.0 ? 0.0 : (fuzz > 1.0 ? 1.0 : fuzz)) {
+PhongMaterial::PhongMaterial(std::shared_ptr<ITexture> tex,
+                double spec,
+                std::shared_ptr<IBSDF> custom_bsdf)
+    : _spec(spec < 0.0 ? 0.0 : (spec > 1.0 ? 1.0 : spec)) {
     if (custom_bsdf) {
         _bsdf = custom_bsdf;
     } else {
-        _bsdf = std::make_shared<MetalBSDF>(tex, _fuzz);
+        _bsdf = std::make_shared<PhongBSDF>(tex, _spec);
     }
 }
 
