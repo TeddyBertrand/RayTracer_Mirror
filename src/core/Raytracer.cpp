@@ -74,10 +74,16 @@ bool Raytracer::loadSceneFromConfig() {
         _graphic = _scene.getGraphic();
         _scene.buildBVH();
         return true;
+    } catch (const SceneParser::RenderSettingsException& e) {
+        std::cerr << "Scene render settings error for '" << _configPath << "': " << e.what()
+                  << std::endl;
     } catch (const SceneParser::SceneParserException& e) {
         std::cerr << "Scene parser error for '" << _configPath << "': " << e.what() << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Unexpected initialization error: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown initialization error while loading scene from '" << _configPath << "'"
+                  << std::endl;
     }
 
     _exitCode = ERROR_STATUS;
@@ -90,14 +96,24 @@ void Raytracer::startFileWatcher() {
         _fileWatcher->onFileChanged(
             [this](const std::string& path) { handleConfigFileChange(path); });
         _fileWatcherThread = std::jthread([this](std::stop_token stopToken) {
-            while (!stopToken.stop_requested()) {
-                if (_fileWatcher)
-                    _fileWatcher->update();
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            try {
+                while (!stopToken.stop_requested()) {
+                    if (_fileWatcher)
+                        _fileWatcher->update();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+            } catch (const std::exception& e) {
+                std::cerr << "Warning: FileWatcher thread stopped after exception: " << e.what()
+                          << std::endl;
+            } catch (...) {
+                std::cerr << "Warning: FileWatcher thread stopped after unknown exception"
+                          << std::endl;
             }
         });
     } catch (const std::exception& e) {
         std::cerr << "Warning: failed to start FileWatcher: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Warning: failed to start FileWatcher due to unknown exception" << std::endl;
     }
 }
 
@@ -147,8 +163,17 @@ void Raytracer::run() {
     } catch (const Scene::SceneException& e) {
         std::cerr << "Scene error while running render: " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;
+    } catch (const SceneParser::RenderSettingsException& e) {
+        std::cerr << "Scene parser render settings error: " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
+    } catch (const SceneParser::SceneParserException& e) {
+        std::cerr << "Scene parser error while running render: " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
     } catch (const std::exception& e) {
         std::cerr << "Unexpected runtime error: " << e.what() << std::endl;
+        _exitCode = ERROR_STATUS;
+    } catch (...) {
+        std::cerr << "Unknown runtime error" << std::endl;
         _exitCode = ERROR_STATUS;
     }
 }
@@ -217,7 +242,19 @@ void Raytracer::renderPreview(RenderContext& ctx) {
 
     const auto previewStart = std::chrono::steady_clock::now();
     auto previewTask = std::async(std::launch::async, [&]() {
-        _previewRenderer->render(_scene, ctx.previewBuffer, &ctx.previewRows);
+        try {
+            _previewRenderer->render(_scene, ctx.previewBuffer, &ctx.previewRows);
+        } catch (const std::exception& e) {
+            std::cerr << "Preview render error: " << e.what() << std::endl;
+            _previewRenderer->stop();
+            if (_renderer)
+                _renderer->stop();
+        } catch (...) {
+            std::cerr << "Preview render error: unknown exception" << std::endl;
+            _previewRenderer->stop();
+            if (_renderer)
+                _renderer->stop();
+        }
     });
 
     while (previewTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
@@ -272,8 +309,21 @@ void Raytracer::renderPreview(RenderContext& ctx) {
 }
 
 void Raytracer::renderFinal(RenderContext& ctx) {
-    auto renderTask = std::async(
-        std::launch::async, [&]() { _renderer->render(_scene, ctx.finalBuffer, &ctx.finalRows); });
+    auto renderTask = std::async(std::launch::async, [&]() {
+        try {
+            _renderer->render(_scene, ctx.finalBuffer, &ctx.finalRows);
+        } catch (const std::exception& e) {
+            std::cerr << "Final render error: " << e.what() << std::endl;
+            _renderer->stop();
+            if (_previewRenderer)
+                _previewRenderer->stop();
+        } catch (...) {
+            std::cerr << "Final render error: unknown exception" << std::endl;
+            _renderer->stop();
+            if (_previewRenderer)
+                _previewRenderer->stop();
+        }
+    });
 
     _loadingBar.start();
     while (renderTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
