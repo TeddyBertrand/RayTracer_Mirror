@@ -1,12 +1,14 @@
 #include "Raytracer.hpp"
 #include "core/image/Image.hpp"
 #include "parser/SceneParser.hpp"
+
 #include <atomic>
 #include <chrono>
 #include <csignal>
-#include <filesystem>
+#include <cstdint>
 #include <future>
 #include <iostream>
+#include <mutex>
 #include <thread>
 
 namespace Raytracer {
@@ -25,49 +27,65 @@ struct Raytracer::RenderContext {
     size_t pixelCount = 0;
 };
 
+namespace {
+
 void handleSignal([[maybe_unused]] int signum) {
     if (Raytracer::getInstance()) {
         Raytracer::getInstance()->stop();
     }
 }
 
+} // namespace
+
 Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _parser(_factories) {
     _instance = this;
-
     std::signal(SIGINT, handleSignal);
 
-    std::string configPath;
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if (configPath.empty() && arg[0] != '-') {
-            configPath = arg;
-        }
-    }
-
-    if (configPath.empty()) {
+    _configPath = parseConfigPath(argc, argv);
+    if (_configPath.empty()) {
         std::cerr << "Error: No configuration file provided." << std::endl;
         std::cerr << "Usage: ./raytracer <config_file.cfg>" << std::endl;
         _exitCode = ERROR_STATUS;
         return;
     }
 
-    _configPath = configPath;
+    if (!loadSceneFromConfig())
+        return;
 
+    startFileWatcher();
+}
+
+Raytracer::~Raytracer() { stopFileWatcher(); }
+
+std::string Raytracer::parseConfigPath(int argc, const char** argv) const {
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (!arg.empty() && arg[0] != '-')
+            return arg;
+    }
+    return {};
+}
+
+bool Raytracer::loadSceneFromConfig() {
     try {
         _pluginLoader.loadPlugins("plugins");
-        _parser.loadScene(configPath, _scene);
+        _parser.loadScene(_configPath, _scene);
         _renderer = _parser.getRenderer();
         _previewRenderer = _parser.getPreviewRenderer();
         _graphic = _scene.getGraphic();
+        _scene.buildBVH();
+        return true;
     } catch (const SceneParser::SceneParserException& e) {
-        std::cerr << "Scene parser error for '" << configPath << "': " << e.what() << std::endl;
-        _exitCode = ERROR_STATUS;
+        std::cerr << "Scene parser error for '" << _configPath << "': " << e.what() << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Unexpected initialization error: " << e.what() << std::endl;
-        _exitCode = ERROR_STATUS;
     }
-    _scene.buildBVH();
 
+    _exitCode = ERROR_STATUS;
+    return false;
+}
+
+void Raytracer::startFileWatcher() {
     try {
         _fileWatcher = std::make_unique<FileWatcher>(_configPath);
         _fileWatcher->onFileChanged(
@@ -75,7 +93,8 @@ Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _
         _watcherRunning.store(true);
         _fileWatcherThread = std::thread([this]() {
             while (_watcherRunning.load()) {
-                _fileWatcher->update();
+                if (_fileWatcher)
+                    _fileWatcher->update();
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
         });
@@ -84,10 +103,15 @@ Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _
     }
 }
 
-Raytracer::~Raytracer() {
+void Raytracer::stopFileWatcher() {
     _watcherRunning.store(false);
     if (_fileWatcherThread.joinable())
         _fileWatcherThread.join();
+}
+
+bool Raytracer::reloadScene() {
+    cleanupRenderers();
+    return loadSceneFromConfig();
 }
 
 void Raytracer::handleConfigFileChange(const std::string& path) {
@@ -103,60 +127,17 @@ void Raytracer::run() {
         while (_exitCode == SUCCESS_STATUS) {
             _reloadRequested.store(false);
 
-            if (!_renderer) {
-                std::cerr << "Error: no renderer plugin could be created from the render section"
-                          << std::endl;
-                _exitCode = ERROR_STATUS;
-                return;
-            }
+            if (!renderSceneOnce())
+                break;
 
-            const auto& camera = _scene.getCamera();
-            size_t pixelCount = static_cast<size_t>(camera.getWidth()) * camera.getHeight();
-
-            RenderContext ctx{
-                .camera = camera,
-                .pixelCount = pixelCount,
-            };
-
-            ctx.previewBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
-            ctx.finalBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
-            ctx.previewRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
-            ctx.finalRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
-
-            if (_graphic) {
-                _graphic->setImageSize(camera.getWidth(), camera.getHeight());
-                ctx.hasDisplay = _graphic->init();
-                if (!ctx.hasDisplay) {
-                    std::cerr << "Warning: Failed to initialize graphics display" << std::endl;
-                }
-            }
-
-            renderPreview(ctx);
             if (_reloadRequested.load()) {
-                cleanupRenderers();
+                if (!reloadScene())
+                    break;
                 continue;
             }
 
-            renderFinal(ctx);
-            if (_reloadRequested.load()) {
-                cleanupRenderers();
-                continue;
-            }
-
-            if (ctx.hasDisplay && _graphic && _graphic->isOpen()) {
-                showFinalFrame(ctx);
-                waitForDisplayClose();
-                if (_reloadRequested.load()) {
-                    cleanupRenderers();
-                    continue;
-                }
-            }
-
-            Image img(camera.getWidth(), camera.getHeight());
-            img.drawFromBuffer(ctx.finalBuffer);
             break;
         }
-
     } catch (const Scene::SceneException& e) {
         std::cerr << "Scene error while running render: " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;
@@ -164,6 +145,64 @@ void Raytracer::run() {
         std::cerr << "Unexpected runtime error: " << e.what() << std::endl;
         _exitCode = ERROR_STATUS;
     }
+}
+
+bool Raytracer::renderSceneOnce() {
+    if (!_renderer) {
+        std::cerr << "Error: no renderer plugin could be created from the render section"
+                  << std::endl;
+        _exitCode = ERROR_STATUS;
+        return false;
+    }
+
+    const auto& camera = _scene.getCamera();
+    const auto width = camera.getWidth();
+    const auto height = camera.getHeight();
+    const size_t pixelCount = static_cast<size_t>(width) * static_cast<size_t>(height);
+
+    RenderContext ctx{camera,
+                      FrameBuffer(pixelCount, Color(0, 0, 0)),
+                      FrameBuffer(pixelCount, Color(0, 0, 0)),
+                      std::vector<std::uint8_t>(height, 0),
+                      std::vector<std::uint8_t>(height, 0),
+                      FrameBuffer(pixelCount, Color(0, 0, 0)),
+                      false,
+                      false,
+                      pixelCount};
+
+    if (_graphic) {
+        _graphic->setImageSize(width, height);
+        ctx.hasDisplay = _graphic->init();
+        if (!ctx.hasDisplay) {
+            std::cerr << "Warning: Failed to initialize graphics display" << std::endl;
+        }
+    }
+
+    renderPreview(ctx);
+    if (_reloadRequested.load()) {
+        cleanupRenderers();
+        return true;
+    }
+
+    renderFinal(ctx);
+    if (_reloadRequested.load()) {
+        cleanupRenderers();
+        return true;
+    }
+
+    if (ctx.hasDisplay && _graphic && _graphic->isOpen()) {
+        showFinalFrame(ctx);
+        waitForDisplayClose();
+        if (_reloadRequested.load()) {
+            cleanupRenderers();
+            return true;
+        }
+    }
+
+    Image img(width, height);
+    img.drawFromBuffer(ctx.finalBuffer);
+    cleanupRenderers();
+    return true;
 }
 
 void Raytracer::renderPreview(RenderContext& ctx) {
@@ -182,11 +221,14 @@ void Raytracer::renderPreview(RenderContext& ctx) {
                 _renderer->stop();
             break;
         }
+
         if (ctx.hasDisplay && _graphic && !_graphic->isOpen()) {
             _previewRenderer->stop();
-            _renderer->stop();
+            if (_renderer)
+                _renderer->stop();
             break;
         }
+
         updateDisplay(ctx);
         if (_previewRenderer->shouldStop())
             break;
@@ -224,6 +266,7 @@ void Raytracer::renderFinal(RenderContext& ctx) {
             }
             break;
         }
+
         _loadingBar.update(*_renderer);
 
         if (ctx.hasDisplay) {
@@ -245,6 +288,7 @@ void Raytracer::renderFinal(RenderContext& ctx) {
         renderTask.wait();
     } catch (...) {
     }
+
     _loadingBar.finish(*_renderer);
 }
 
@@ -265,6 +309,7 @@ void Raytracer::updateDisplay(RenderContext& ctx) {
              ++y) {
             if (!ctx.finalRows[y])
                 continue;
+
             const size_t rowOffset = y * static_cast<size_t>(ctx.camera.getWidth());
             for (int x = 0; x < ctx.camera.getWidth(); ++x) {
                 composed[rowOffset + static_cast<size_t>(x)] =
@@ -283,9 +328,10 @@ void Raytracer::updateDisplay(RenderContext& ctx) {
         const unsigned int b = static_cast<unsigned int>(Color::toByte(c.b));
         const unsigned int a = 255;
 
-        unsigned int packedColor = (r << 24) | (g << 16) | (b << 8) | a;
+        const unsigned int packedColor = (r << 24) | (g << 16) | (b << 8) | a;
         _graphic->updatePixel(x, y, packedColor);
     }
+
     _graphic->refresh();
 }
 
@@ -308,6 +354,7 @@ void Raytracer::waitForDisplayClose() {
         _graphic->refresh();
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }
+
     cleanupRenderers();
 }
 

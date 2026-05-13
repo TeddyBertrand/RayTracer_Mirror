@@ -22,14 +22,12 @@ void FileWatcher::update() {
                 notifyAll();
             }
         } else {
-            // file missing: if previously existed, update state and notify
             if (_lastTime != std::filesystem::file_time_type::min()) {
                 _lastTime = std::filesystem::file_time_type::min();
                 notifyAll();
             }
         }
     } catch (...) {
-        // ignore filesystem errors during polling
     }
 }
 

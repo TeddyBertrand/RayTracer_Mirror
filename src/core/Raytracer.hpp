@@ -62,6 +62,12 @@ private:
     std::atomic<bool> _reloadRequested{false};
 
     void handleConfigFileChange(const std::string& path);
+    std::string parseConfigPath(int argc, const char** argv) const;
+    void startFileWatcher();
+    void stopFileWatcher();
+    bool loadSceneFromConfig();
+    bool reloadScene();
+    bool renderSceneOnce();
 
     struct RenderContext;
     void renderPreview(RenderContext& ctx);

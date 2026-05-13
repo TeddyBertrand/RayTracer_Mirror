@@ -14,6 +14,7 @@ void SceneParser::loadScene(const std::string& filePath, Scene& outScene) {
     libconfig::Config cfg;
 
     try {
+        outScene.clear();
         _manager.trackFile(filePath);
         cfg.readFile(filePath.c_str());
         const libconfig::Setting& root = cfg.getRoot();
