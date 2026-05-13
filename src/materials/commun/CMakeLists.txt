@@ -31,6 +31,7 @@ add_library(raytracer_materials_common STATIC
     bsdf/metal/MetalBSDF.cpp
     bsdf/phong/PhongBSDF.cpp
     bsdf/transparent/TransparentBSDF.cpp
+    bsdf/normal_mapping/NormalMappingBSDF.cpp
 )
 
 set_target_properties(raytracer_materials_common PROPERTIES

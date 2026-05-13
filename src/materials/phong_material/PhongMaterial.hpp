@@ -12,15 +12,15 @@ namespace Raytracer {
 
 class PhongMaterial : public IMaterial {
 public:
-    PhongMaterial(std::shared_ptr<ITexture> tex, double spec = 0.0)
-        : _spec(spec < 0.0 ? 0.0 : (spec > 1.0 ? 1.0 : spec)),
-          _bsdf(std::make_unique<PhongBSDF>(tex, _spec)) {}
+    PhongMaterial(std::shared_ptr<ITexture> tex,
+                  double spec = 0.0,
+                  std::shared_ptr<IBSDF> custom_bsdf = nullptr);
 
     const IBSDF& getBSDF() const override { return *_bsdf; }
 
 private:
     double _spec;
-    std::unique_ptr<IBSDF> _bsdf; // Pre-built once at construction
+    std::shared_ptr<IBSDF> _bsdf;
 };
 
 } // namespace Raytracer
