@@ -13,7 +13,17 @@
 
 namespace Raytracer {
 
-Raytracer* Raytracer::_instance = nullptr;
+namespace {
+
+volatile std::sig_atomic_t g_stopRequested = 0;
+
+void handleSignal([[maybe_unused]] int signum) { g_stopRequested = 1; }
+
+bool signalStopRequested() { return g_stopRequested != 0; }
+
+void installSignalHandler() { std::signal(SIGINT, handleSignal); }
+
+} // namespace
 
 struct Raytracer::RenderContext {
     const ICamera& camera;
@@ -27,19 +37,8 @@ struct Raytracer::RenderContext {
     size_t pixelCount = 0;
 };
 
-namespace {
-
-void handleSignal([[maybe_unused]] int signum) {
-    if (Raytracer::getInstance()) {
-        Raytracer::getInstance()->stop();
-    }
-}
-
-} // namespace
-
 Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _parser(_factories) {
-    _instance = this;
-    std::signal(SIGINT, handleSignal);
+    installSignalHandler();
 
     _configPath = parseConfigPath(argc, argv);
     if (_configPath.empty()) {
@@ -126,6 +125,12 @@ void Raytracer::run() {
 
     try {
         while (_exitCode == SUCCESS_STATUS) {
+            if (signalStopRequested()) {
+                stop();
+                _exitCode = ERROR_STATUS;
+                break;
+            }
+
             _reloadRequested.store(false);
 
             if (!renderSceneOnce())
@@ -216,6 +221,14 @@ void Raytracer::renderPreview(RenderContext& ctx) {
     });
 
     while (previewTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
+        if (signalStopRequested()) {
+            stop();
+            _previewRenderer->stop();
+            if (_renderer)
+                _renderer->stop();
+            break;
+        }
+
         if (_reloadRequested.load()) {
             _previewRenderer->stop();
             if (_renderer)
@@ -248,6 +261,10 @@ void Raytracer::renderPreview(RenderContext& ctx) {
         const auto minPreviewDuration = std::chrono::milliseconds(500);
         while (std::chrono::steady_clock::now() - previewStart < minPreviewDuration &&
                _graphic->isOpen()) {
+            if (signalStopRequested()) {
+                stop();
+                break;
+            }
             _graphic->refresh();
             std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
@@ -260,6 +277,14 @@ void Raytracer::renderFinal(RenderContext& ctx) {
 
     _loadingBar.start();
     while (renderTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
+        if (signalStopRequested()) {
+            stop();
+            _renderer->stop();
+            if (_previewRenderer)
+                _previewRenderer->stop();
+            break;
+        }
+
         if (_reloadRequested.load()) {
             _renderer->stop();
             if (_previewRenderer) {
@@ -348,10 +373,16 @@ void Raytracer::waitForDisplayClose() {
         return;
 
     while (_graphic->isOpen()) {
+        if (signalStopRequested()) {
+            _graphic->close();
+            break;
+        }
+
         if (_reloadRequested.load()) {
             _graphic->close();
             break;
         }
+
         _graphic->refresh();
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }

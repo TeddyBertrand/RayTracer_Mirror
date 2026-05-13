@@ -25,8 +25,6 @@ public:
     void run();
     int getStatus() const { return _exitCode; }
 
-    static Raytracer* getInstance() { return _instance; }
-
     void stop() {
         if (_renderer) {
             _renderer->stop();
@@ -40,8 +38,6 @@ public:
     }
 
 private:
-    static Raytracer* _instance;
-
     static constexpr int SUCCESS_STATUS = 0;
     static constexpr int ERROR_STATUS = 84;
 
