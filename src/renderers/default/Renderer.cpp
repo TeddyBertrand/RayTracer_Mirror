@@ -54,7 +54,9 @@ Renderer::Renderer(const ISetting& settings)
       _ao_max_distance(settings.getFloat("ao_max_distance", 10.0)),
       _shadow_samples(settings.getInt("shadow_samples", 4)) {}
 
-void Renderer::render(const Scene& scene, FrameBuffer& buffer) {
+void Renderer::render(const Scene& scene,
+                      FrameBuffer& buffer,
+                      std::vector<std::uint8_t>* completedRows) {
     const ICamera& camera = scene.getCamera();
     int width = camera.getWidth();
     int height = camera.getHeight();
@@ -62,8 +64,11 @@ void Renderer::render(const Scene& scene, FrameBuffer& buffer) {
     _total_rows = height;
     _is_rendering = true;
     _completed_rows = 0;
+    _stopRequest = false;
 
-    buffer.assign(width * height, Color(0, 0, 0));
+    if (buffer.size() != static_cast<size_t>(width * height)) {
+        buffer.assign(width * height, Color(0, 0, 0));
+    }
 
     unsigned int num_threads = std::thread::hardware_concurrency();
     if (num_threads == 0)
@@ -77,17 +82,35 @@ void Renderer::render(const Scene& scene, FrameBuffer& buffer) {
         int end_y = (t == num_threads - 1) ? height : start_y + rows_per_thread;
         unsigned int seed = std::random_device{}() ^ static_cast<unsigned int>(t + 1);
 
-        workers.emplace_back(
-            [this, start_y, end_y, width, height, &camera, &scene, &buffer, seed]() mutable {
-                std::mt19937 rng(seed);
-                for (int y = start_y; y < end_y; ++y) {
-                    for (int x = 0; x < width; ++x) {
-                        buffer[y * width + x] =
-                            samplePixel(x, y, width, height, camera, scene, rng);
-                    }
-                    ++_completed_rows;
+        workers.emplace_back([this,
+                              start_y,
+                              end_y,
+                              width,
+                              height,
+                              &camera,
+                              &scene,
+                              &buffer,
+                              seed,
+                              completedRows]() mutable {
+            std::mt19937 rng(seed);
+            for (int y = start_y; y < end_y; ++y) {
+                if (_stopRequest.load()) {
+                    break;
                 }
-            });
+                for (int x = 0; x < width; ++x) {
+                    if (_stopRequest.load()) {
+                        break;
+                    }
+                    const Color pixel = samplePixel(x, y, width, height, camera, scene, rng);
+                    std::scoped_lock<std::mutex> lock(getFrameBufferWriteMutex());
+                    buffer[y * width + x] = pixel;
+                }
+                if (completedRows && y >= 0 && y < static_cast<int>(completedRows->size())) {
+                    (*completedRows)[y] = 1;
+                }
+                ++_completed_rows;
+            }
+        });
     }
 
     workers.clear();

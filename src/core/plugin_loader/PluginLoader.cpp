@@ -1,4 +1,5 @@
 #include "PluginLoader.hpp"
+#include "components/IGraphic.hpp"
 #include "components/IRenderer.hpp"
 #include "parser/ISettings.hpp"
 
@@ -74,6 +75,11 @@ void PluginLoader::handleSky(const std::string& path) {
 void PluginLoader::handleRenderer(const std::string& path) {
     registerPlugins<IRenderer* (*)(const ISetting&), RendererFactory>(
         _loader, _factories.renderer, path);
+}
+
+void PluginLoader::handleGraphic(const std::string& path) {
+    registerPlugins<IGraphic* (*)(const ISetting&), GraphicFactory>(
+        _loader, _factories.graphic, path);
 }
 
 } // namespace Raytracer

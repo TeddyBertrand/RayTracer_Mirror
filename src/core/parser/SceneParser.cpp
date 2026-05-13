@@ -147,53 +147,14 @@ void SceneParser::parseRender(const libconfig::Setting& renderSetting,
 
     const std::string rendererType = renderConfig.getString("type", "default");
     _renderer = _factories.renderer.create(rendererType, renderConfig);
+}
 
-    if (renderSetting.exists("samples")) {
-        try {
-            int s = static_cast<int>(renderSetting["samples"]);
-            if (s < 1) {
-                throw RenderSettingsException("render.samples must be >= 1");
-            }
-            _renderSamples = (s > 100000) ? 100000 : s;
-            if (s > 100000) {
-                std::cerr << "Warning: render.samples too large, clamped to 100000" << std::endl;
-            }
-        } catch (const libconfig::SettingTypeException&) {
-            throw RenderSettingsException("render.samples must be an integer");
-        }
-    }
+void SceneParser::parsePreview(const libconfig::Setting& previewSetting, Scene& outScene) {
+    (void)outScene;
+    LibconfigSetting previewConfig(previewSetting);
 
-    if (renderSetting.exists("adaptive_threshold")) {
-        try {
-            double threshold = static_cast<double>(renderSetting["adaptive_threshold"]);
-            if (threshold >= 0.0 && threshold <= 1.0) {
-                _renderThreshold = threshold;
-            } else {
-                std::cerr << "Warning: adaptive_threshold hors [0,1], défaut 0.1" << std::endl;
-            }
-        } catch (const libconfig::SettingTypeException&) {
-            std::cerr << "Warning: adaptive_threshold type invalide" << std::endl;
-        }
-    }
-
-    if (renderSetting.exists("ao_samples")) {
-        try {
-            int aoS = static_cast<int>(renderSetting["ao_samples"]);
-            _aoSamples = (aoS >= 0) ? aoS : 0;
-        } catch (...) {
-            std::cerr << "Warning: ao_samples invalide" << std::endl;
-        }
-    }
-
-    if (renderSetting.exists("ao_max_distance")) {
-        try {
-            double dist = static_cast<double>(renderSetting["ao_max_distance"]);
-            if (dist > 0.0)
-                _aoMaxDistance = dist;
-        } catch (...) {
-            std::cerr << "Warning: ao_max_distance invalide" << std::endl;
-        }
-    }
+    const std::string rendererType = previewConfig.getString("type", "fast");
+    _previewRenderer = _factories.renderer.create(rendererType, previewConfig);
 }
 
 void SceneParser::parseLights(const libconfig::Setting& setting, Scene& outScene) {
@@ -246,6 +207,17 @@ void SceneParser::parseSky(const libconfig::Setting& setting, Scene& outScene) {
         outScene.setSky(std::move(sky));
     else
         outScene.setSky(std::make_shared<EmptySky>());
+}
+
+void SceneParser::parseGraphic(const libconfig::Setting& setting, Scene& outScene) {
+    LibconfigSetting graphicConfig(setting);
+    if (!graphicConfig.exists("type")) {
+        return;
+    }
+    auto graphic = _factories.graphic.create(graphicConfig.getString("type"), graphicConfig);
+    if (graphic) {
+        outScene.setGraphic(std::move(graphic));
+    }
 }
 
 Matrix SceneParser::parseMatrix(const libconfig::Setting& setting) {

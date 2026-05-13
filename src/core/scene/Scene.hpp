@@ -2,6 +2,7 @@
 
 #include "PrimitiveList.hpp"
 #include "components/ICamera.hpp"
+#include "components/IGraphic.hpp"
 #include "components/ILight.hpp"
 #include "components/ISky.hpp"
 #include "math/Color.hpp"
@@ -61,6 +62,10 @@ public:
             throw SceneException("Scene error: camera is not set.");
         return *_camera;
     }
+
+    void setGraphic(std::shared_ptr<IGraphic> graphic) { _graphic = graphic; }
+    std::shared_ptr<IGraphic> getGraphic() const { return _graphic; }
+
     void dump();
 
     void buildBVH() { _world.buildBVH(); }
@@ -71,6 +76,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<IMaterial>> _materials;
     std::shared_ptr<ISky> _sky;
     std::shared_ptr<ICamera> _camera;
+    std::shared_ptr<IGraphic> _graphic;
 
     Color _backgroundColor = Color(0.5, 0.7, 1.0);
     Color _ambientLight = Color(0.1, 0.1, 0.1);

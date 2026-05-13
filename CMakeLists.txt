@@ -73,6 +73,7 @@ file(MAKE_DIRECTORY ${PLUGIN_DIR}/lights)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/skies)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/cameras)
 file(MAKE_DIRECTORY ${PLUGIN_DIR}/renderers)
+file(MAKE_DIRECTORY ${PLUGIN_DIR}/graphics)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBCONFIGPP REQUIRED libconfig++)

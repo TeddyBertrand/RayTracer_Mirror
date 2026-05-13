@@ -1,0 +1,46 @@
+# Scene simple de test - sans affichage graphique
+
+camera:
+{
+    type = "perspective";
+    width = 400;
+    height = 300;
+    position = { x = 0.0; y = 5.0; z = 10.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 50.0;
+};
+
+render:
+{
+    type = "default";
+    samples = 8;
+    adaptive_threshold = 0.1;
+};
+
+sky:
+{
+    type = "empty";
+};
+
+materials:
+(
+    { id = "red"; type = "flat_color"; color = { r = 255.0; g = 50.0; b = 50.0; }; },
+    { id = "white"; type = "flat_color"; color = { r = 230.0; g = 230.0; b = 230.0; }; }
+);
+
+shapes:
+(
+    { type = "sphere"; radius = 2.0; material = "red"; position = { x = 0.0; y = 0.0; z = 0.0; }; },
+    { type = "plane"; material = "white"; position = { x = 0.0; y = -3.0; z = 0.0; }; }
+);
+
+lights:
+(
+    {
+        type = "point";
+        position = { x = 0.0; y = 10.0; z = 5.0; };
+        color = { r = 255.0; g = 255.0; b = 255.0; };
+        intensity = 1.0;
+    }
+);

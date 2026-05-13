@@ -20,11 +20,16 @@ public:
     explicit Renderer(const ISetting& settings);
     ~Renderer() override = default;
 
-    void render(const Scene& scene, FrameBuffer& buffer) override;
+    void render(const Scene& scene,
+                FrameBuffer& buffer,
+                std::vector<std::uint8_t>* completedRows = nullptr) override;
 
     int getCompletedRows() const override { return _completed_rows.load(); }
     int getTotalRows() const override { return _total_rows; }
     bool isRendering() const override { return _is_rendering.load(); }
+
+    void stop() override { _stopRequest.store(true); }
+    bool shouldStop() const override { return _stopRequest.load(); }
 
 private:
     static constexpr float anti_aliasing_interval = 0.5f;
@@ -41,6 +46,7 @@ private:
 
     std::atomic<int> _completed_rows{0};
     std::atomic<bool> _is_rendering{false};
+    std::atomic<bool> _stopRequest{false};
     int _total_rows{0};
 
 private:

@@ -1,0 +1,74 @@
+# Scene de test simple pour affichage SFML
+
+camera:
+{
+    type = "perspective";
+    width = 800;
+    height = 600;
+    position = { x = 0.0; y = 5.0; z = 20.0; };
+    look_at = { x = 0.0; y = 0.0; z = 0.0; };
+    up = { x = 0.0; y = 1.0; z = 0.0; };
+    fieldOfView = 50.0;
+};
+
+render:
+{
+    type = "default";
+    samples = 1000;
+    adaptive_threshold = 0.01;
+    ao_samples = 32;
+    ao_max_distance = 100.0;
+};
+
+preview:
+{
+    type = "fast";
+    samples = 1;
+    max_depth = 2;
+};
+
+graphics:
+{
+    type = "sfml";
+    width = 800;
+    height = 600;
+    title = "RayTracer - Live Display";
+    scale = 1;
+};
+
+sky:
+{
+    type = "empty";
+};
+
+materials:
+(
+    { id = "red"; type = "flat_color"; color = { r = 255.0; g = 50.0; b = 50.0; }; },
+    { id = "green"; type = "flat_color"; color = { r = 50.0; g = 255.0; b = 50.0; }; },
+    { id = "blue"; type = "flat_color"; color = { r = 50.0; g = 50.0; b = 255.0; }; },
+    { id = "white"; type = "flat_color"; color = { r = 230.0; g = 230.0; b = 230.0; }; }
+);
+
+shapes:
+(
+    { type = "sphere"; radius = 2.0; material = "red"; position = { x = -4.0; y = 0.0; z = 0.0; }; },
+    { type = "sphere"; radius = 2.0; material = "green"; position = { x = 0.0; y = 0.0; z = 0.0; }; },
+    { type = "sphere"; radius = 2.0; material = "blue"; position = { x = 4.0; y = 0.0; z = 0.0; }; },
+    { type = "plane"; material = "white"; position = { x = 0.0; y = -3.0; z = 0.0; }; }
+);
+
+lights:
+(
+    {
+        type = "point";
+        position = { x = 0.0; y = 10.0; z = 5.0; };
+        color = { r = 255.0; g = 255.0; b = 255.0; };
+        intensity = 1.0;
+    },
+    {
+        type = "directional";
+        direction = { x = -1.0; y = -1.0; z = -1.0; };
+        color = { r = 128.0; g = 128.0; b = 128.0; };
+        intensity = 0.5;
+    }
+);
