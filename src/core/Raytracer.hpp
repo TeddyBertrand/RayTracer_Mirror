@@ -57,8 +57,7 @@ private:
     LoadingBar _loadingBar;
     std::string _configPath;
     std::unique_ptr<FileWatcher> _fileWatcher;
-    std::thread _fileWatcherThread;
-    std::atomic<bool> _watcherRunning{false};
+    std::jthread _fileWatcherThread;
     std::atomic<bool> _reloadRequested{false};
 
     void handleConfigFileChange(const std::string& path);

@@ -90,9 +90,8 @@ void Raytracer::startFileWatcher() {
         _fileWatcher = std::make_unique<FileWatcher>(_configPath);
         _fileWatcher->onFileChanged(
             [this](const std::string& path) { handleConfigFileChange(path); });
-        _watcherRunning.store(true);
-        _fileWatcherThread = std::thread([this]() {
-            while (_watcherRunning.load()) {
+        _fileWatcherThread = std::jthread([this](std::stop_token stopToken) {
+            while (!stopToken.stop_requested()) {
                 if (_fileWatcher)
                     _fileWatcher->update();
                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -104,9 +103,11 @@ void Raytracer::startFileWatcher() {
 }
 
 void Raytracer::stopFileWatcher() {
-    _watcherRunning.store(false);
-    if (_fileWatcherThread.joinable())
+    if (_fileWatcherThread.joinable()) {
+        _fileWatcherThread.request_stop();
         _fileWatcherThread.join();
+    }
+    _fileWatcher.reset();
 }
 
 bool Raytracer::reloadScene() {
