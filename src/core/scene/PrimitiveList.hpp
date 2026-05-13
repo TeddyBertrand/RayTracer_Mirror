@@ -19,12 +19,14 @@ public:
     void buildBVH();
 
     AABB getBoundingBox() const override;
-    
+
     std::vector<std::shared_ptr<IPrimitive>> getObjects() const {
         std::vector<std::shared_ptr<IPrimitive>> all = _bounded_objects;
         all.insert(all.end(), _unbounded_objects.begin(), _unbounded_objects.end());
         return all;
     }
+
+    void dump(int indent = 0) const override;
 
 private:
     std::vector<std::shared_ptr<IPrimitive>> _bounded_objects;

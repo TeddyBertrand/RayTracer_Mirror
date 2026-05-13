@@ -27,8 +27,10 @@ public:
      */
     bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const;
 
-    AABB getBoundingBox() const override {
-        return AABB::infinite();
+    AABB getBoundingBox() const override { return AABB::infinite(); }
+
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Cone]\033[0m" << std::endl;
     }
 
 private:

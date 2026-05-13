@@ -22,6 +22,27 @@ void PrimitiveList::clear() {
     _bvh_root = nullptr;
 }
 
+void PrimitiveList::dump(int indent) const {
+    std::string pad(indent, ' ');
+    std::cout << pad << "\033[1;34m[PrimitiveList]\033[0m (World Root)" << std::endl;
+
+    if (!_bounded_objects.empty()) {
+        std::cout << pad << "  |-- Bounded Objects (" << _bounded_objects.size()
+                  << "):" << std::endl;
+        for (const auto& obj : _bounded_objects) {
+            obj->dump(indent + 6);
+        }
+    }
+
+    if (!_unbounded_objects.empty()) {
+        std::cout << pad << "  |-- Unbounded Objects (" << _unbounded_objects.size()
+                  << "):" << std::endl;
+        for (const auto& obj : _unbounded_objects) {
+            obj->dump(indent + 6);
+        }
+    }
+}
+
 bool PrimitiveList::hit(const Ray& r, Interval ray_t, HitRecord& rec) const {
     HitRecord temp_rec;
     bool hit_anything = false;

@@ -14,6 +14,10 @@ public:
     virtual bool hit(const Ray& r, Interval ray_t, HitRecord& rec) const override;
     virtual AABB getBoundingBox() const override;
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Mesh]\033[0m" << std::endl;
+    }
+
 private:
     std::shared_ptr<IPrimitive> createTriangle(const MeshData::TriangleIndices& triIdx) const;
 

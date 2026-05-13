@@ -27,6 +27,10 @@ public:
         return AABB{_center - halfExtent, _center + halfExtent};
     }
 
+    void dump(int indent) const override {
+        std::cout << std::string(indent, ' ') << "- \033[1;33m[Tanglecube]\033[0m" << std::endl;
+    }
+
 private:
     /**
      * @brief Evaluate the tanglecube implicit function f(p) = 0
