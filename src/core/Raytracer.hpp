@@ -7,17 +7,20 @@
 #include "components/IGraphic.hpp"
 #include "components/IRenderer.hpp"
 #include "core/display/loading_bar/LoadingBar.hpp"
+#include "core/file_watcher/FileWatcher.hpp"
 #include "core/plugin_loader/PluginLoader.hpp"
 #include "core/scene/Scene.hpp"
 #include "factory/SceneFactories.hpp"
 #include "parser/SceneParser.hpp"
+#include <atomic>
+#include <thread>
 
 namespace Raytracer {
 
 class Raytracer {
 public:
     Raytracer(int argc, const char** argv);
-    ~Raytracer() = default;
+    ~Raytracer();
 
     void run();
     int getStatus() const { return _exitCode; }
@@ -53,6 +56,12 @@ private:
     Scene _scene;
     LoadingBar _loadingBar;
     std::string _configPath;
+    std::unique_ptr<FileWatcher> _fileWatcher;
+    std::thread _fileWatcherThread;
+    std::atomic<bool> _watcherRunning{false};
+    std::atomic<bool> _reloadRequested{false};
+
+    void handleConfigFileChange(const std::string& path);
 
     struct RenderContext;
     void renderPreview(RenderContext& ctx);

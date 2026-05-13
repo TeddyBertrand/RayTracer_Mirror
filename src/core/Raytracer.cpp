@@ -67,6 +67,32 @@ Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _
         _exitCode = ERROR_STATUS;
     }
     _scene.buildBVH();
+
+    try {
+        _fileWatcher = std::make_unique<FileWatcher>(_configPath);
+        _fileWatcher->onFileChanged(
+            [this](const std::string& path) { handleConfigFileChange(path); });
+        _watcherRunning.store(true);
+        _fileWatcherThread = std::thread([this]() {
+            while (_watcherRunning.load()) {
+                _fileWatcher->update();
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            }
+        });
+    } catch (const std::exception& e) {
+        std::cerr << "Warning: failed to start FileWatcher: " << e.what() << std::endl;
+    }
+}
+
+Raytracer::~Raytracer() {
+    _watcherRunning.store(false);
+    if (_fileWatcherThread.joinable())
+        _fileWatcherThread.join();
+}
+
+void Raytracer::handleConfigFileChange(const std::string& path) {
+    std::cout << "Config file changed: " << path << std::endl;
+    _reloadRequested.store(true);
 }
 
 void Raytracer::run() {
@@ -74,45 +100,62 @@ void Raytracer::run() {
         return;
 
     try {
-        if (!_renderer) {
-            std::cerr << "Error: no renderer plugin could be created from the render section"
-                      << std::endl;
-            _exitCode = ERROR_STATUS;
-            return;
-        }
+        while (_exitCode == SUCCESS_STATUS) {
+            _reloadRequested.store(false);
 
-        const auto& camera = _scene.getCamera();
-        size_t pixelCount = static_cast<size_t>(camera.getWidth()) * camera.getHeight();
-
-        RenderContext ctx{
-            .camera = camera,
-            .pixelCount = pixelCount,
-        };
-
-        ctx.previewBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
-        ctx.finalBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
-        ctx.previewRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
-        ctx.finalRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
-
-        if (_graphic) {
-            _graphic->setImageSize(camera.getWidth(), camera.getHeight());
-            ctx.hasDisplay = _graphic->init();
-            if (!ctx.hasDisplay) {
-                std::cerr << "Warning: Failed to initialize graphics display" << std::endl;
+            if (!_renderer) {
+                std::cerr << "Error: no renderer plugin could be created from the render section"
+                          << std::endl;
+                _exitCode = ERROR_STATUS;
+                return;
             }
+
+            const auto& camera = _scene.getCamera();
+            size_t pixelCount = static_cast<size_t>(camera.getWidth()) * camera.getHeight();
+
+            RenderContext ctx{
+                .camera = camera,
+                .pixelCount = pixelCount,
+            };
+
+            ctx.previewBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
+            ctx.finalBuffer = FrameBuffer(pixelCount, Color(0, 0, 0));
+            ctx.previewRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
+            ctx.finalRows = std::vector<std::uint8_t>(camera.getHeight(), 0);
+
+            if (_graphic) {
+                _graphic->setImageSize(camera.getWidth(), camera.getHeight());
+                ctx.hasDisplay = _graphic->init();
+                if (!ctx.hasDisplay) {
+                    std::cerr << "Warning: Failed to initialize graphics display" << std::endl;
+                }
+            }
+
+            renderPreview(ctx);
+            if (_reloadRequested.load()) {
+                cleanupRenderers();
+                continue;
+            }
+
+            renderFinal(ctx);
+            if (_reloadRequested.load()) {
+                cleanupRenderers();
+                continue;
+            }
+
+            if (ctx.hasDisplay && _graphic && _graphic->isOpen()) {
+                showFinalFrame(ctx);
+                waitForDisplayClose();
+                if (_reloadRequested.load()) {
+                    cleanupRenderers();
+                    continue;
+                }
+            }
+
+            Image img(camera.getWidth(), camera.getHeight());
+            img.drawFromBuffer(ctx.finalBuffer);
+            break;
         }
-
-        renderPreview(ctx);
-
-        renderFinal(ctx);
-
-        if (ctx.hasDisplay && _graphic && _graphic->isOpen()) {
-            showFinalFrame(ctx);
-            waitForDisplayClose();
-        }
-
-        Image img(camera.getWidth(), camera.getHeight());
-        img.drawFromBuffer(ctx.finalBuffer);
 
     } catch (const Scene::SceneException& e) {
         std::cerr << "Scene error while running render: " << e.what() << std::endl;
@@ -133,6 +176,12 @@ void Raytracer::renderPreview(RenderContext& ctx) {
     });
 
     while (previewTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
+        if (_reloadRequested.load()) {
+            _previewRenderer->stop();
+            if (_renderer)
+                _renderer->stop();
+            break;
+        }
         if (ctx.hasDisplay && _graphic && !_graphic->isOpen()) {
             _previewRenderer->stop();
             _renderer->stop();
@@ -168,6 +217,13 @@ void Raytracer::renderFinal(RenderContext& ctx) {
 
     _loadingBar.start();
     while (renderTask.wait_for(std::chrono::milliseconds(16)) != std::future_status::ready) {
+        if (_reloadRequested.load()) {
+            _renderer->stop();
+            if (_previewRenderer) {
+                _previewRenderer->stop();
+            }
+            break;
+        }
         _loadingBar.update(*_renderer);
 
         if (ctx.hasDisplay) {
@@ -245,6 +301,10 @@ void Raytracer::waitForDisplayClose() {
         return;
 
     while (_graphic->isOpen()) {
+        if (_reloadRequested.load()) {
+            _graphic->close();
+            break;
+        }
         _graphic->refresh();
         std::this_thread::sleep_for(std::chrono::milliseconds(16));
     }
