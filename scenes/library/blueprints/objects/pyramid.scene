@@ -1,57 +1,40 @@
 materials: (
     { id = "gold"; type = "flat_color"; color = { r = 0.8; g = 0.6; b = 0.2; }; randomness = 2.0; },
+    { id = "glass"; type = "transparent"; color = { r = 255.0; g = 255.0; b = 255.0; }; ref = 0.2; },
 );
 
 shapes: (
     { 
         type = "triangle"; 
-        v0 = { x = 0.0; y = 0.0; z = 0.0; };
-        v1 = { x = 1.0; y = 0.0; z = 0.0; };
-        v2 = { x = 0.0; y = 1.0; z = 0.0; };
-        position = { x = 0.0; y = 1.0; z = 0.0; };
-        rotation = { x = 0.0; y = 45.0; z = 0.0; };
-        material = "gold";
-    },
-    { 
-        type = "triangle"; 
         v0 = { x = -1.0; y = 0.0; z = 1.0; };
         v1 = { x = 1.0; y = 0.0; z = 1.0; };
         v2 = { x = 0.0; y = 2.0; z = 0.0; };
-        position = { x = -4.0; y = 0.0; z = 0.0; };
-        material = "gold";
+        position = { x = 0.0; y = 0.0; z = 0.0; };
+        material = "glass";
     },
-    # Face Droite
     { 
         type = "triangle"; 
         v0 = { x = 1.0; y = 0.0; z = 1.0; };
         v1 = { x = 1.0; y = 0.0; z = -1.0; };
         v2 = { x = 0.0; y = 2.0; z = 0.0; };
-        position = { x = -4.0; y = 0.0; z = 0.0; };
-        material = "gold";
+        position = { x = 0.0; y = 0.0; z = 0.0; };
+        material = "glass";
     },
     { 
         type = "triangle"; 
         v0 = { x = 1.0; y = 0.0; z = -1.0; };
         v1 = { x = -1.0; y = 0.0; z = -1.0; };
         v2 = { x = 0.0; y = 2.0; z = 0.0; };
-        position = { x = -4.0; y = 0.0; z = 0.0; };
-        material = "gold";
+        position = { x = 0.0; y = 0.0; z = 0.0; };
+        material = "glass";
     },
     { 
         type = "triangle"; 
         v0 = { x = -1.0; y = 0.0; z = -1.0; };
         v1 = { x = -1.0; y = 0.0; z = 1.0; };
         v2 = { x = 0.0; y = 2.0; z = 0.0; };
-        position = { x = -4.0; y = 0.0; z = 0.0; };
-        material = "gold";
+        position = { x = 0.0; y = 0.0; z = 0.0; };
+        material = "glass";
     },
-    { 
-        type = "triangle"; 
-        v0 = { x = -2.0; y = 0.0; z = 0.0; };
-        v1 = { x = 2.0; y = 0.0; z = 0.0; };
-        v2 = { x = 0.0; y = 3.0; z = 0.0; };
-        position = { x = 4.0; y = 2.0; z = -2.0; };
-        rotation = { x = -20.0; y = 0.0; z = 10.0; };
-        material = "gold";
-    }
+
 );

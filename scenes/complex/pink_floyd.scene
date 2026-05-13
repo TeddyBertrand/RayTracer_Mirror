@@ -16,33 +16,33 @@ materials: (
 );
 
 shapes: (
-    { type = "plane"; position = { x = 0.0; y = -1.5; z = 0.0; }; material = "floor_white"; },
+    { type = "plane"; position = { x = 0.0; y = 0.0; z = 0.0; }; rotation = { x = 0.0; y = 0.0; z = 0.0; }; material = "floor_white"; },
+    
+    { type = "plane"; position = { x = 0.0; y = 0.0; z = -20.0; }; rotation = { x = 90.0; y = 0.0; z = 0.0; }; material = "floor_white"; },
     { 
-        type = "import"; path = "scenes/library/blueprints/light_sources/lantern.scene"; name = "lantern";
-        position = { x = 0.0; y = 1.0; z = 0.0; };
-        rotation = { x = -10.0; y = 10.0; z = 10.0; };
+        type = "import"; path = "scenes/library/blueprints/objects/pyramid.scene"; name = "pyramid";
+        position = { x = -4.0; y = 1.0; z = 0.0; };
+        rotation = { x = 0.0; y = 0.0; z = 0.0; };
         scale = 1.0;
     },
     { 
         type = "import"; path = "scenes/library/blueprints/objects/pyramid.scene"; name = "pyramid";
-        position = { x = 2.0; y = 1.0; z = 1.0; };
+        position = { x = -2.0; y = 1.0; z = 0.0; };
         rotation = { x = 0.0; y = 0.0; z = 0.0; };
         scale = 1.0;
     },
 );
 
 sky = {
-    type = "atmospheric";
-    groundColor = { r = 120.0; g = 150.0; b = 205.0; };
-    zenithColor = { r = 105.0; g = 105.0; b = 205.0; };
+    type = "empty";
 };
 
 lights: (
     {
-        type = "directional";
-        rotation = { x = 35.0; y = 30.0; z = 0.0 };
+        type = "spot"; position = { x = 4.0; y = 1.0; z = 0.0; };
+        direction = { x = -1.0; y = 0.0; z = 0.0; };
         color = { r = 255.0; g = 255.0; b = 255.0; };
-        intensity = 1.8;
+        intensity = 10.0; cutoff = 10.0;
     },
 );
 
