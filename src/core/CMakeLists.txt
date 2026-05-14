@@ -8,6 +8,7 @@ add_library(raytracer_core STATIC
     parser/SceneParser.cpp
     display/loading_bar/LoadingBar.cpp
     logging/Logger.cpp
+    file_watcher/FileWatcher.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC

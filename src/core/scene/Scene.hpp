@@ -68,6 +68,15 @@ public:
 
     void dump();
 
+    void clear() {
+        _world.clear();
+        _lights.clear();
+        _materials.clear();
+        _sky.reset();
+        _camera.reset();
+        _graphic.reset();
+    }
+
     void buildBVH() { _world.buildBVH(); }
 
 private:

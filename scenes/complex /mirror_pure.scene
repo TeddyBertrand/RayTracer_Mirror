@@ -61,7 +61,7 @@ lights: (
 );
 
 render = {
-    samples = 64;
+    samples = 640;
     ao_samples = 16;
 };
 
