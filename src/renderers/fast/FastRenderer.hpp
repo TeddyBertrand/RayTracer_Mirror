@@ -16,7 +16,7 @@ public:
 
     void render(const Scene& scene,
                 FrameBuffer& buffer,
-                std::vector<std::uint8_t>* completedRows = nullptr) override;
+                std::vector<std::uint8_t>* completedRows = nullptr, int startY = 0, int endY = -1) override;
 
     int getCompletedRows() const override { return _completedRows.load(); }
     int getTotalRows() const override { return _totalRows; }
