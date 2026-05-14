@@ -1,3 +1,4 @@
+#include "core/network/Cluster.hpp"
 #include "Raytracer.hpp"
 #include "core/image/Image.hpp"
 #include "parser/SceneParser.hpp"
@@ -57,12 +58,21 @@ Raytracer::Raytracer(int argc, const char** argv) : _pluginLoader(_factories), _
 Raytracer::~Raytracer() { stopFileWatcher(); }
 
 std::string Raytracer::parseConfigPath(int argc, const char** argv) const {
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
-        if (!arg.empty() && arg[0] != '-')
-            return arg;
-    }
-    return {};
+        for (int i = 1; i < argc; ++i) {
+            std::string arg = argv[i];
+            if (arg == "--cluster" && i + 1 < argc) {
+                std::string addrs = argv[++i];
+                std::string buf;
+                for(auto c : addrs) {
+                    if (c == ',') { const_cast<Raytracer*>(this)->_workerAddresses.push_back(buf); buf.clear(); }
+                    else buf += c;
+                }
+                if (!buf.empty()) const_cast<Raytracer*>(this)->_workerAddresses.push_back(buf);
+            } else if (!arg.empty() && arg[0] != '-') {
+                return arg;
+            }
+        }
+        return {};
 }
 
 bool Raytracer::loadSceneFromConfig() {
@@ -311,7 +321,13 @@ void Raytracer::renderPreview(RenderContext& ctx) {
 void Raytracer::renderFinal(RenderContext& ctx) {
     auto renderTask = std::async(std::launch::async, [&]() {
         try {
-            _renderer->render(_scene, ctx.finalBuffer, &ctx.finalRows);
+            if (!_workerAddresses.empty()) {
+                ClusterClient client(_workerAddresses, 8080);
+                client.distributeRender(_configPath, ctx.finalBuffer, ctx.camera.getWidth(), ctx.camera.getHeight());
+                if (ctx.finalRows.size() > 0) std::fill(ctx.finalRows.begin(), ctx.finalRows.end(), 1);
+            } else {
+                _renderer->render(_scene, ctx.finalBuffer, &ctx.finalRows);
+            }
         } catch (const std::exception& e) {
             std::cerr << "Final render error: " << e.what() << std::endl;
             _renderer->stop();
