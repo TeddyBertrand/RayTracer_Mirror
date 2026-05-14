@@ -6,8 +6,8 @@ namespace Raytracer {
 
 extern "C" const char* getName() { return "point"; }
 
-LightSample PointLight::computeLight(const Point3D& world_hit_point) const {
-    Vector3D direction = (_position - world_hit_point);
+LightSample PointLight::computeLight(const HitRecord& hit) const {
+    Vector3D direction = (_position - hit.point);
     double distance = direction.length();
 
     if (distance > 0) {

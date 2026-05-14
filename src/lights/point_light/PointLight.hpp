@@ -13,7 +13,7 @@ public:
 
     void applyTransform(const Matrix& m) override { _position = m * _position; }
 
-    LightSample computeLight(const Point3D& world_hit_point) const override;
+    LightSample computeLight(const HitRecord& hit) const override;
 
 private:
     Vector3D _position;
