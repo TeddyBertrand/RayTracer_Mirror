@@ -13,7 +13,7 @@ public:
 
     virtual void render(const Scene& scene,
                         FrameBuffer& buffer,
-                        std::vector<std::uint8_t>* completedRows = nullptr) = 0;
+                        std::vector<std::uint8_t>* completedRows = nullptr, int startY = 0, int endY = -1) = 0;
 
     virtual int getCompletedRows() const = 0;
     virtual int getTotalRows() const = 0;
