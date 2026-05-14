@@ -41,10 +41,10 @@ public:
     /**
      * @brief Evaluate this light from a given point in space.
      *
-     * @param hit_point Shading position in world space.
+     * @param hit The hit record containing shading information.
      * @return LightSample containing direction, distance and emitted color data.
      */
-    virtual LightSample computeLight(const Point3D& hit_point) const = 0;
+    virtual LightSample computeLight(const HitRecord& hit) const = 0;
 };
 
 } // namespace Raytracer

@@ -228,7 +228,8 @@ Color Renderer::computeDirectLighting(const Ray& r_in,
     Vector3D view_dir = -r_in.direction();
 
     for (const auto& light : scene.getLights()) {
-        LightSample sample = light->computeLight(rec.point);
+
+        LightSample sample = light->computeLight(rec);
         if (!sample.isActive)
             continue;
 
