@@ -52,6 +52,7 @@ private:
     Scene _scene;
     LoadingBar _loadingBar;
     std::string _configPath;
+    std::vector<std::string> _workerAddresses;
     std::unique_ptr<FileWatcher> _fileWatcher;
     std::jthread _fileWatcherThread;
     std::atomic<bool> _reloadRequested{false};

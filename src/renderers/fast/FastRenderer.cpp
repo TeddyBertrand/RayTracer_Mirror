@@ -15,12 +15,14 @@ FastRenderer::FastRenderer(const ISetting& settings)
 
 void FastRenderer::render(const Scene& scene,
                           FrameBuffer& buffer,
-                          std::vector<std::uint8_t>* completedRows) {
+                          std::vector<std::uint8_t>* completedRows, int startY, int endY) {
     const ICamera& camera = scene.getCamera();
     const int width = camera.getWidth();
     const int height = camera.getHeight();
 
-    _totalRows = height;
+    int start_y_bound = (startY < 0) ? 0 : startY;
+    int end_y_bound = (endY < 0 || endY > height) ? height : endY;
+    _totalRows = end_y_bound - start_y_bound;
     _completedRows = 0;
     _isRendering = true;
     _stopRequest = false;
@@ -35,7 +37,8 @@ void FastRenderer::render(const Scene& scene,
     }
 
     std::vector<std::jthread> workers;
-    const int rowsPerThread = std::max(1, height / static_cast<int>(threadCount));
+    int render_height = end_y_bound - start_y_bound;
+    const int rowsPerThread = std::max(1, render_height / static_cast<int>(threadCount));
 
     for (unsigned int t = 0; t < threadCount; ++t) {
         const int startY = static_cast<int>(t) * rowsPerThread;

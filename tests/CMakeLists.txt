@@ -49,6 +49,7 @@ add_tests_subdirectory_if_present(scene)
 add_tests_subdirectory_if_present(primitives)
 add_tests_subdirectory_if_present(lights)
 add_tests_subdirectory_if_present(materials)
+add_tests_subdirectory_if_present(network)
 add_tests_subdirectory_if_present(core)
 add_tests_subdirectory_if_present(skies)
 
