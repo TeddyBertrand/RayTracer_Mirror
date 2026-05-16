@@ -37,39 +37,48 @@ void ClusterWorker::run() {
                 std::cout << "Received job: " << scenePath << " rows " << startY << "-" << endY
                           << std::endl;
 
-                try {
-                    SceneFactories factories;
-                    PluginLoader pluginLoader(factories);
-                    pluginLoader.loadPlugins("plugins");
-                    SceneParser parser(factories);
-                    Scene scene;
-                    parser.loadScene(scenePath, scene);
-                    auto renderer = parser.getRenderer();
-                    scene.buildBVH();
-
-                    FrameBuffer buffer(renderWidth * renderHeight);
-                    renderer->render(scene, buffer, nullptr, startY, endY);
-
-                    sf::Packet resultPacket;
-                    resultPacket << startY << endY;
-                    for (int y = startY; y < endY; ++y) {
-                        for (int x = 0; x < renderWidth; ++x) {
-                            Color c = buffer[y * renderWidth + x];
-                            resultPacket << static_cast<std::uint8_t>(
-                                                std::min(255.0, std::max(0.0, c.r * 255.0)))
-                                         << static_cast<std::uint8_t>(
-                                                std::min(255.0, std::max(0.0, c.g * 255.0)))
-                                         << static_cast<std::uint8_t>(
-                                                std::min(255.0, std::max(0.0, c.b * 255.0)));
-                        }
-                    }
-                    if (client.send(resultPacket) != sf::Socket::Status::Done) { std::cerr << "Failed to send chunk back." << std::endl; }
-                    std::cout << "Sent chunk back to master." << std::endl;
-                } catch (const std::exception& e) {
-                    std::cerr << "Worker failed to render: " << e.what() << std::endl;
-                }
+                processJob(client, scenePath, renderWidth, renderHeight, startY, endY);
             }
         }
+    }
+}
+
+void ClusterWorker::processJob(sf::TcpSocket& client,
+                               const std::string& scenePath,
+                               int renderWidth,
+                               int renderHeight,
+                               int startY,
+                               int endY) {
+    try {
+        SceneFactories factories;
+        PluginLoader pluginLoader(factories);
+        pluginLoader.loadPlugins("plugins");
+        SceneParser parser(factories);
+        Scene scene;
+        parser.loadScene(scenePath, scene);
+        auto renderer = parser.getRenderer();
+        scene.buildBVH();
+
+        FrameBuffer buffer(renderWidth * renderHeight);
+        renderer->render(scene, buffer, nullptr, startY, endY);
+
+        sf::Packet resultPacket;
+        resultPacket << startY << endY;
+        for (int y = startY; y < endY; ++y) {
+            for (int x = 0; x < renderWidth; ++x) {
+                Color c = buffer[y * renderWidth + x];
+                resultPacket
+                    << static_cast<std::uint8_t>(std::min(255.0, std::max(0.0, c.r * 255.0)))
+                    << static_cast<std::uint8_t>(std::min(255.0, std::max(0.0, c.g * 255.0)))
+                    << static_cast<std::uint8_t>(std::min(255.0, std::max(0.0, c.b * 255.0)));
+            }
+        }
+        if (client.send(resultPacket) != sf::Socket::Status::Done) {
+            std::cerr << "Failed to send chunk back." << std::endl;
+        }
+        std::cout << "Sent chunk back to master." << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Worker failed to render: " << e.what() << std::endl;
     }
 }
 
@@ -102,7 +111,9 @@ void ClusterClient::distributeRender(const std::string& scenePath,
 
         sf::Packet packet;
         packet << scenePath << width << height << startY << endY;
-        if (_sockets[i]->send(packet) != sf::Socket::Status::Done) { std::cerr << "Failed to send job to worker." << std::endl; }
+        if (_sockets[i]->send(packet) != sf::Socket::Status::Done) {
+            std::cerr << "Failed to send job to worker." << std::endl;
+        }
     }
 
     for (size_t i = 0; i < _sockets.size(); ++i) {

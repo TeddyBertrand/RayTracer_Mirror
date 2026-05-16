@@ -17,6 +17,13 @@ public:
     void run();
 
 private:
+    void processJob(sf::TcpSocket& client,
+                    const std::string& scenePath,
+                    int renderWidth,
+                    int renderHeight,
+                    int startY,
+                    int endY);
+
     unsigned short _port;
     sf::TcpListener _listener;
     bool _running = true;
