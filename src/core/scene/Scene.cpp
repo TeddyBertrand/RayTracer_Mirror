@@ -51,7 +51,7 @@ void Scene::dump() {
         std::cout << "   " << red << "[!] WARNING: No light sources found." << reset << std::endl;
     } else {
         for (size_t i = 0; i < _lights.size(); ++i) {
-            auto sample = _lights[i]->computeLight(Point3D(0, 0, 0));
+            auto sample = _lights[i]->computeLight(HitRecord{});
             std::cout << "   - Light #" << i << " : Dist=" << std::fixed << std::setprecision(2)
                       << sample.distance << ", Color=(" << sample.color.r << "," << sample.color.g
                       << "," << sample.color.b << ")"

@@ -56,12 +56,17 @@ Renderer::Renderer(const ISetting& settings)
 
 void Renderer::render(const Scene& scene,
                       FrameBuffer& buffer,
-                      std::vector<std::uint8_t>* completedRows) {
+                      std::vector<std::uint8_t>* completedRows,
+                      int startY,
+                      int endY) {
     const ICamera& camera = scene.getCamera();
     int width = camera.getWidth();
     int height = camera.getHeight();
 
-    _total_rows = height;
+    int start_y_bound = (startY < 0) ? 0 : startY;
+    int end_y_bound = (endY < 0 || endY > height) ? height : endY;
+
+    _total_rows = end_y_bound - start_y_bound;
     _is_rendering = true;
     _completed_rows = 0;
     _stopRequest = false;
@@ -75,11 +80,16 @@ void Renderer::render(const Scene& scene,
         num_threads = 4;
 
     std::vector<std::jthread> workers;
-    int rows_per_thread = height / num_threads;
+    int render_height = end_y_bound - start_y_bound;
+    int rows_per_thread = render_height / num_threads;
+    if (rows_per_thread == 0)
+        rows_per_thread = 1;
 
     for (unsigned int t = 0; t < num_threads; ++t) {
-        int start_y = t * rows_per_thread;
-        int end_y = (t == num_threads - 1) ? height : start_y + rows_per_thread;
+        int start_y = start_y_bound + t * rows_per_thread;
+        int end_y = (t == num_threads - 1) ? end_y_bound : start_y + rows_per_thread;
+        if (start_y >= end_y_bound)
+            break;
         unsigned int seed = std::random_device{}() ^ static_cast<unsigned int>(t + 1);
 
         workers.emplace_back([this,
@@ -228,7 +238,8 @@ Color Renderer::computeDirectLighting(const Ray& r_in,
     Vector3D view_dir = -r_in.direction();
 
     for (const auto& light : scene.getLights()) {
-        LightSample sample = light->computeLight(rec.point);
+
+        LightSample sample = light->computeLight(rec);
         if (!sample.isActive)
             continue;
 

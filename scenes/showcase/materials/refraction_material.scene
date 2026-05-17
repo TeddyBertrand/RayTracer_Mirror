@@ -17,7 +17,7 @@ materials: (
         color_a = { r = 255.0; g = 255.0; b = 255.0; };
         color_b = { r = 0.0; g = 0.0; b = 0.0; };
     }; randomness = 1.8; },
-    { id = "glass"; type = "transparent"; color = { r = 255.0; g = 255.0; b = 255.0; }; ref = 1.1; },
+    { id = "glass"; type = "transparent"; color = { r = 255.0; g = 255.0; b = 255.0; }; ref = 0.2; },
 );
 
 shapes: (

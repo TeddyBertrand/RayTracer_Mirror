@@ -8,7 +8,7 @@ namespace Raytracer {
 
 extern "C" const char* getName() { return "directional"; }
 
-LightSample DirectionalLight::computeLight([[maybe_unused]] const Point3D& world_hit_point) const {
+LightSample DirectionalLight::computeLight([[maybe_unused]] const HitRecord& hit) const {
     LightSample sample;
 
     sample.direction = -_direction;

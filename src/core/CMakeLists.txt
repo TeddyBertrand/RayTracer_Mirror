@@ -8,6 +8,8 @@ add_library(raytracer_core STATIC
     parser/SceneParser.cpp
     display/loading_bar/LoadingBar.cpp
     logging/Logger.cpp
+    file_watcher/FileWatcher.cpp
+    network/Cluster.cpp
 )
 
 target_include_directories(raytracer_core PUBLIC
@@ -16,7 +18,7 @@ target_include_directories(raytracer_core PUBLIC
     ${LIBCONFIGPP_INCLUDE_DIRS}
 )
 
-target_link_libraries(raytracer_core PUBLIC ${LIBCONFIGPP_LIBRARIES})
+target_link_libraries(raytracer_core PUBLIC ${LIBCONFIGPP_LIBRARIES} sfml-network sfml-system)
 
 target_compile_options(raytracer_core PRIVATE
     -W

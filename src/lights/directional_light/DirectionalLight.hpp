@@ -16,7 +16,7 @@ public:
         _direction.normalize();
     }
 
-    LightSample computeLight(const Point3D& world_hit_point) const override;
+    LightSample computeLight(const HitRecord& hit) const override;
 
 private:
     Color _color;
